@@ -135,6 +135,13 @@ outer one inert, exactly as the platform defines it. That is usually what you
 wanted; if you were relying on interacting with the outer dialog underneath,
 that is now impossible rather than merely discouraged.
 
+## Does it behave the same?
+
+Radix's own Dialog suite — all 42 cases — is ported in
+`tests/radix-parity.spec.ts` and runs in CI. 19 pass, 6 fail on real
+divergences, 17 test API that does not exist here.
+[The scorecard names every one](./radix-parity.md).
+
 ## Not migrating: the honest list
 
 If your app uses any of these, they have no bedrock equivalent today:

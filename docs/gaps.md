@@ -163,6 +163,10 @@ decision, not an implementation one. Until then: spread the attribute yourself.
 
 ### No missing-`Title` warning
 
+Caught three separate times by
+[Radix's own test suite](./radix-parity.md), which is what promoted it to the
+top of this list.
+
 `aria-labelledby` is wired unconditionally from a derived id. Omit
 `Dialog.Title` and it points at nothing, so the dialog has no accessible name
 and nothing says so. Radix warns. Detecting presence needs the title to register
@@ -189,6 +193,14 @@ the registry says so per component rather than pretending otherwise.
 
 The 1.42 kB figure is measured by hand in a scratch directory, not asserted in
 CI. Nothing stops a future commit from doubling it.
+
+### `Dialog.Trigger` has no `aria-expanded`
+
+Measured in Chrome 141: a `commandfor` button targeting a **popover** gets
+implicit `aria-expanded` from the platform; one targeting a **dialog** with
+`show-modal` gets nothing. So the trigger exposes no expanded state at all,
+Radix's does, and `validate-trigger.ts`'s error message promises an implicit
+attribute that the dialog case does not actually provide.
 
 ### No visual or cross-browser testing
 

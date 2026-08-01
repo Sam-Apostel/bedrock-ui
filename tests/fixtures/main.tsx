@@ -2,6 +2,7 @@ import { Component, StrictMode, useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Dialog } from '../../src/index'
 import { Dialog as ControlledDialog } from '../../src/controlled'
+import { PARITY_CASES } from './parity'
 
 /**
  * One page, one case per `?case=` value. Specs drive real clicks and real keys
@@ -171,6 +172,7 @@ const CASES: Record<string, ReactNode> = {
   aschild: <AsChild />,
   'non-button-trigger': <NonButtonTrigger />,
   'submit-trigger': <SubmitTrigger />,
+  ...PARITY_CASES,
 }
 
 const name = new URLSearchParams(location.search).get('case') ?? 'plain'

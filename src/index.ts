@@ -30,12 +30,40 @@ import { CheckboxIndicator, CheckboxRoot } from './checkbox/parts'
 import { CollapsibleRoot } from './collapsible/root'
 import { CollapsibleContent, CollapsibleTrigger } from './collapsible/parts'
 import { LabelRoot } from './label/parts'
+import { ContextMenuRoot } from './context-menu/root'
+import { DropdownMenuRoot } from './dropdown-menu/root'
 import { HoverCardRoot } from './hover-card/root'
+import {
+  MenuCheckboxItem,
+  MenuContent,
+  MenuGroup,
+  MenuItem,
+  MenuLabel,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuSeparator,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
+  MenuTrigger,
+} from './menu/parts'
+import { MenubarMenu, MenubarRoot, MenubarTrigger } from './menubar/parts'
+import {
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuRoot,
+  NavigationMenuViewport,
+} from './navigation-menu/parts'
 import { PopoverRoot } from './popover/root'
 import { PopoverAnchor, PopoverClose, PopoverContent, PopoverTrigger } from './popover/parts'
 import { ProgressIndicator, ProgressRoot } from './progress/parts'
 import { RadioGroupIndicator, RadioGroupItem, RadioGroupRoot } from './radio-group/parts'
 import { SwitchRoot, SwitchThumb } from './switch/parts'
+import { TabsRoot } from './tabs/root'
+import { TabsContent, TabsList, TabsTrigger } from './tabs/parts'
+import { ToggleGroupItem, ToggleGroupRoot } from './toggle-group/parts'
+import { ToolbarButton, ToolbarLink, ToolbarRoot, ToolbarSeparator } from './toolbar/parts'
 import { TooltipRoot } from './tooltip/root'
 import { TooltipContent, TooltipTrigger } from './tooltip/parts'
 import { ToggleRoot } from './toggle/parts'
@@ -85,7 +113,77 @@ export const Popover = {
   Content: PopoverContent,
   Close: PopoverClose,
 }
+export const ContextMenu = {
+  Root: ContextMenuRoot,
+  Trigger: MenuTrigger,
+  Content: MenuContent,
+  Item: MenuItem,
+  CheckboxItem: MenuCheckboxItem,
+  RadioGroup: MenuRadioGroup,
+  RadioItem: MenuRadioItem,
+  Label: MenuLabel,
+  Group: MenuGroup,
+  Separator: MenuSeparator,
+  Sub: MenuSub,
+  SubTrigger: MenuSubTrigger,
+  SubContent: MenuSubContent,
+}
+export const DropdownMenu = {
+  Root: DropdownMenuRoot,
+  Trigger: MenuTrigger,
+  Content: MenuContent,
+  Item: MenuItem,
+  CheckboxItem: MenuCheckboxItem,
+  RadioGroup: MenuRadioGroup,
+  RadioItem: MenuRadioItem,
+  Label: MenuLabel,
+  Group: MenuGroup,
+  Separator: MenuSeparator,
+  Sub: MenuSub,
+  SubTrigger: MenuSubTrigger,
+  SubContent: MenuSubContent,
+}
+export const Menubar = {
+  Root: MenubarRoot,
+  Menu: MenubarMenu,
+  Trigger: MenubarTrigger,
+  Content: MenuContent,
+  Item: MenuItem,
+  CheckboxItem: MenuCheckboxItem,
+  RadioGroup: MenuRadioGroup,
+  RadioItem: MenuRadioItem,
+  Label: MenuLabel,
+  Group: MenuGroup,
+  Separator: MenuSeparator,
+  Sub: MenuSub,
+  SubTrigger: MenuSubTrigger,
+  SubContent: MenuSubContent,
+}
+export const NavigationMenu = {
+  Root: NavigationMenuRoot,
+  List: NavigationMenuList,
+  Item: NavigationMenuItem,
+  Trigger: MenuTrigger,
+  Content: MenuContent,
+  Link: NavigationMenuLink,
+  Viewport: NavigationMenuViewport,
+}
 export const Switch = { Root: SwitchRoot, Thumb: SwitchThumb }
+export const Tabs = {
+  Root: TabsRoot,
+  List: TabsList,
+  Trigger: TabsTrigger,
+  Content: TabsContent,
+}
+export const ToggleGroup = { Root: ToggleGroupRoot, Item: ToggleGroupItem }
+export const Toolbar = {
+  Root: ToolbarRoot,
+  Button: ToolbarButton,
+  Link: ToolbarLink,
+  Separator: ToolbarSeparator,
+  ToggleGroup: ToggleGroupRoot,
+  ToggleItem: ToggleGroupItem,
+}
 export const Tooltip = {
   Root: TooltipRoot,
   Trigger: TooltipTrigger,
@@ -134,6 +232,32 @@ export type {
   PopoverTriggerProps,
 } from './popover/parts'
 export type { SwitchProps, SwitchThumbProps } from './switch/parts'
+export type { ContextMenuRootProps } from './context-menu/root'
+export type { DropdownMenuRootProps } from './dropdown-menu/root'
+export type {
+  MenuCheckboxItemProps,
+  MenuContentProps,
+  MenuGroupProps,
+  MenuItemProps,
+  MenuLabelProps,
+  MenuRadioGroupProps,
+  MenuRadioItemProps,
+  MenuSeparatorProps,
+  MenuSubTriggerProps,
+  MenuTriggerProps,
+} from './menu/parts'
+export type { MenubarMenuProps, MenubarRootProps } from './menubar/parts'
+export type {
+  NavigationMenuItemProps,
+  NavigationMenuLinkProps,
+  NavigationMenuListProps,
+  NavigationMenuRootProps,
+} from './navigation-menu/parts'
+export type { TabsRootProps } from './tabs/root'
+export type { TabsContentProps, TabsListProps, TabsTriggerProps } from './tabs/parts'
+export type { ToggleGroupItemProps, ToggleGroupRootProps } from './toggle-group/parts'
+export type { ToolbarButtonProps, ToolbarLinkProps, ToolbarRootProps } from './toolbar/parts'
+export type { Orientation } from './roving'
 export type { TooltipRootProps } from './tooltip/root'
 export type { TooltipContentProps, TooltipTriggerProps } from './tooltip/parts'
 export type { ToggleProps } from './toggle/parts'

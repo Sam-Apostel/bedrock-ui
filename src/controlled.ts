@@ -37,7 +37,24 @@ import { CheckboxRoot } from './checkbox/controlled-root'
 import { CheckboxIndicator } from './checkbox/parts'
 import { CollapsibleRoot } from './collapsible/controlled-root'
 import { CollapsibleContent, CollapsibleTrigger } from './collapsible/parts'
+import { DropdownMenuRoot } from './dropdown-menu/controlled-root'
 import { HoverCardRoot } from './hover-card/controlled-root'
+import {
+  MenuCheckboxItem,
+  MenuContent,
+  MenuGroup,
+  MenuItem,
+  MenuLabel,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuSeparator,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
+  MenuTrigger,
+} from './menu/parts'
+import { TabsRoot } from './tabs/controlled-root'
+import { TabsContent, TabsList, TabsTrigger } from './tabs/parts'
 import { PopoverRoot } from './popover/controlled-root'
 import { PopoverAnchor, PopoverClose, PopoverContent, PopoverTrigger } from './popover/parts'
 import { RadioGroupRoot } from './radio-group/controlled-root'
@@ -74,6 +91,22 @@ export const Popover = {
   Close: PopoverClose,
 }
 export const Tooltip = { Root: TooltipRoot, Trigger: TooltipTrigger, Content: TooltipContent }
+export const DropdownMenu = {
+  Root: DropdownMenuRoot,
+  Trigger: MenuTrigger,
+  Content: MenuContent,
+  Item: MenuItem,
+  CheckboxItem: MenuCheckboxItem,
+  RadioGroup: MenuRadioGroup,
+  RadioItem: MenuRadioItem,
+  Label: MenuLabel,
+  Group: MenuGroup,
+  Separator: MenuSeparator,
+  Sub: MenuSub,
+  SubTrigger: MenuSubTrigger,
+  SubContent: MenuSubContent,
+}
+export const Tabs = { Root: TabsRoot, List: TabsList, Trigger: TabsTrigger, Content: TabsContent }
 
 export type { ControlledAccordionRootProps } from './accordion/controlled-root'
 export type { ControlledCollapsibleRootProps } from './collapsible/controlled-root'
@@ -83,6 +116,8 @@ export type { ControlledToggleProps } from './toggle/controlled-root'
 export type { ControlledHoverCardRootProps } from './hover-card/controlled-root'
 export type { ControlledPopoverRootProps } from './popover/controlled-root'
 export type { ControlledTooltipRootProps } from './tooltip/controlled-root'
+export type { ControlledDropdownMenuRootProps } from './dropdown-menu/controlled-root'
+export type { ControlledTabsRootProps } from './tabs/controlled-root'
 
 export { useDialogTrigger } from './dialog/shared'
 export type { ControlledDialogRootProps } from './dialog/controlled-root'

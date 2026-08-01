@@ -158,13 +158,6 @@ with its own hover animation — there is nowhere for it to go.
 
 Ordered by how likely they are to bite.
 
-### `Dialog.Content` has no `asChild`
-
-Every other part has it. Content does not, because a Slot child that is not a
-`<dialog>` breaks `showModal()` silently and there is no validator for content
-the way there is for triggers. **Decision needed:** add it with a tag check, or
-document the divergence permanently.
-
 ### Light dismiss is opt-out, not opt-in
 
 `<dialog closedby="any">` gives Radix's behaviour. Exposing it needs a prop
@@ -191,6 +184,14 @@ The trigger's `commandfor` points at it. It is the one exception to "every part
 forwards `id`", and a consumer who passes one gets it silently ignored — no
 warning, no error.
 
+### `validate-trigger.ts` overstates one thing
+
+Its error message tells you a non-button trigger costs you "implicit
+`aria-expanded`". Measured: a popover invoker gets that from the platform, a
+dialog invoker does not — `Dialog.Trigger` writes it by hand. The message is
+right for Popover and Tooltip and slightly wrong for the primitive most people
+will hit it on.
+
 ### The registry covers three components
 
 `dialog`, `dialog-controlled` and `alert-dialog`. Every primitive the rest need
@@ -202,14 +203,6 @@ rather than an engineering one, and listed per component in
 
 The 1.42 kB figure is measured by hand in a scratch directory, not asserted in
 CI. Nothing stops a future commit from doubling it.
-
-### `Dialog.Trigger` has no `aria-expanded`
-
-Measured in Chrome 141: a `commandfor` button targeting a **popover** gets
-implicit `aria-expanded` from the platform; one targeting a **dialog** with
-`show-modal` gets nothing. So the trigger exposes no expanded state at all,
-Radix's does, and `validate-trigger.ts`'s error message promises an implicit
-attribute that the dialog case does not actually provide.
 
 ### No visual or cross-browser testing
 

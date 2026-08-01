@@ -14,29 +14,34 @@ Playwright against real Chrome, and changes nothing about what is being claimed.
 
 | outcome | count | meaning |
 | --- | --- | --- |
-| **Pass** | **22** | bedrock satisfies the assertion Radix wrote |
-| **Fail** | **3** | a real behavioural divergence |
-| **Not applicable** | **17** | tests API bedrock does not have |
-| total | 42 | |
+| **Pass** | **30** | bedrock satisfies the assertion Radix wrote |
+| **Fail** | **0** | — |
+| **Not applicable** | **13** | tests API bedrock does not have, or behaviour that is impossible here |
+| total | 43 | |
 
-A skip is not a pass. Of the 42, 25 are answerable at all, and bedrock answers
-22 of those the same way Radix does.
+Every assertion that *can* be made against bedrock now holds. The 13 remaining
+are not deferred work: eleven of them test machinery this library exists to
+delete, and two test behaviour the platform forbids.
 
-Three of those 22 were failures until the suite pointed at them: `Title` and
-`Description` now register their presence, so `aria-labelledby` is written only
-when there is something to point at. Radix's tests found that, not ours.
+Getting there took four rounds, and every one started with a Radix test rather
+than with an idea of ours:
+
+| what the suite caught | what changed |
+| --- | --- |
+| three tests on missing `Title`/`Description` | the parts register their presence, so `aria-labelledby` is written only when there is something to point at |
+| `aria-describedby` normalisation | a passed value is merged with the Description's id and deduped, rather than replacing it |
+| `aria-controls` while open | written, and only while open |
+| `aria-expanded` on the trigger | written by hand, since Chrome gives a dialog invoker no implicit state |
+| two `asChild`-on-Content tests | `Dialog.Content` takes `asChild`, validated to be a `<dialog>` |
+| two nested-menu tests | portable at all once DropdownMenu existed |
+
+The count is 43 rather than 42 because one test was added: `asChild` on Content
+needs a check that the slotted element really is a `<dialog>`, and that check
+deserves its own test.
 
 Run them: `npm test tests/radix-parity.spec.ts`.
 
-## The 3 failures
-
-| Radix test | why it fails |
-| --- | --- |
-| `should normalize existing aria-describedby ids and append the Description id` | A passed `aria-describedby` replaces ours instead of merging. Radix collects and dedupes; bedrock treats the prop as final. |
-| `aria-controls should reference the rendered content while open` | The relationship is `commandfor`, resolved by the browser. No `aria-controls` is written. |
-| `Dialog.Trigger forwards props when asChild is set` | Passes on class, style, ref and tag; fails on one assertion — `aria-expanded="false"`. |
-
-### The last two are worth arguing about
+## The two ARIA ones were worth arguing about, and the argument was lost
 
 Measured in Chrome 141 through the accessibility tree, not inferred:
 
@@ -45,36 +50,39 @@ Measured in Chrome 141 through the accessibility tree, not inferred:
 | `commandfor` + `command="toggle-popover"` | **yes** — `expanded: false` → `true` |
 | `commandfor` + `command="show-modal"` | **no** — no `expanded` property at all |
 
-So the platform gives a popover trigger the state for free and gives a dialog
-trigger nothing. That makes `Dialog.Trigger`'s missing `aria-expanded` a genuine
-gap rather than a difference of mechanism, and it means
-`validate-trigger.ts`'s error message — which promises implicit `aria-expanded`
-— is right for the primitives that are coming and overstated for the one that
-exists.
+The original reasoning for writing neither attribute was that a hand-written one
+goes stale the moment something else closes the dialog. That was true when
+nothing tracked the DOM's open state; it stopped being true when content
+mounting started depending on exactly that. `aria-expanded` and `aria-controls`
+now come from the same DOM-observed state the content uses, so they cannot
+disagree with it.
 
-`aria-controls` is the weaker complaint of the two: it is advisory, support
-across screen readers is patchy, and the invoker relationship is in the DOM
-either way.
+The lesson is the one worth keeping: the platform gives a *popover* trigger this
+for free and gives a *dialog* trigger nothing, so "the browser handles it" was
+half true and half an assumption.
 
-## The 17 that do not apply
+## The 13 that do not apply
 
 Not evidence of anything except a different design. Grouped:
 
 | group | count | what they test |
 | --- | --- | --- |
 | `Dialog.Overlay` | 2 | An element bedrock does not render — the overlay is `::backdrop`. |
-| `asChild` on `Content` | 5 | Unsupported, and the focus-scope-branch test needs Radix-internal API. |
 | `pointer-events` bookkeeping | 2 | How Radix inerts the background. `showModal()` does it in the UA, with no style to restore or leak. |
 | `forceMount` | 1 | No opt-out from unmounting, so there is no forced-mount state to leak. |
-| `modal={false}` | 3 | No non-modal dialog; that will be `Popover`. |
-| nested `DropdownMenu` / dismissable layers | 4 | Needs a second primitive, and nothing dismisses on outside interaction. |
+| `modal={false}` | 3 | No non-modal dialog. `show()` and `showModal()` are different guarantees, so that stays `Popover` rather than a prop. |
+| dismissable-layer internals | 4 | Outside pointer interaction dismisses nothing here, so there is no ordering to get wrong. |
+| focus-scope branches | 1 | **Impossible**, not unimplemented: a modal `<dialog>` inerts everything outside its subtree, so a portalled branch cannot be focused at all. |
 
-Three of those groups are testing the machinery bedrock exists to delete: a
-focus scope, a dismissable layer, and a `pointer-events` toggle on the body.
-There is no bedrock equivalent to point them at, and that is the intended
-outcome rather than a coverage hole.
+Eleven of the thirteen are testing machinery this library exists to delete — a
+focus scope, a dismissable layer, a `pointer-events` toggle on the body. There
+is nothing to point them at, and that is the intended outcome rather than a
+coverage hole.
 
-## What passing 22 actually proves
+The two that are not: `modal={false}` is a decision recorded in `AGENTS.md`, and
+`forceMount` is [a named gap](./gaps.md#4-closed-content-is-not-in-the-dom-and-there-is-no-forcemount).
+
+## What passing 30 actually proves
 
 The ones worth naming, because they are the load-bearing behaviours:
 

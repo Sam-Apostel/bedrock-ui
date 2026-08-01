@@ -141,8 +141,8 @@ that is now impossible rather than merely discouraged.
 ## Does it behave the same?
 
 Radix's own Dialog suite — all 42 cases — is ported in
-`tests/radix-parity.spec.ts` and runs in CI. 22 pass, 3 fail on real
-divergences, 17 test API that does not exist here.
+`tests/radix-parity.spec.ts` and runs in CI. **30 pass, none fail**, and 13 test
+machinery this library exists to delete.
 [The scorecard names every one](./radix-parity.md).
 
 ## Per-primitive notes

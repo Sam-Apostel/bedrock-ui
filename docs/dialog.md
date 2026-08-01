@@ -44,9 +44,14 @@ The `commandfor` wiring is applied after your props, so it cannot be overridden
 — an unwired trigger is a broken trigger, not a customisation. `type="button"`
 is set for the same reason.
 
-No `aria-expanded` is set. The browser derives expanded state from the invoker
-relationship; a hand-written attribute would go stale the moment the dialog is
-closed by anything other than the trigger.
+`aria-expanded` and, while open, `aria-controls` are written by hand.
+
+That was not the original plan — the reasoning was that a hand-written attribute
+goes stale as soon as something else closes the dialog. Two things changed it:
+Chrome gives a *popover* invoker implicit `aria-expanded` and gives a *dialog*
+invoker nothing, and the root now tracks the DOM's open state anyway for content
+mounting. Both attributes come from that same state, so they cannot disagree
+with the element they describe.
 
 ## `Dialog.Content`
 
@@ -58,8 +63,8 @@ Takes every `<dialog>` prop except the ones that would break the wiring:
 | ------------------ | ------------------------------------------------------------ |
 | `id`               | **Not forwarded.** The trigger's `commandfor` points at it.   |
 | `aria-labelledby`  | Defaults to the `Dialog.Title` id. Pass `undefined` to unset. |
-| `aria-describedby` | Defaults to the `Dialog.Description` id. Same.                |
-| `asChild`          | **Not supported** — see [gaps](./gaps.md#dialogcontent-has-no-aschild). |
+| `aria-describedby` | **Merged** with the `Dialog.Description` id, deduped. Pass `undefined` to unset. |
+| `asChild`          | Supported. The child must render a `<dialog>`, checked at mount. |
 
 The `<dialog>` element is always rendered — the trigger's `commandfor` must
 resolve to something — but **its children are mounted only while it is open**.

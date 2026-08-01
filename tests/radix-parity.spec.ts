@@ -65,11 +65,6 @@ test.describe('aria-controls', () => {
   })
 
   test('should reference the rendered content while open', async ({ page }) => {
-    // DIVERGENCE: the trigger→content relationship is `commandfor`, which the
-    // browser resolves natively. No aria-controls is written, and Chrome 141
-    // does not expose an implicit one for `show-modal` invokers either — unlike
-    // popover invokers, which do get implicit aria-expanded.
-    test.fail()
     await page.goto('/?case=parity-default')
     const trigger = page.getByText('Open', { exact: true })
     await trigger.click()
@@ -99,9 +94,6 @@ test.describe('aria-labelledby / aria-describedby references', () => {
   test('should normalize existing aria-describedby ids and append the Description id', async ({
     page,
   }) => {
-    // DIVERGENCE: a passed aria-describedby replaces ours rather than merging.
-    // Radix collects the ids and dedupes them; bedrock treats the prop as final.
-    test.fail()
     await page.goto('/?case=parity-existing-describedby')
     const descriptionId = await page.locator('[data-bedrock-dialog-description]').getAttribute('id')
     await expect(page.locator('dialog')).toHaveAttribute(
@@ -160,18 +152,48 @@ test.describe('given a modal Dialog', () => {
 })
 
 test.describe('given a Dialog with `asChild` on the Content', () => {
-  test.skip('forwards content props and the ref to the child (modal: true)', () => {
-    // N/A: Dialog.Content has no asChild. docs/gaps.md#dialogcontent-has-no-aschild
+  test('forwards content props and the ref to the child (modal: true)', async ({ page }) => {
+    await page.goto('/?case=content-aschild')
+    const content = page.getByTestId('content')
+
+    // Radix slots any element; bedrock requires the <dialog>, because every
+    // guarantee the part makes belongs to that element.
+    expect(await content.evaluate((node) => node.tagName)).toBe('DIALOG')
+    await expect(content).toHaveClass(/content/)
+    await expect(content).toHaveAttribute('data-ref-attached', '')
+    await expect(content).toHaveAttribute('aria-labelledby', /.+/)
+
+    await content.click({ position: { x: 4, y: 4 } })
+    await expect(page.getByTestId('clicks')).toHaveText('1')
   })
+
   test.skip('forwards content props and the ref to the child (modal: false)', () => {
-    // N/A: no asChild, and no non-modal dialog.
+    // N/A: no non-modal dialog. AGENTS.md keeps that as Popover rather than a
+    // prop, since `show()` and `showModal()` are different guarantees.
   })
+
   test.skip('registers portalled descendants as focus scope branches', () => {
     // N/A: no focus scope. A modal <dialog> inerts everything outside itself, so
-    // a portalled branch outside the subtree cannot be focused at all.
+    // a portalled branch outside the subtree cannot be focused at all — the
+    // behaviour this asserts is impossible rather than unimplemented.
   })
-  test.skip('still dismisses on escape when slotted', () => {
-    // N/A: requires asChild on Content.
+
+  test('still dismisses on escape when slotted', async ({ page }) => {
+    await page.goto('/?case=content-aschild')
+
+    await expect(page.getByTestId('content')).toHaveJSProperty('open', true)
+    await page.keyboard.press('Escape')
+
+    await expect(page.getByTestId('content')).toHaveJSProperty('open', false)
+    // defaultOpen reports the open too, so the close is the second entry.
+    await expect(page.getByTestId('log')).toHaveText('true,false')
+  })
+
+  test('a Content that is not a <dialog> throws in development', async ({ page }) => {
+    await page.goto('/?case=content-not-a-dialog')
+
+    await expect(page.getByTestId('error')).toContainText('Dialog.Content rendered <article>')
+    await expect(page.getByTestId('error')).toContainText('must be a <dialog>')
   })
 })
 
@@ -206,11 +228,8 @@ test.describe('Dialog.Trigger', () => {
   })
 
   test('forwards props to the child element when `asChild` is set', async ({ page }) => {
-    // DIVERGENCE on one assertion only: Radix also asserts aria-expanded="false".
-    // bedrock writes no aria-expanded, and Chrome exposes no implicit one for
-    // dialog invokers. Everything else in this test passes.
-    test.fail()
-    await page.goto('/?case=parity-spread-aschild')
+    // Closed, like Radix's version: the assertion is aria-expanded="false".
+    await page.goto('/?case=parity-spread-aschild-closed')
     const trigger = page.getByTestId('trigger')
 
     expect(await trigger.evaluate((n) => n.tagName)).toBe('BUTTON')
@@ -342,12 +361,31 @@ test.describe('e2e: given a non-modal dialog', () => {
 })
 
 test.describe('e2e: Dialog with a nested DropdownMenu', () => {
-  test.skip('dismissing the dropdown does not close the dialog', () => {
-    // N/A: no DropdownMenu primitive yet.
+  test('dismissing the dropdown does not close the dialog', async ({ page }) => {
+    await page.goto('/?case=dialog-with-menu')
+
+    await page.getByTestId('menu-trigger').click()
+    await expect(page.getByTestId('menu')).toBeVisible()
+
+    // Light dismiss inside the dialog: closes the popover, leaves the dialog.
+    await page.getByTestId('inside').click()
+    await expect(page.getByTestId('menu')).toBeHidden()
+    await expect(page.getByTestId('dialog')).toHaveJSProperty('open', true)
   })
-  test.skip('pressing Escape closes only the dropdown', () => {
-    // N/A: same. Worth revisiting when it exists — nested close watchers make
-    // this the platform's problem rather than ours.
+
+  test('pressing Escape closes only the dropdown', async ({ page }) => {
+    await page.goto('/?case=dialog-with-menu')
+
+    await page.getByTestId('menu-trigger').click()
+    await page.keyboard.press('Escape')
+
+    // Two close watchers, and the topmost one takes the Escape. Radix maintains
+    // a layer stack to get this right; here it is the platform's rule.
+    await expect(page.getByTestId('menu')).toBeHidden()
+    await expect(page.getByTestId('dialog')).toHaveJSProperty('open', true)
+
+    await page.keyboard.press('Escape')
+    await expect(page.getByTestId('dialog')).toHaveJSProperty('open', false)
   })
 })
 

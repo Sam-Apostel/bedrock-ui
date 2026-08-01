@@ -1,15 +1,23 @@
-import { useEffect, type ComponentPropsWithRef, type ElementType } from 'react'
+import {
+  cloneElement,
+  isValidElement,
+  useEffect,
+  type ComponentPropsWithRef,
+  type ElementType,
+  type ReactNode,
+} from 'react'
 import { useClientRender } from '../client-render'
 import { composeRefs } from '../compose-refs'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
+import { validateElement } from '../validate-element'
 import { validateTrigger } from '../validate-trigger'
 import { useDialogContext } from './shared'
 
 export interface DialogTriggerProps extends ComponentPropsWithRef<'button'>, AsChildProps {}
 
 export function DialogTrigger({ asChild, ref, ...props }: DialogTriggerProps) {
-  const { id } = useDialogContext('Dialog.Trigger')
+  const { id, open } = useDialogContext('Dialog.Trigger')
   const Part: ElementType = asChild ? Slot : 'button'
 
   return (
@@ -19,6 +27,14 @@ export function DialogTrigger({ asChild, ref, ...props }: DialogTriggerProps) {
       type="button"
       commandfor={id}
       command="show-modal"
+      // Chrome gives a popover invoker implicit `aria-expanded` and gives a
+      // dialog invoker nothing, so this is written by hand — and it cannot go
+      // stale, because it comes from the same DOM-observed state the content
+      // uses, not from a React mirror of it.
+      aria-expanded={open}
+      // Only while there is something to point at: a reference to a hidden
+      // element is worse than no reference.
+      aria-controls={open ? id : undefined}
       data-bedrock-dialog-trigger=""
       ref={composeRefs<HTMLElement>(ref, (node) =>
         validateTrigger(node, 'command', 'Dialog.Trigger'),
@@ -27,9 +43,24 @@ export function DialogTrigger({ asChild, ref, ...props }: DialogTriggerProps) {
   )
 }
 
-export type DialogContentProps = ComponentPropsWithRef<'dialog'>
+export interface DialogContentProps extends ComponentPropsWithRef<'dialog'>, AsChildProps {}
 
-export function DialogContent({ ref, children, ...props }: DialogContentProps) {
+/**
+ * Radix's rule, and it is the right one: an `aria-describedby` you pass is
+ * *added to*, not swapped for, the Description's id — the description is still
+ * rendered, so dropping its reference would be a lie about the markup.
+ *
+ * Duplicates and stray whitespace are normalised, because an id list is a set
+ * and `' a\ta a b '` is the shape these arrive in.
+ */
+function mergeIds(passed: string | undefined, own: string | undefined): string | undefined {
+  const ids = [...(passed ?? '').split(/\s+/), ...(own ?? '').split(/\s+/)].filter(Boolean)
+  const unique = [...new Set(ids)]
+
+  return unique.length > 0 ? unique.join(' ') : undefined
+}
+
+export function DialogContent({ asChild, ref, children, ...props }: DialogContentProps) {
   const { id, open, registerContent, labelledBy, describedBy } = useDialogContext('Dialog.Content')
 
   const onClient = useClientRender()
@@ -42,11 +73,31 @@ export function DialogContent({ ref, children, ...props }: DialogContentProps) {
 
   // `in` rather than `??`, so passing an explicit undefined removes the
   // association — the escape hatch for a dialog labelled some other way.
+  const Part: ElementType = asChild ? Slot : 'dialog'
+
+  // A label is one thing, so yours replaces ours. A description is a list, so
+  // yours joins ours. `in` rather than `??` either way, so passing an explicit
+  // undefined still removes the association entirely.
   const label = 'aria-labelledby' in props ? props['aria-labelledby'] : labelledBy
-  const description = 'aria-describedby' in props ? props['aria-describedby'] : describedBy
+  const description =
+    'aria-describedby' in props ? mergeIds(props['aria-describedby'], describedBy) : describedBy
+
+  // With `asChild` the child *is* the <dialog>, so gating it would unmount the
+  // element the trigger points at. What gets gated is one level deeper: the
+  // child's own children.
+  const body: ReactNode =
+    asChild && isValidElement(children)
+      ? cloneElement(
+          children,
+          {},
+          mounted ? ((children.props as { children?: ReactNode }).children ?? null) : null,
+        )
+      : mounted
+        ? children
+        : null
 
   return (
-    <dialog
+    <Part
       {...props}
       // The trigger's `commandfor` points here, so this id is load-bearing and
       // is not forwarded from props the way every other part's id is.
@@ -54,10 +105,12 @@ export function DialogContent({ ref, children, ...props }: DialogContentProps) {
       aria-labelledby={label}
       aria-describedby={description}
       data-bedrock-dialog=""
-      ref={composeRefs<HTMLDialogElement>(ref, registerContent)}
+      ref={composeRefs<HTMLElement>(ref, registerContent, (node) =>
+        validateElement(node, 'DIALOG', 'Dialog.Content'),
+      )}
     >
-      {mounted ? children : null}
-    </dialog>
+      {body}
+    </Part>
   )
 }
 

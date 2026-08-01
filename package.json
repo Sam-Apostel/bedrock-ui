@@ -1,35 +1,33 @@
 {
   "name": "@apostel/bedrock",
   "version": "0.0.0",
-  "description": "Headless React primitives built on the browser instead of on top of it.",
-  "license": "MIT",
+  "description": "Headless React primitives built on native platform features",
   "type": "module",
   "sideEffects": false,
-  "files": ["dist", "bedrock.css"],
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./controlled": {
-      "types": "./dist/controlled/index.d.ts",
-      "default": "./dist/controlled/index.js"
+      "types": "./dist/controlled.d.ts",
+      "default": "./dist/controlled.js"
     },
-    "./bedrock.css": "./bedrock.css",
-    "./package.json": "./package.json"
+    "./bedrock.css": "./dist/bedrock.css"
   },
   "scripts": {
-    "build": "tsup",
-    "typecheck": "tsc --noEmit"
+    "build": "tsc -p tsconfig.build.json",
+    "lint:graph": "depcruise src --config .dependency-cruiser.cjs"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": ">=19",
+    "react-dom": ">=19"
   },
+  "dependencies": {},
   "devDependencies": {
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "tsup": "^8.0.0",
+    "dependency-cruiser": "^16.0.0",
     "typescript": "^5.6.0"
   }
 }

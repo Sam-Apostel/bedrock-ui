@@ -1,0 +1,64 @@
+/*
+ * Optional. Every part takes className and renders exactly one element, so
+ * ignoring this file entirely is a supported way to use the library.
+ *
+ * What it demonstrates: enter and exit animation with no presence wrapper, no
+ * forceMount, and no unmount timing in JavaScript. `allow-discrete` keeps the
+ * element around for the exit transition; `overlay` keeps it in the top layer
+ * while that happens, which is the part people get wrong and then blame
+ * z-index for.
+ */
+
+[data-bedrock-dialog] {
+  --_duration: 180ms;
+  --_ease: cubic-bezier(0.2, 0, 0, 1);
+
+  border: none;
+  padding: 0;
+  opacity: 0;
+  scale: 0.96;
+
+  transition:
+    opacity var(--_duration) var(--_ease),
+    scale var(--_duration) var(--_ease),
+    display var(--_duration) allow-discrete,
+    overlay var(--_duration) allow-discrete;
+}
+
+[data-bedrock-dialog]:open {
+  opacity: 1;
+  scale: 1;
+}
+
+@starting-style {
+  [data-bedrock-dialog]:open {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+[data-bedrock-dialog]::backdrop {
+  background: rgb(0 0 0 / 0.4);
+  opacity: 0;
+  transition:
+    opacity var(--_duration) var(--_ease),
+    display var(--_duration) allow-discrete,
+    overlay var(--_duration) allow-discrete;
+}
+
+[data-bedrock-dialog]:open::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  [data-bedrock-dialog]:open::backdrop {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-bedrock-dialog],
+  [data-bedrock-dialog]::backdrop {
+    --_duration: 1ms;
+  }
+}

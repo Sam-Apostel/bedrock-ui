@@ -37,7 +37,12 @@ import { CheckboxRoot } from './checkbox/controlled-root'
 import { CheckboxIndicator } from './checkbox/parts'
 import { CollapsibleRoot } from './collapsible/controlled-root'
 import { CollapsibleContent, CollapsibleTrigger } from './collapsible/parts'
+import { HoverCardRoot } from './hover-card/controlled-root'
+import { PopoverRoot } from './popover/controlled-root'
+import { PopoverAnchor, PopoverClose, PopoverContent, PopoverTrigger } from './popover/parts'
 import { RadioGroupRoot } from './radio-group/controlled-root'
+import { TooltipRoot } from './tooltip/controlled-root'
+import { TooltipContent, TooltipTrigger } from './tooltip/parts'
 import { RadioGroupIndicator, RadioGroupItem } from './radio-group/parts'
 import { ToggleRoot } from './toggle/controlled-root'
 
@@ -60,12 +65,24 @@ export const RadioGroup = {
   Indicator: RadioGroupIndicator,
 }
 export const Toggle = { Root: ToggleRoot }
+export const HoverCard = { Root: HoverCardRoot, Trigger: TooltipTrigger, Content: TooltipContent }
+export const Popover = {
+  Root: PopoverRoot,
+  Trigger: PopoverTrigger,
+  Anchor: PopoverAnchor,
+  Content: PopoverContent,
+  Close: PopoverClose,
+}
+export const Tooltip = { Root: TooltipRoot, Trigger: TooltipTrigger, Content: TooltipContent }
 
 export type { ControlledAccordionRootProps } from './accordion/controlled-root'
 export type { ControlledCollapsibleRootProps } from './collapsible/controlled-root'
 export type { ControlledCheckboxProps } from './checkbox/controlled-root'
 export type { ControlledRadioGroupRootProps } from './radio-group/controlled-root'
 export type { ControlledToggleProps } from './toggle/controlled-root'
+export type { ControlledHoverCardRootProps } from './hover-card/controlled-root'
+export type { ControlledPopoverRootProps } from './popover/controlled-root'
+export type { ControlledTooltipRootProps } from './tooltip/controlled-root'
 
 export { useDialogTrigger } from './dialog/shared'
 export type { ControlledDialogRootProps } from './dialog/controlled-root'

@@ -30,9 +30,14 @@ import { CheckboxIndicator, CheckboxRoot } from './checkbox/parts'
 import { CollapsibleRoot } from './collapsible/root'
 import { CollapsibleContent, CollapsibleTrigger } from './collapsible/parts'
 import { LabelRoot } from './label/parts'
+import { HoverCardRoot } from './hover-card/root'
+import { PopoverRoot } from './popover/root'
+import { PopoverAnchor, PopoverClose, PopoverContent, PopoverTrigger } from './popover/parts'
 import { ProgressIndicator, ProgressRoot } from './progress/parts'
 import { RadioGroupIndicator, RadioGroupItem, RadioGroupRoot } from './radio-group/parts'
 import { SwitchRoot, SwitchThumb } from './switch/parts'
+import { TooltipRoot } from './tooltip/root'
+import { TooltipContent, TooltipTrigger } from './tooltip/parts'
 import { ToggleRoot } from './toggle/parts'
 import { SeparatorRoot } from './separator/parts'
 import { VisuallyHiddenRoot } from './visually-hidden/parts'
@@ -68,13 +73,37 @@ export const RadioGroup = {
   Item: RadioGroupItem,
   Indicator: RadioGroupIndicator,
 }
+export const HoverCard = {
+  Root: HoverCardRoot,
+  Trigger: TooltipTrigger,
+  Content: TooltipContent,
+}
+export const Popover = {
+  Root: PopoverRoot,
+  Trigger: PopoverTrigger,
+  Anchor: PopoverAnchor,
+  Content: PopoverContent,
+  Close: PopoverClose,
+}
 export const Switch = { Root: SwitchRoot, Thumb: SwitchThumb }
+export const Tooltip = {
+  Root: TooltipRoot,
+  Trigger: TooltipTrigger,
+  Content: TooltipContent,
+}
 export const Toggle = { Root: ToggleRoot }
 export const Progress = { Root: ProgressRoot, Indicator: ProgressIndicator }
 export const Separator = { Root: SeparatorRoot }
 export const VisuallyHidden = { Root: VisuallyHiddenRoot }
 
 export { useDialogTrigger } from './dialog/shared'
+export { usePopoverTrigger } from './popover/shared'
+export {
+  supportsAnchorPositioning,
+  supportsHintPopovers,
+  supportsInterestInvokers,
+} from './capabilities'
+export type { Align, Side } from './anchor'
 
 export type { DialogRootProps } from './dialog/root'
 export type { AccessibleIconProps } from './accessible-icon/parts'
@@ -96,7 +125,17 @@ export type {
   RadioGroupItemProps,
   RadioGroupRootProps,
 } from './radio-group/parts'
+export type { HoverCardRootProps } from './hover-card/root'
+export type { PopoverRootProps } from './popover/root'
+export type {
+  PopoverAnchorProps,
+  PopoverCloseProps,
+  PopoverContentProps,
+  PopoverTriggerProps,
+} from './popover/parts'
 export type { SwitchProps, SwitchThumbProps } from './switch/parts'
+export type { TooltipRootProps } from './tooltip/root'
+export type { TooltipContentProps, TooltipTriggerProps } from './tooltip/parts'
 export type { ToggleProps } from './toggle/parts'
 export type { ProgressIndicatorProps, ProgressProps } from './progress/parts'
 export type { SeparatorProps } from './separator/parts'

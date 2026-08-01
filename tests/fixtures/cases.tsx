@@ -2,6 +2,7 @@ import { Component, useCallback, useEffect, useState, type ReactNode } from 'rea
 import { Dialog } from '../../src/index'
 import { Dialog as ControlledDialog } from '../../src/controlled'
 import { PARITY_CASES } from './parity'
+import { OVERLAY_CASES } from './overlays'
 import { PRIMITIVE_CASES } from './primitives'
 
 /**
@@ -221,4 +222,5 @@ export const CASES: Record<string, ReactNode> = {
   'mount-counting': <MountCounting />,
   ...PARITY_CASES,
   ...PRIMITIVE_CASES,
+  ...OVERLAY_CASES,
 }

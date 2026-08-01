@@ -26,10 +26,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './dialog/parts'
+import { CheckboxIndicator, CheckboxRoot } from './checkbox/parts'
 import { CollapsibleRoot } from './collapsible/root'
 import { CollapsibleContent, CollapsibleTrigger } from './collapsible/parts'
 import { LabelRoot } from './label/parts'
 import { ProgressIndicator, ProgressRoot } from './progress/parts'
+import { RadioGroupIndicator, RadioGroupItem, RadioGroupRoot } from './radio-group/parts'
+import { SwitchRoot, SwitchThumb } from './switch/parts'
+import { ToggleRoot } from './toggle/parts'
 import { SeparatorRoot } from './separator/parts'
 import { VisuallyHiddenRoot } from './visually-hidden/parts'
 
@@ -57,7 +61,15 @@ export const Collapsible = {
 }
 export const AspectRatio = { Root: AspectRatioRoot }
 export const Avatar = { Root: AvatarRoot, Image: AvatarImage, Fallback: AvatarFallback }
+export const Checkbox = { Root: CheckboxRoot, Indicator: CheckboxIndicator }
 export const Label = { Root: LabelRoot }
+export const RadioGroup = {
+  Root: RadioGroupRoot,
+  Item: RadioGroupItem,
+  Indicator: RadioGroupIndicator,
+}
+export const Switch = { Root: SwitchRoot, Thumb: SwitchThumb }
+export const Toggle = { Root: ToggleRoot }
 export const Progress = { Root: ProgressRoot, Indicator: ProgressIndicator }
 export const Separator = { Root: SeparatorRoot }
 export const VisuallyHidden = { Root: VisuallyHiddenRoot }
@@ -77,7 +89,15 @@ export type { CollapsibleRootProps } from './collapsible/root'
 export type { CollapsibleContentProps, CollapsibleTriggerProps } from './collapsible/parts'
 export type { AspectRatioProps } from './aspect-ratio/parts'
 export type { AvatarFallbackProps, AvatarImageProps, AvatarProps } from './avatar/parts'
+export type { CheckboxIndicatorProps, CheckboxProps } from './checkbox/parts'
 export type { LabelProps } from './label/parts'
+export type {
+  RadioGroupIndicatorProps,
+  RadioGroupItemProps,
+  RadioGroupRootProps,
+} from './radio-group/parts'
+export type { SwitchProps, SwitchThumbProps } from './switch/parts'
+export type { ToggleProps } from './toggle/parts'
 export type { ProgressIndicatorProps, ProgressProps } from './progress/parts'
 export type { SeparatorProps } from './separator/parts'
 export type { VisuallyHiddenProps } from './visually-hidden/parts'

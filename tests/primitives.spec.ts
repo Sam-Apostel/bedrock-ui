@@ -136,3 +136,74 @@ test.describe('Accordion', () => {
     await expect(page.getByTestId('item-two')).toHaveJSProperty('open', true)
   })
 })
+
+test.describe('form controls', () => {
+  test('Checkbox is an input, with native semantics and indeterminate', async ({ page }) => {
+    await page.goto('/?case=form-controls')
+    const checkbox = page.getByTestId('checkbox')
+
+    expect(await checkbox.evaluate((node) => node.tagName)).toBe('INPUT')
+    await expect(checkbox).toHaveRole('checkbox')
+
+    await checkbox.check()
+    await expect(page.getByTestId('log')).toContainText('checkbox:true')
+
+    // Property-only; there is no attribute for it.
+    await expect(page.getByTestId('indeterminate')).toHaveJSProperty('indeterminate', true)
+  })
+
+  test('Checkbox responds to the space bar without a keydown handler', async ({ page }) => {
+    await page.goto('/?case=form-controls')
+
+    await page.getByTestId('checkbox').focus()
+    await page.keyboard.press('Space')
+
+    await expect(page.getByTestId('checkbox')).toBeChecked()
+  })
+
+  test('Switch is a checkbox announced as a switch', async ({ page }) => {
+    await page.goto('/?case=form-controls')
+    const control = page.getByTestId('switch')
+
+    await expect(control).toHaveRole('switch')
+    await control.check()
+    await expect(page.getByTestId('log')).toContainText('switch:true')
+  })
+
+  test('RadioGroup gets arrow-key roving focus from the browser', async ({ page }) => {
+    await page.goto('/?case=form-controls')
+
+    // One tab stop for the group, and it lands on the checked radio.
+    await page.getByTestId('radio-b').focus()
+    await expect(page.getByTestId('radio-b')).toBeChecked()
+
+    await page.keyboard.press('ArrowDown')
+    await expect(page.getByTestId('radio-c')).toBeChecked()
+    await expect(page.getByTestId('radio-c')).toBeFocused()
+    await expect(page.getByTestId('log')).toContainText('radio:c')
+
+    // Wraps, like a native radio group.
+    await page.keyboard.press('ArrowDown')
+    await expect(page.getByTestId('radio-a')).toBeChecked()
+  })
+
+  test('Toggle is a button with aria-pressed', async ({ page }) => {
+    await page.goto('/?case=form-controls')
+    const toggle = page.getByTestId('toggle')
+
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false')
+    await toggle.click()
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByTestId('log')).toContainText('toggle:true')
+  })
+
+  test('a controlled checkbox that refuses stays unchecked', async ({ page }) => {
+    await page.goto('/?case=refused-checkbox')
+
+    await page.getByTestId('refused').click()
+    await page.getByTestId('refused').click()
+
+    await expect(page.getByTestId('attempts')).toHaveText('2')
+    await expect(page.getByTestId('refused')).not.toBeChecked()
+  })
+})

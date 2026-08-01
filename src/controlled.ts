@@ -33,8 +33,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from './accordion/parts'
+import { CheckboxRoot } from './checkbox/controlled-root'
+import { CheckboxIndicator } from './checkbox/parts'
 import { CollapsibleRoot } from './collapsible/controlled-root'
 import { CollapsibleContent, CollapsibleTrigger } from './collapsible/parts'
+import { RadioGroupRoot } from './radio-group/controlled-root'
+import { RadioGroupIndicator, RadioGroupItem } from './radio-group/parts'
+import { ToggleRoot } from './toggle/controlled-root'
 
 export const Accordion = {
   Root: AccordionRoot,
@@ -48,9 +53,19 @@ export const Collapsible = {
   Trigger: CollapsibleTrigger,
   Content: CollapsibleContent,
 }
+export const Checkbox = { Root: CheckboxRoot, Indicator: CheckboxIndicator }
+export const RadioGroup = {
+  Root: RadioGroupRoot,
+  Item: RadioGroupItem,
+  Indicator: RadioGroupIndicator,
+}
+export const Toggle = { Root: ToggleRoot }
 
 export type { ControlledAccordionRootProps } from './accordion/controlled-root'
 export type { ControlledCollapsibleRootProps } from './collapsible/controlled-root'
+export type { ControlledCheckboxProps } from './checkbox/controlled-root'
+export type { ControlledRadioGroupRootProps } from './radio-group/controlled-root'
+export type { ControlledToggleProps } from './toggle/controlled-root'
 
 export { useDialogTrigger } from './dialog/shared'
 export type { ControlledDialogRootProps } from './dialog/controlled-root'

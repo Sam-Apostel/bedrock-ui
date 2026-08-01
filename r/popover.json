@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Popover",
   "description": "Top layer plus anchor positioning: no portal, no z-index, no scroll recalculation.",
-  "dependencies": [
-    "@apostel/bedrock"
-  ],
+  "dependencies": ["@apostel/bedrock"],
   "files": [
     {
       "path": "registry/bedrock/ui/popover.tsx",

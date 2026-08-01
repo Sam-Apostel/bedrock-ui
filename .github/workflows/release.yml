@@ -26,6 +26,9 @@ jobs:
       # as its own step rather than buried in npm's output.
       - run: npm run verify
 
+      # NPM_TOKEN is optional: with trusted publishing configured on npm, the
+      # OIDC token from `id-token: write` authenticates on its own and the env
+      # var is simply empty. See RELEASING.md.
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

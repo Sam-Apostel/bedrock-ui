@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Switch",
   "description": "A checkbox with role=\"switch\"; the thumb is a ::before rather than an element.",
-  "dependencies": [
-    "@apostel/bedrock"
-  ],
+  "dependencies": ["@apostel/bedrock"],
   "files": [
     {
       "path": "registry/bedrock/ui/switch.tsx",

@@ -4,10 +4,7 @@
   "type": "registry:ui",
   "title": "Dialog",
   "description": "shadcn/ui's Dialog on bedrock. Native <dialog>, no portal, no overlay element, no focus-trap JavaScript. Uncontrolled — install dialog-controlled if React needs to own the open state.",
-  "dependencies": [
-    "@apostel/bedrock",
-    "lucide-react"
-  ],
+  "dependencies": ["@apostel/bedrock", "lucide-react"],
   "files": [
     {
       "path": "registry/bedrock/ui/dialog.tsx",

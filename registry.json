@@ -8,10 +8,7 @@
       "type": "registry:ui",
       "title": "Dialog",
       "description": "shadcn/ui's Dialog on bedrock. Native <dialog>, no portal, no overlay element, no focus-trap JavaScript. Uncontrolled \u2014 install dialog-controlled if React needs to own the open state.",
-      "dependencies": [
-        "@apostel/bedrock",
-        "lucide-react"
-      ],
+      "dependencies": ["@apostel/bedrock", "lucide-react"],
       "files": [
         {
           "path": "registry/bedrock/ui/dialog.tsx",
@@ -25,10 +22,7 @@
       "type": "registry:ui",
       "title": "Dialog (controlled)",
       "description": "The same Dialog against bedrock's controlled entry point. Takes a required `open` prop that can refuse an open or a close.",
-      "dependencies": [
-        "@apostel/bedrock",
-        "lucide-react"
-      ],
+      "dependencies": ["@apostel/bedrock", "lucide-react"],
       "files": [
         {
           "path": "registry/bedrock/ui/dialog-controlled.tsx",
@@ -42,12 +36,8 @@
       "type": "registry:ui",
       "title": "Alert Dialog",
       "description": "shadcn/ui's AlertDialog on bedrock's Dialog, with role=\"alertdialog\". Action and Cancel are both close buttons.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
-      "registryDependencies": [
-        "button"
-      ],
+      "dependencies": ["@apostel/bedrock"],
+      "registryDependencies": ["button"],
       "files": [
         {
           "path": "registry/bedrock/ui/alert-dialog.tsx",
@@ -61,9 +51,7 @@
       "type": "registry:ui",
       "title": "Label",
       "description": "A <label> that does not select its own text on a double click.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/label.tsx",
@@ -77,9 +65,7 @@
       "type": "registry:ui",
       "title": "Separator",
       "description": "One element, role=\"separator\" or removed from the tree when decorative.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/separator.tsx",
@@ -93,9 +79,7 @@
       "type": "registry:ui",
       "title": "Aspect Ratio",
       "description": "One element with the aspect-ratio property, not a padding-bottom wrapper.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/aspect-ratio.tsx",
@@ -109,9 +93,7 @@
       "type": "registry:ui",
       "title": "Checkbox",
       "description": "A real <input type=\"checkbox\">. The tick is a masked ::before under :checked, so there is no Indicator element.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/checkbox.tsx",
@@ -125,9 +107,7 @@
       "type": "registry:ui",
       "title": "Switch",
       "description": "A checkbox with role=\"switch\"; the thumb is a ::before rather than an element.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/switch.tsx",
@@ -141,9 +121,7 @@
       "type": "registry:ui",
       "title": "Progress",
       "description": "A real <progress>. Omit value for indeterminate; the fill is ::-webkit-progress-value.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/progress.tsx",
@@ -157,9 +135,7 @@
       "type": "registry:ui",
       "title": "Slider",
       "description": "An <input type=\"range\">. Single value, because a range input has one thumb.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/slider.tsx",
@@ -173,9 +149,7 @@
       "type": "registry:ui",
       "title": "Radio Group",
       "description": "Real radios sharing a name, which is the whole of roving focus.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/radio-group.tsx",
@@ -189,9 +163,7 @@
       "type": "registry:ui",
       "title": "Collapsible",
       "description": "<details> and <summary>: opens before hydration and without JavaScript.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/collapsible.tsx",
@@ -205,10 +177,7 @@
       "type": "registry:ui",
       "title": "Accordion",
       "description": "<details name> for single-open exclusivity, so no effect closes the siblings.",
-      "dependencies": [
-        "@apostel/bedrock",
-        "lucide-react"
-      ],
+      "dependencies": ["@apostel/bedrock", "lucide-react"],
       "files": [
         {
           "path": "registry/bedrock/ui/accordion.tsx",
@@ -222,9 +191,7 @@
       "type": "registry:ui",
       "title": "Tabs",
       "description": "Roving tab list. The unselected panel is unmounted, so leaving a tab resets it.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/tabs.tsx",
@@ -238,10 +205,7 @@
       "type": "registry:ui",
       "title": "Toggle",
       "description": "A button with aria-pressed. State is [aria-pressed=true], not [data-state=on].",
-      "dependencies": [
-        "@apostel/bedrock",
-        "class-variance-authority"
-      ],
+      "dependencies": ["@apostel/bedrock", "class-variance-authority"],
       "files": [
         {
           "path": "registry/bedrock/ui/toggle.tsx",
@@ -255,10 +219,7 @@
       "type": "registry:ui",
       "title": "Toggle Group",
       "description": "Toggle buttons sharing one tab stop.",
-      "dependencies": [
-        "@apostel/bedrock",
-        "class-variance-authority"
-      ],
+      "dependencies": ["@apostel/bedrock", "class-variance-authority"],
       "files": [
         {
           "path": "registry/bedrock/ui/toggle-group.tsx",
@@ -266,18 +227,14 @@
           "target": "components/ui/toggle-group.tsx"
         }
       ],
-      "registryDependencies": [
-        "toggle"
-      ]
+      "registryDependencies": ["toggle"]
     },
     {
       "name": "avatar",
       "type": "registry:ui",
       "title": "Avatar",
       "description": "An <img> with a fallback shown only when it fails to load.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/avatar.tsx",
@@ -291,9 +248,7 @@
       "type": "registry:ui",
       "title": "Scroll Area",
       "description": "Native scrolling styled with scrollbar-width and scrollbar-color.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/scroll-area.tsx",
@@ -307,9 +262,7 @@
       "type": "registry:ui",
       "title": "Popover",
       "description": "Top layer plus anchor positioning: no portal, no z-index, no scroll recalculation.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/popover.tsx",
@@ -323,9 +276,7 @@
       "type": "registry:ui",
       "title": "Tooltip",
       "description": "popover=\"hint\", so it layers above an open menu instead of closing it.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/tooltip.tsx",
@@ -339,9 +290,7 @@
       "type": "registry:ui",
       "title": "Hover Card",
       "description": "A hoverable popover whose trigger may be an <a>, which link previews need.",
-      "dependencies": [
-        "@apostel/bedrock"
-      ],
+      "dependencies": ["@apostel/bedrock"],
       "files": [
         {
           "path": "registry/bedrock/ui/hover-card.tsx",
@@ -355,10 +304,7 @@
       "type": "registry:ui",
       "title": "Select",
       "description": "A real <select> under appearance: base-select, so a phone still gets its own picker.",
-      "dependencies": [
-        "@apostel/bedrock",
-        "lucide-react"
-      ],
+      "dependencies": ["@apostel/bedrock", "lucide-react"],
       "files": [
         {
           "path": "registry/bedrock/ui/select.tsx",
@@ -372,10 +318,7 @@
       "type": "registry:ui",
       "title": "Dropdown Menu",
       "description": "Popover plus roving focus and typeahead. Submenus need no configuration.",
-      "dependencies": [
-        "@apostel/bedrock",
-        "lucide-react"
-      ],
+      "dependencies": ["@apostel/bedrock", "lucide-react"],
       "files": [
         {
           "path": "registry/bedrock/ui/dropdown-menu.tsx",
@@ -389,10 +332,7 @@
       "type": "registry:ui",
       "title": "Context Menu",
       "description": "The same menu anchored to the pointer. Root is the trigger area.",
-      "dependencies": [
-        "@apostel/bedrock",
-        "lucide-react"
-      ],
+      "dependencies": ["@apostel/bedrock", "lucide-react"],
       "files": [
         {
           "path": "registry/bedrock/ui/context-menu.tsx",

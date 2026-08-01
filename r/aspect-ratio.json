@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Aspect Ratio",
   "description": "One element with the aspect-ratio property, not a padding-bottom wrapper.",
-  "dependencies": [
-    "@apostel/bedrock"
-  ],
+  "dependencies": ["@apostel/bedrock"],
   "files": [
     {
       "path": "registry/bedrock/ui/aspect-ratio.tsx",

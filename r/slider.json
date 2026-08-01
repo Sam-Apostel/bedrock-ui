@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Slider",
   "description": "An <input type=\"range\">. Single value, because a range input has one thumb.",
-  "dependencies": [
-    "@apostel/bedrock"
-  ],
+  "dependencies": ["@apostel/bedrock"],
   "files": [
     {
       "path": "registry/bedrock/ui/slider.tsx",

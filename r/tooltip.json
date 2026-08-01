@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Tooltip",
   "description": "popover=\"hint\", so it layers above an open menu instead of closing it.",
-  "dependencies": [
-    "@apostel/bedrock"
-  ],
+  "dependencies": ["@apostel/bedrock"],
   "files": [
     {
       "path": "registry/bedrock/ui/tooltip.tsx",

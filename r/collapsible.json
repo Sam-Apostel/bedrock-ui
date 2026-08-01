@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Collapsible",
   "description": "<details> and <summary>: opens before hydration and without JavaScript.",
-  "dependencies": [
-    "@apostel/bedrock"
-  ],
+  "dependencies": ["@apostel/bedrock"],
   "files": [
     {
       "path": "registry/bedrock/ui/collapsible.tsx",

@@ -11,7 +11,8 @@ positioning, and `@starting-style` do the work that `Portal`, `Presence`,
 npm i @apostel/bedrock
 ```
 
-> Package scope is a placeholder — change it before publishing.
+Docs, and a compat table that tests the browser you open it in:
+**<https://bedrock.sams.land>**
 
 ## The shape
 
@@ -193,9 +194,12 @@ element. Open and closed states are selectable with `:open` and
 [shadcn registry](./docs/shadcn-registry.md) that swaps Radix for bedrock in
 shadcn's own components.
 
-[`docs/compat.html`](./docs/compat.html) tests every platform feature bedrock
+[`docs/compat.html`](./docs/compat.html) — live at
+<https://bedrock.sams.land/compat.html> — tests every platform feature bedrock
 uses in whatever browser you open it in, and says what each missing one does to
 your UI. Chrome 141 scores 20 of 21.
+
+Releasing the package and the site is [`RELEASING.md`](./RELEASING.md).
 
 [`docs/gaps.md`](./docs/gaps.md) is the case against adopting this. Read it
 first if you are evaluating.

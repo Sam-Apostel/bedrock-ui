@@ -13,3 +13,5 @@
 
 Start with [gaps](./gaps.md) if you are evaluating rather than using. It is the
 honest version, and it is short.
+
+Publishing the package and deploying this site: [`RELEASING.md`](../RELEASING.md).

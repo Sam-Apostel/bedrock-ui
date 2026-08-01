@@ -1,12 +1,56 @@
-import { createContext, useContext } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import type { OpenStateAdapter, RootContextValue } from '../types'
 
-export const DialogContext = createContext<RootContextValue | null>(null)
+/**
+ * Whether a `Title` and a `Description` are actually rendered.
+ *
+ * `aria-labelledby` pointing at an element that does not exist is a broken
+ * reference, not a harmless one — the dialog ends up with no accessible name
+ * and nothing says so. Deriving the id from the root's id is not enough; the
+ * parts have to say they are there.
+ */
+export interface DialogLabelling {
+  labelledBy: string | undefined
+  describedBy: string | undefined
+  registerTitle(): () => void
+  registerDescription(): () => void
+}
 
-export function useDialogContext(part: string): RootContextValue {
+export type DialogContextValue = RootContextValue & DialogLabelling
+
+export const DialogContext = createContext<DialogContextValue | null>(null)
+
+export function useDialogContext(part: string): DialogContextValue {
   const context = useContext(DialogContext)
   if (!context) throw new Error(`[bedrock] ${part} must be used inside Dialog.Root.`)
   return context
+}
+
+/** Counted rather than boolean: two Titles is a bug, but it is the consumer's. */
+function useCount() {
+  const [count, setCount] = useState(0)
+
+  const register = useCallback(() => {
+    setCount((n) => n + 1)
+    return () => setCount((n) => n - 1)
+  }, [])
+
+  return [count > 0, register] as const
+}
+
+export function useDialogLabelling(id: string): DialogLabelling {
+  const [hasTitle, registerTitle] = useCount()
+  const [hasDescription, registerDescription] = useCount()
+
+  return useMemo(
+    () => ({
+      labelledBy: hasTitle ? `${id}-title` : undefined,
+      describedBy: hasDescription ? `${id}-description` : undefined,
+      registerTitle,
+      registerDescription,
+    }),
+    [id, hasTitle, hasDescription, registerTitle, registerDescription],
+  )
 }
 
 export const dialogAdapter: OpenStateAdapter = {

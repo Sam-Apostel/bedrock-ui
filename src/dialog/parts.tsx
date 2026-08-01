@@ -1,4 +1,9 @@
-import type { ComponentPropsWithRef, ElementType } from 'react'
+import {
+  useEffect,
+  useSyncExternalStore,
+  type ComponentPropsWithRef,
+  type ElementType,
+} from 'react'
 import { composeRefs } from '../compose-refs'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
@@ -28,13 +33,39 @@ export function DialogTrigger({ asChild, ref, ...props }: DialogTriggerProps) {
 
 export type DialogContentProps = ComponentPropsWithRef<'dialog'>
 
-export function DialogContent({ ref, ...props }: DialogContentProps) {
-  const { id, registerContent } = useDialogContext('Dialog.Content')
+const noopSubscribe = () => () => {}
+
+/**
+ * True on the client, false while server-rendering and for the hydrating render
+ * that has to match it.
+ *
+ * It is what lets closed content be absent in the browser and present in the
+ * HTML: a page with no JavaScript keeps a working dialog, and a page with
+ * JavaScript does not pay for eight closed dialogs' worth of effects on load.
+ */
+function useClientRender() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  )
+}
+
+export function DialogContent({ ref, children, ...props }: DialogContentProps) {
+  const { id, open, registerContent, labelledBy, describedBy } = useDialogContext('Dialog.Content')
+
+  const onClient = useClientRender()
+
+  // The <dialog> itself is always rendered — the trigger's `commandfor` has to
+  // resolve to something, always. Its children are not: they mount when the
+  // browser opens it and unmount once the exit animation is done, so closing
+  // resets whatever they were holding.
+  const mounted = open || !onClient
 
   // `in` rather than `??`, so passing an explicit undefined removes the
   // association — the escape hatch for a dialog labelled some other way.
-  const labelledBy = 'aria-labelledby' in props ? props['aria-labelledby'] : `${id}-title`
-  const describedBy = 'aria-describedby' in props ? props['aria-describedby'] : `${id}-description`
+  const label = 'aria-labelledby' in props ? props['aria-labelledby'] : labelledBy
+  const description = 'aria-describedby' in props ? props['aria-describedby'] : describedBy
 
   return (
     <dialog
@@ -42,19 +73,25 @@ export function DialogContent({ ref, ...props }: DialogContentProps) {
       // The trigger's `commandfor` points here, so this id is load-bearing and
       // is not forwarded from props the way every other part's id is.
       id={id}
-      aria-labelledby={labelledBy}
-      aria-describedby={describedBy}
+      aria-labelledby={label}
+      aria-describedby={description}
       data-bedrock-dialog=""
       ref={composeRefs<HTMLDialogElement>(ref, registerContent)}
-    />
+    >
+      {mounted ? children : null}
+    </dialog>
   )
 }
 
 export interface DialogTitleProps extends ComponentPropsWithRef<'h2'>, AsChildProps {}
 
 export function DialogTitle({ asChild, ...props }: DialogTitleProps) {
-  const { id } = useDialogContext('Dialog.Title')
+  const { id, registerTitle } = useDialogContext('Dialog.Title')
   const Part: ElementType = asChild ? Slot : 'h2'
+
+  // Announces itself so Content can point `aria-labelledby` at something that
+  // exists. A reference to a missing element is a dialog with no name.
+  useEffect(() => registerTitle(), [registerTitle])
 
   return <Part {...props} id={`${id}-title`} data-bedrock-dialog-title="" />
 }
@@ -62,8 +99,10 @@ export function DialogTitle({ asChild, ...props }: DialogTitleProps) {
 export interface DialogDescriptionProps extends ComponentPropsWithRef<'p'>, AsChildProps {}
 
 export function DialogDescription({ asChild, ...props }: DialogDescriptionProps) {
-  const { id } = useDialogContext('Dialog.Description')
+  const { id, registerDescription } = useDialogContext('Dialog.Description')
   const Part: ElementType = asChild ? Slot : 'p'
+
+  useEffect(() => registerDescription(), [registerDescription])
 
   return <Part {...props} id={`${id}-description`} data-bedrock-dialog-description="" />
 }

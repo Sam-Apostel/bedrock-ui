@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { useControlledRoot, type ControlledRootProps } from '../create-controlled-root'
-import { DialogContext, dialogAdapter } from './shared'
+import { DialogContext, dialogAdapter, useDialogLabelling } from './shared'
 
 export interface ControlledDialogRootProps extends ControlledRootProps {
   children?: ReactNode
@@ -16,6 +16,11 @@ export interface ControlledDialogRootProps extends ControlledRootProps {
  */
 export function DialogRoot({ children, ...props }: ControlledDialogRootProps) {
   const context = useControlledRoot(props, dialogAdapter)
+  // Its own id: the labelling ids have to be stable and unique per root, and
+  // useControlledRoot already made one for the invoker wiring.
+  const labelling = useDialogLabelling(context.id)
 
-  return <DialogContext.Provider value={context}>{children}</DialogContext.Provider>
+  const value = useMemo(() => ({ ...context, ...labelling }), [context, labelling])
+
+  return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>
 }

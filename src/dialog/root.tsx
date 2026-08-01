@@ -1,5 +1,6 @@
 import { useCallback, useId, useMemo, useRef, type ReactNode } from 'react'
-import { DialogContext, dialogAdapter } from './shared'
+import { useOpenState } from '../open-state'
+import { DialogContext, dialogAdapter, useDialogLabelling } from './shared'
 
 export interface DialogRootProps {
   children?: ReactNode
@@ -29,21 +30,17 @@ export function DialogRoot({ children, defaultOpen = false, onOpenChange }: Dial
   const changeRef = useRef(onOpenChange)
   changeRef.current = onOpenChange
 
+  const report = useCallback((next: boolean) => changeRef.current?.(next), [])
+  const { open, observe } = useOpenState(report, defaultOpen)
+  const labelling = useDialogLabelling(id)
+
   const defaultOpenRef = useRef(defaultOpen)
   const openedRef = useRef(false)
-  const nodeRef = useRef<HTMLElement | null>(null)
-
-  const handleToggle = useCallback((event: Event) => {
-    changeRef.current?.((event as ToggleEvent).newState === 'open')
-  }, [])
 
   const registerContent = useCallback(
     (node: HTMLElement | null) => {
-      if (nodeRef.current) nodeRef.current.removeEventListener('toggle', handleToggle)
-      nodeRef.current = node
+      observe(node)
       if (!node) return
-
-      node.addEventListener('toggle', handleToggle)
 
       // The `open` attribute renders a <dialog> inline — no top layer, no
       // backdrop, no focus trap — so it is not the declarative form of
@@ -53,10 +50,13 @@ export function DialogRoot({ children, defaultOpen = false, onOpenChange }: Dial
         dialogAdapter.open(node)
       }
     },
-    [handleToggle],
+    [observe],
   )
 
-  const context = useMemo(() => ({ id, registerContent }), [id, registerContent])
+  const context = useMemo(
+    () => ({ id, open, registerContent, ...labelling }),
+    [id, open, registerContent, labelling],
+  )
 
   return <DialogContext.Provider value={context}>{children}</DialogContext.Provider>
 }

@@ -203,6 +203,31 @@ reconciliation, after React has already decided. Asking again is both wrong and
 impossible — see §7. Adapters for close-watcher-backed elements (`<dialog>`,
 popovers, and anything with `closedby`) must close outright.
 
+### D11 — content children mount only while open
+
+*Rejected:* leaving the subtree mounted because the element is in the DOM anyway.
+
+*Why:* it is what makes the plain root usable. "Uncontrolled" is only true if
+closing actually discards what the content was holding; otherwise every consumer
+writes the same `onOpenChange` handler to reset a form, which is the state-driven
+code this library exists to remove. It also stops every closed dialog on a page
+from running its children's effects and fetches at load.
+
+Three timings make it safe, all in `open-state.ts` and all tested:
+
+- mount on `beforetoggle`, not `toggle`, so the element is never painted empty
+  and `showModal()` has a real control to focus
+- put the flag back if a controlled root refuses the open
+- unmount only once the exit animation has finished, and reuse the subtree if it
+  reopens inside that window
+
+The element itself is always rendered — `commandfor` must resolve — and content
+is present when server-rendered and for the hydrating render, so a page without
+JavaScript still has a working dialog.
+
+*Cost:* no `forceMount` equivalent, and the root now re-renders on open and
+close where it previously did not.
+
 ### D8 — React 19 minimum
 
 `ref` as a regular prop removes `forwardRef` from every component and keeps

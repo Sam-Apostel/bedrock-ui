@@ -38,7 +38,7 @@ These are safe to codemod.
 | `open` + `onOpenChange` on `Dialog.Root` | same props, import from `@apostel/bedrock/controlled` | Two roots, one import line. |
 | `[data-state="open"]` | `:open` | Native state, no JS mirror. |
 | `[data-state="closed"]` | `:not(:open)` | Same. |
-| `forceMount` | delete it | Content is always in the DOM; a closed `<dialog>` is hidden by the UA stylesheet. |
+| `forceMount` | delete it, and check what depended on it | Closed content unmounts, as in Radix, but there is no way to opt out. See [gaps](./gaps.md#4-closed-content-is-not-in-the-dom-and-there-is-no-forcemount). |
 | `<AlertDialog.Action>` | `<Dialog.Close>` plus your `onClick` | No separate part; a close plus a handler. |
 
 A rough sed for the state selectors, which is the bulk of a real diff:
@@ -138,7 +138,7 @@ that is now impossible rather than merely discouraged.
 ## Does it behave the same?
 
 Radix's own Dialog suite — all 42 cases — is ported in
-`tests/radix-parity.spec.ts` and runs in CI. 19 pass, 6 fail on real
+`tests/radix-parity.spec.ts` and runs in CI. 22 pass, 3 fail on real
 divergences, 17 test API that does not exist here.
 [The scorecard names every one](./radix-parity.md).
 

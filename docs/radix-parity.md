@@ -14,35 +14,29 @@ Playwright against real Chrome, and changes nothing about what is being claimed.
 
 | outcome | count | meaning |
 | --- | --- | --- |
-| **Pass** | **19** | bedrock satisfies the assertion Radix wrote |
-| **Fail** | **6** | a real behavioural divergence |
+| **Pass** | **22** | bedrock satisfies the assertion Radix wrote |
+| **Fail** | **3** | a real behavioural divergence |
 | **Not applicable** | **17** | tests API bedrock does not have |
 | total | 42 | |
 
 A skip is not a pass. Of the 42, 25 are answerable at all, and bedrock answers
-19 of those the same way Radix does.
+22 of those the same way Radix does.
+
+Three of those 22 were failures until the suite pointed at them: `Title` and
+`Description` now register their presence, so `aria-labelledby` is written only
+when there is something to point at. Radix's tests found that, not ours.
 
 Run them: `npm test tests/radix-parity.spec.ts`.
 
-## The 6 failures
-
-Five of the six are one bug wearing five hats.
+## The 3 failures
 
 | Radix test | why it fails |
 | --- | --- |
-| `should not set aria-labelledby when no Title is rendered` | The id is derived from the root's id and wired unconditionally, so it points at nothing when `Title` is omitted. |
-| `should not set aria-describedby when no Description is rendered` | Same. |
-| `should update references when Title/Description mount and unmount` | Same — nothing tracks their presence. |
 | `should normalize existing aria-describedby ids and append the Description id` | A passed `aria-describedby` replaces ours instead of merging. Radix collects and dedupes; bedrock treats the prop as final. |
 | `aria-controls should reference the rendered content while open` | The relationship is `commandfor`, resolved by the browser. No `aria-controls` is written. |
 | `Dialog.Trigger forwards props when asChild is set` | Passes on class, style, ref and tag; fails on one assertion — `aria-expanded="false"`. |
 
-The first four are all the same fix — the parts have to register their presence
-on the context both roots publish — and it is now the highest-value open item in
-[gaps](./gaps.md#no-missing-title-warning). The Radix suite is what made it
-concrete: three separate tests catch it.
-
-### The two ARIA ones are worth arguing about
+### The last two are worth arguing about
 
 Measured in Chrome 141 through the accessibility tree, not inferred:
 
@@ -71,7 +65,7 @@ Not evidence of anything except a different design. Grouped:
 | `Dialog.Overlay` | 2 | An element bedrock does not render — the overlay is `::backdrop`. |
 | `asChild` on `Content` | 5 | Unsupported, and the focus-scope-branch test needs Radix-internal API. |
 | `pointer-events` bookkeeping | 2 | How Radix inerts the background. `showModal()` does it in the UA, with no style to restore or leak. |
-| `forceMount` | 1 | Content is always mounted, so the bug being regression-tested cannot occur. |
+| `forceMount` | 1 | No opt-out from unmounting, so there is no forced-mount state to leak. |
 | `modal={false}` | 3 | No non-modal dialog; that will be `Popover`. |
 | nested `DropdownMenu` / dismissable layers | 4 | Needs a second primitive, and nothing dismisses on outside interaction. |
 
@@ -80,7 +74,7 @@ focus scope, a dismissable layer, and a `pointer-events` toggle on the body.
 There is no bedrock equivalent to point them at, and that is the intended
 outcome rather than a coverage hole.
 
-## What passing 19 actually proves
+## What passing 22 actually proves
 
 The ones worth naming, because they are the load-bearing behaviours:
 

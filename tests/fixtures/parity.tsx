@@ -80,18 +80,18 @@ function ExistingDescribedBy() {
 function ToggleReferences() {
   const [showText, setShowText] = useState(false)
 
+  // The toggle lives inside the dialog: it is modal, so a control outside it is
+  // inert and cannot be clicked.
   return (
-    <>
-      <button type="button" data-testid="toggle" onClick={() => setShowText((v) => !v)}>
-        toggle
-      </button>
-      <Dialog.Root defaultOpen>
-        <Dialog.Content aria-label="Custom label">
-          {showText ? <Dialog.Title>Title</Dialog.Title> : null}
-          {showText ? <Dialog.Description>Description</Dialog.Description> : null}
-        </Dialog.Content>
-      </Dialog.Root>
-    </>
+    <Dialog.Root defaultOpen>
+      <Dialog.Content aria-label="Custom label">
+        <button type="button" data-testid="toggle" onClick={() => setShowText((v) => !v)}>
+          toggle
+        </button>
+        {showText ? <Dialog.Title>Title</Dialog.Title> : null}
+        {showText ? <Dialog.Description>Description</Dialog.Description> : null}
+      </Dialog.Content>
+    </Dialog.Root>
   )
 }
 

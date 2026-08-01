@@ -111,15 +111,11 @@ test.describe('aria-labelledby / aria-describedby references', () => {
   })
 
   test('should not set `aria-labelledby` when no `Title` is rendered', async ({ page }) => {
-    // DIVERGENCE: the id is derived from the root's id and wired unconditionally,
-    // so with no Title it points at nothing. docs/gaps.md#no-missing-title-warning
-    test.fail()
     await page.goto('/?case=parity-custom-label')
     await expect(page.locator('dialog')).not.toHaveAttribute('aria-labelledby')
   })
 
   test('should not set `aria-describedby` when no `Description` is rendered', async ({ page }) => {
-    test.fail()
     await page.goto('/?case=parity-title-only')
     await expect(page.locator('dialog')).not.toHaveAttribute('aria-describedby')
   })
@@ -127,9 +123,6 @@ test.describe('aria-labelledby / aria-describedby references', () => {
   test('should update references when `Title`/`Description` mount and unmount', async ({
     page,
   }) => {
-    // DIVERGENCE: same cause. Tracking presence needs the parts to register
-    // themselves, which means a field on the context both roots publish.
-    test.fail()
     await page.goto('/?case=parity-toggle-refs')
     const dialog = page.locator('dialog')
 

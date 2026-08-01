@@ -41,6 +41,17 @@ export interface RootContextValue {
   /** Shared id, used for `commandfor` / `interestfor` / `popovertarget`. */
   id: string
   /**
+   * What the DOM is doing, not what a prop claims. Content parts render their
+   * children only while this is true — plus however long an exit animation
+   * runs — so closing tears the subtree down and reopening starts it fresh.
+   * That is what makes a form inside a dialog reset itself without the consumer
+   * wiring anything to `onOpenChange`.
+   *
+   * Both roots publish it and neither derives it from React state, so parts
+   * still cannot tell which root they are under.
+   */
+  open: boolean
+  /**
    * Content parts call this with their DOM node on mount and `null` on unmount.
    * The plain root uses it for at most a `toggle` listener; the controlled root
    * uses it to wire the veto. Children never branch on which root they're under.

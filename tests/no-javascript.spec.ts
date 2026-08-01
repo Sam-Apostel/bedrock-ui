@@ -2,31 +2,30 @@ import { expect, test } from '@playwright/test'
 
 /**
  * The load-bearing claim of the whole library: the trigger is wired to the
- * dialog by the parser, so the rendered markup keeps working with the bundle
- * removed entirely. If this test ever needs JavaScript to pass, the premise is
- * gone.
+ * dialog by the parser, so the server-rendered markup keeps working with the
+ * bundle removed entirely. If this test ever needs JavaScript to pass, the
+ * premise is gone.
  *
- * The markup is lifted from a real render rather than hand-written, so it can't
- * drift into something the parts no longer emit.
+ * `/ssr` serves what the server actually sent — no script tag, no hydration.
+ * Scraping a hydrated page would not do: on the client, a closed dialog's
+ * children are unmounted.
  */
-test('rendered markup opens and closes with JavaScript disabled', async ({ page, browser }) => {
-  await page.goto('/?case=plain')
-  await expect(page.locator('dialog')).toHaveCount(1)
-  const markup = await page.locator('#root').innerHTML()
+test.describe('without JavaScript', () => {
+  test.use({ javaScriptEnabled: false })
 
-  const context = await browser.newContext({ javaScriptEnabled: false })
-  const dead = await context.newPage()
-  await dead.setContent(`<!doctype html><html lang="en"><body>${markup}</body></html>`)
+  test('server-rendered markup opens and closes on its own', async ({ page }) => {
+    await page.goto('/ssr?case=plain')
+    const dialog = page.locator('dialog')
 
-  const dialog = dead.locator('dialog')
-  await expect(dialog).toHaveJSProperty('open', false)
+    // The children a client-side render would have dropped are present here.
+    await expect(dialog.locator('h2')).toHaveText('Delete project?')
+    await expect(dialog).toHaveJSProperty('open', false)
 
-  await dead.getByRole('button', { name: 'Delete project' }).click()
-  await expect(dialog).toHaveJSProperty('open', true)
-  expect(await dialog.evaluate((node) => node.matches(':modal'))).toBe(true)
+    await page.getByRole('button', { name: 'Delete project' }).click()
+    await expect(dialog).toHaveJSProperty('open', true)
+    expect(await dialog.evaluate((node) => node.matches(':modal'))).toBe(true)
 
-  await dead.getByRole('button', { name: 'Cancel' }).click()
-  await expect(dialog).toHaveJSProperty('open', false)
-
-  await context.close()
+    await page.getByRole('button', { name: 'Cancel' }).click()
+    await expect(dialog).toHaveJSProperty('open', false)
+  })
 })

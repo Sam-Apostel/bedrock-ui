@@ -61,22 +61,44 @@ Takes every `<dialog>` prop except the ones that would break the wiring:
 | `aria-describedby` | Defaults to the `Dialog.Description` id. Same.                |
 | `asChild`          | **Not supported** — see [gaps](./gaps.md#dialogcontent-has-no-aschild). |
 
-Content is always rendered. There is no `forceMount`, because there is nothing
-to force: a closed `<dialog>` is in the DOM and hidden by the UA stylesheet, so
-transitions have something to transition from and to. What that costs you is
-that children of a closed dialog still run their effects and still fetch — if
-you want a body that mounts on open, mount it yourself off `onOpenChange`.
+The `<dialog>` element is always rendered — the trigger's `commandfor` must
+resolve to something — but **its children are mounted only while it is open**.
+
+That is what makes the uncontrolled root genuinely uncontrolled: a half-typed
+form inside a dialog is gone when it closes, because the form is gone, not
+because anything reset it. No `onOpenChange` handler, no key bumping, no
+`useEffect`.
+
+The timing is deliberate in three places, each tested:
+
+| moment | what happens |
+| --- | --- |
+| `beforetoggle` | children mount — before the frame that paints the dialog, so it is never briefly empty, and `showModal()` can focus a real control |
+| a refused open (controlled) | the flag is put straight back; nothing mounts |
+| after `toggle` closed | children stay until the exit animation finishes, then unmount. Reopen inside that window and the subtree is reused rather than rebuilt |
+
+Server-rendered markup is the exception: content is rendered on the server and
+on the hydrating render that has to match it, so a page whose JavaScript never
+arrives still has a complete, working dialog. It is only after hydration that a
+closed dialog drops its children.
+
+There is no `forceMount`. If you need the subtree alive while closed — an
+animation library driving presence, a video you do not want to reload — hoist
+that state above the dialog.
 
 ## `Dialog.Title` / `Dialog.Description`
 
 Render `<h2>` and `<p>`, with ids derived from the root's id and wired to the
 dialog. Both take `asChild`.
 
-Both are optional, and both are strongly recommended: a modal dialog with no
-accessible name is announced as nothing in particular. If you omit `Title`, the
-dialog's `aria-labelledby` points at an element that does not exist and the
-dialog falls back to having no name. bedrock does not warn about this yet — see
-[gaps](./gaps.md#no-missing-title-warning).
+Each registers its presence with the root, so `aria-labelledby` and
+`aria-describedby` appear only when there is something for them to point at —
+a reference to a missing element would leave the dialog with no accessible
+name at all.
+
+Both are optional and both are strongly recommended. bedrock does not yet warn
+when `Title` is missing, which Radix does; see
+[gaps](./gaps.md#still-no-missing-title-warning).
 
 ## `Dialog.Close`
 

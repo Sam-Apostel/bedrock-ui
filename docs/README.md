@@ -7,7 +7,7 @@
 - [Browser support](./compat.md) — and [the live table](./compat.html), which
   tests the browser you open it in
 - [Migrating from Radix](./migration-from-radix.md)
-- [Radix's test suite, run against bedrock](./radix-parity.md) — 19 pass, 6 fail, 17 N/A
+- [Radix's test suite, run against bedrock](./radix-parity.md) — 22 pass, 3 fail, 17 N/A
 - [shadcn registry](./shadcn-registry.md)
 - [Gaps, and reasons not to migrate](./gaps.md)
 

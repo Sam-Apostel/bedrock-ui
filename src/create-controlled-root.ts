@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { useOpenState } from './open-state'
 import type { OpenStateAdapter, RootContextValue } from './types'
 
 export interface ControlledRootProps {
@@ -34,6 +35,11 @@ export function useControlledRoot(
 ): RootContextValue {
   const id = useId()
   const [node, setNode] = useState<HTMLElement | null>(null)
+
+  // The same DOM-observed open state the plain root publishes, from the same
+  // hook. It is deliberately not derived from the `open` prop: during a refused
+  // open the prop and the DOM disagree, and children follow the DOM.
+  const { open: domOpen, observe } = useOpenState()
 
   // Read through refs inside listeners so we never rebind on every render.
   const openRef = useRef(open)
@@ -88,7 +94,13 @@ export function useControlledRoot(
     else adapter.close(node)
   }, [node, open, adapter])
 
-  const registerContent = useCallback((next: HTMLElement | null) => setNode(next), [])
+  const registerContent = useCallback(
+    (next: HTMLElement | null) => {
+      observe(next)
+      setNode(next)
+    },
+    [observe],
+  )
 
-  return { id, registerContent }
+  return { id, open: domOpen, registerContent }
 }

@@ -53,20 +53,19 @@ looks right", and neither is universal yet.
 and **is not in Chrome stable either** — it is behind a flag. Those primitives
 will ship on a JavaScript fallback as their normal path.
 
-### 4. Content is always mounted
+### 4. Closed content is not in the DOM, and there is no `forceMount`
 
-Radix unmounts closed content by default. A `<dialog>` is in the DOM, hidden by
-the UA stylesheet, from the first paint.
+Closed content unmounts, as in Radix — that is what makes closing reset a form
+without you wiring anything to `onOpenChange`. What is missing is the opt-out.
 
-So the children of every closed dialog on the page run their effects, subscribe
-to their stores, and fire their mount-time fetches — at page load, for every
-dialog, whether or not anyone opens one. A route with eight dialogs each
-containing a form that loads its options on mount goes from zero requests to
-eight.
+Radix has `forceMount` for the cases that need the subtree present while closed:
+driving presence from an animation library, measuring content before it opens,
+or keeping an iframe or video element alive across a close. bedrock has no
+equivalent, so those cases have no answer beyond hoisting the state out of the
+dialog.
 
-The fix is to mount the body yourself off `onOpenChange`, which is exactly the
-state-driven code the library is trying to delete. There is no `forceMount`
-because there is nothing to force; there is also no lazy mode.
+The `<dialog>` element itself is always rendered — the trigger's `commandfor`
+has to resolve to something — so this is about children only.
 
 ### 5. No scroll lock
 
@@ -161,16 +160,12 @@ name, and the rule that no public prop may be named after a platform feature
 rules out `closedby`. Radix has no equivalent prop to copy, so this is a naming
 decision, not an implementation one. Until then: spread the attribute yourself.
 
-### No missing-`Title` warning
+### Still no missing-`Title` *warning*
 
-Caught three separate times by
-[Radix's own test suite](./radix-parity.md), which is what promoted it to the
-top of this list.
-
-`aria-labelledby` is wired unconditionally from a derived id. Omit
-`Dialog.Title` and it points at nothing, so the dialog has no accessible name
-and nothing says so. Radix warns. Detecting presence needs the title to register
-itself, which means adding a field to the context both roots publish.
+`aria-labelledby` is now only set when a `Title` is actually rendered, so the
+reference can no longer dangle. What is still missing is Radix's development
+warning telling you that a dialog with no name is probably a mistake rather
+than a choice.
 
 ### No scroll-lock story at all
 

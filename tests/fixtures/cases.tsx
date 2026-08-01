@@ -2,6 +2,7 @@ import { Component, useCallback, useEffect, useState, type ReactNode } from 'rea
 import { Dialog } from '../../src/index'
 import { Dialog as ControlledDialog } from '../../src/controlled'
 import { PARITY_CASES } from './parity'
+import { PRIMITIVE_CASES } from './primitives'
 
 /**
  * One page, one case per `?case=` value. Specs drive real clicks and real keys
@@ -219,4 +220,5 @@ export const CASES: Record<string, ReactNode> = {
   mounting: <Mounting />,
   'mount-counting': <MountCounting />,
   ...PARITY_CASES,
+  ...PRIMITIVE_CASES,
 }

@@ -4,7 +4,9 @@ import type { OpenStateAdapter, RootContextValue } from './types'
 
 export interface ControlledRootProps {
   open: boolean
-  onOpenChange?(open: boolean): void
+  // Explicitly `| undefined` so a root can destructure its props and pass the
+  // pieces on under exactOptionalPropertyTypes.
+  onOpenChange?: ((open: boolean) => void) | undefined
 }
 
 /**

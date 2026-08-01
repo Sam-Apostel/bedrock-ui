@@ -1,9 +1,5 @@
-import {
-  useEffect,
-  useSyncExternalStore,
-  type ComponentPropsWithRef,
-  type ElementType,
-} from 'react'
+import { useEffect, type ComponentPropsWithRef, type ElementType } from 'react'
+import { useClientRender } from '../client-render'
 import { composeRefs } from '../compose-refs'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
@@ -32,24 +28,6 @@ export function DialogTrigger({ asChild, ref, ...props }: DialogTriggerProps) {
 }
 
 export type DialogContentProps = ComponentPropsWithRef<'dialog'>
-
-const noopSubscribe = () => () => {}
-
-/**
- * True on the client, false while server-rendering and for the hydrating render
- * that has to match it.
- *
- * It is what lets closed content be absent in the browser and present in the
- * HTML: a page with no JavaScript keeps a working dialog, and a page with
- * JavaScript does not pay for eight closed dialogs' worth of effects on load.
- */
-function useClientRender() {
-  return useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false,
-  )
-}
 
 export function DialogContent({ ref, children, ...props }: DialogContentProps) {
   const { id, open, registerContent, labelledBy, describedBy } = useDialogContext('Dialog.Content')

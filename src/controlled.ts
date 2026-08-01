@@ -26,5 +26,31 @@ export const Dialog = {
   Close: DialogClose,
 }
 
+import { AccordionRoot } from './accordion/controlled-root'
+import {
+  AccordionContent,
+  AccordionHeader,
+  AccordionItem,
+  AccordionTrigger,
+} from './accordion/parts'
+import { CollapsibleRoot } from './collapsible/controlled-root'
+import { CollapsibleContent, CollapsibleTrigger } from './collapsible/parts'
+
+export const Accordion = {
+  Root: AccordionRoot,
+  Item: AccordionItem,
+  Header: AccordionHeader,
+  Trigger: AccordionTrigger,
+  Content: AccordionContent,
+}
+export const Collapsible = {
+  Root: CollapsibleRoot,
+  Trigger: CollapsibleTrigger,
+  Content: CollapsibleContent,
+}
+
+export type { ControlledAccordionRootProps } from './accordion/controlled-root'
+export type { ControlledCollapsibleRootProps } from './collapsible/controlled-root'
+
 export { useDialogTrigger } from './dialog/shared'
 export type { ControlledDialogRootProps } from './dialog/controlled-root'

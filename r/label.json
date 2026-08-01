@@ -4,7 +4,9 @@
   "type": "registry:ui",
   "title": "Label",
   "description": "A <label> that does not select its own text on a double click.",
-  "dependencies": ["@apostel/bedrock"],
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
   "files": [
     {
       "path": "registry/bedrock/ui/label.tsx",

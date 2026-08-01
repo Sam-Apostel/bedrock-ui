@@ -37,6 +37,7 @@ const NAV = [
   ['migration-from-radix.html', 'Migrating'],
   ['radix-parity.html', 'Radix parity'],
   ['shadcn-registry.html', 'shadcn registry'],
+  ['agent-skill.html', 'Agent skill'],
   ['gaps.html', 'Gaps'],
 ]
 
@@ -118,6 +119,8 @@ for (const { source, out, title } of PAGES) {
 cpSync('docs/compat.html', join(OUT, 'compat.html'))
 // The registry is fetched from the same host the docs are on.
 cpSync('r', join(OUT, 'r'), { recursive: true })
+// So is the agent skill, which people install with curl.
+cpSync('skills', join(OUT, 'skills'), { recursive: true })
 writeFileSync(join(OUT, 'CNAME'), `${DOMAIN}\n`)
 // Pages would otherwise run Jekyll over this and drop anything underscored.
 writeFileSync(join(OUT, '.nojekyll'), '')

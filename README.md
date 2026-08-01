@@ -199,7 +199,12 @@ shadcn's own components.
 uses in whatever browser you open it in, and says what each missing one does to
 your UI. Chrome 141 scores 20 of 21.
 
-Releasing the package and the site is [`RELEASING.md`](./RELEASING.md).
+Migrating with an agent: [`skills/migrate-to-bedrock`](./skills/migrate-to-bedrock/SKILL.md),
+a Claude Code skill that does the mechanical work and brings you the four
+decisions it cannot make for you.
+
+Contributing is [`CONTRIBUTING.md`](./CONTRIBUTING.md); releasing is
+[`RELEASING.md`](./RELEASING.md).
 
 [`docs/gaps.md`](./docs/gaps.md) is the case against adopting this. Read it
 first if you are evaluating.

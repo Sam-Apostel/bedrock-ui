@@ -80,7 +80,7 @@ is nothing to point them at, and that is the intended outcome rather than a
 coverage hole.
 
 The two that are not: `modal={false}` is a decision recorded in `AGENTS.md`, and
-`forceMount` is [a named gap](./gaps.md#4-closed-content-is-not-in-the-dom-and-there-is-no-forcemount).
+`forceMount` is [a named gap](./gaps.md#8-no-forcemount).
 
 ## What passing 30 actually proves
 
@@ -98,7 +98,7 @@ The ones worth naming, because they are the load-bearing behaviours:
   `Description`
 - ctrl+wheel is not swallowed while open — their regression test for a
   scroll-lock bug, which passes here because there is no scroll lock at all
-  (and [that is its own problem](./gaps.md#5-no-scroll-lock))
+  (and [that is its own problem](./gaps.md#no-scroll-lock))
 
 ## What this does not cover
 

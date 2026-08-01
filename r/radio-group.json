@@ -4,7 +4,9 @@
   "type": "registry:ui",
   "title": "Radio Group",
   "description": "Real radios sharing a name, which is the whole of roving focus.",
-  "dependencies": ["@apostel/bedrock"],
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
   "files": [
     {
       "path": "registry/bedrock/ui/radio-group.tsx",

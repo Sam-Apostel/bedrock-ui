@@ -4,7 +4,10 @@
   "type": "registry:ui",
   "title": "Dropdown Menu",
   "description": "Popover plus roving focus and typeahead. Submenus need no configuration.",
-  "dependencies": ["@apostel/bedrock", "lucide-react"],
+  "dependencies": [
+    "@apostel/bedrock",
+    "lucide-react"
+  ],
   "files": [
     {
       "path": "registry/bedrock/ui/dropdown-menu.tsx",

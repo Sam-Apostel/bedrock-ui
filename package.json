@@ -21,7 +21,8 @@
     "url": "git+https://github.com/Sam-Apostel/bedrock-ui.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "type": "module",
   "sideEffects": false,
@@ -52,7 +53,10 @@
     "test:install": "playwright install chromium",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm run lint:graph && npm run build && npm run test",
     "prepublishOnly": "npm run verify",
-    "docs:build": "node scripts/build-docs.mjs"
+    "docs:build": "node scripts/build-docs.mjs",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "changeset publish"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

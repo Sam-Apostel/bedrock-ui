@@ -58,7 +58,7 @@ activation and no implicit `aria-expanded`.
 ```
 
 There is no fallback click handler, deliberately — see
-[gaps](./gaps.md#7-the-trigger-must-be-a-button-and-it-throws). If you are wrapping a
+[gaps](./gaps.md#4-the-trigger-must-be-a-button-and-it-throws). If you are wrapping a
 third-party component that renders a `div` and you cannot change it, take the
 props and own the accessibility:
 

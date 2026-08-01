@@ -41,7 +41,7 @@ These are safe to codemod.
 | `open` + `onOpenChange` on `Dialog.Root` | same props, import from `@apostel/bedrock/controlled` | Two roots, one import line. |
 | `[data-state="open"]` | `:open` | Native state, no JS mirror. |
 | `[data-state="closed"]` | `:not(:open)` | Same. |
-| `forceMount` | delete it, and check what depended on it | Closed content unmounts, as in Radix, but there is no way to opt out. See [gaps](./gaps.md#4-closed-content-is-not-in-the-dom-and-there-is-no-forcemount). |
+| `forceMount` | delete it, and check what depended on it | Closed content unmounts, as in Radix, but there is no way to opt out. See [gaps](./gaps.md#8-no-forcemount). |
 | `<AlertDialog.Action>` | `<Dialog.Close>` plus your `onClick` | No separate part; a close plus a handler. |
 
 A rough sed for the state selectors, which is the bulk of a real diff:
@@ -90,7 +90,7 @@ your `Close` button are the ways out. Nothing about focus or dismissal is broken
 — it is one fewer way to close.
 
 `<dialog closedby="any">` restores it and will be an opt-in prop once the naming
-question in [gaps](./gaps.md#light-dismiss-is-opt-out-not-opt-in) is settled. If
+question in [gaps](./gaps.md#7-no-light-dismiss-unless-you-ask-for-it) is settled. If
 you need it today, put it on the element yourself:
 
 ```tsx

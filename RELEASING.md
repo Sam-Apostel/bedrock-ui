@@ -52,38 +52,67 @@ Everything marked **you** below is a manual step outside this repository.
 
 ### First release
 
-The package does not exist yet, so this one is by hand:
+The package does not exist yet, and npm has nothing to attach a trusted
+publisher to, so the first one is by hand:
 
 ```bash
-npm version 0.1.0            # writes package.json, commits, tags v0.1.0
+npx changeset version        # applies .changeset/*.md → version + CHANGELOG
 npm run verify               # format, lint, types, graph, build, 102 tests
 npm publish --no-provenance  # access: public is already in package.json
-git push --follow-tags
+git add -A && git commit -m 'Version packages' && git push
 ```
 
-Then go back and add the trusted publisher from step 2.
+Then go back and add the trusted publisher from step 2. Every release after
+that is automated.
 
-### Every release after that
+### Every release after that: changesets
+
+Nobody types a version number, and nothing publishes without a note explaining
+why. The loop has two halves and both are CI's.
+
+**When you change something a consumer would notice**, add a changeset in the
+same PR:
 
 ```bash
-npm version patch|minor|major
-git push --follow-tags
+npm run changeset
 ```
 
-The tag is the trigger. `.github/workflows/release.yml` runs `npm ci`, installs
-Chromium, runs the whole verify chain, and publishes — so a release that fails a
-test does not go out.
+It asks for the bump — patch, minor or major — and for a description. Write that
+description for someone *using* the package, not for someone reading the diff;
+it becomes the changelog entry verbatim.
+
+Tests, docs and internal refactors need no changeset.
+
+**On merge to `main`**, `.github/workflows/release.yml` runs the whole verify
+chain and then does one of two things:
+
+| state | what happens |
+| --- | --- |
+| changesets are pending | opens or updates a **Version Packages** PR that bumps the version, rewrites `CHANGELOG.md` and deletes the consumed changesets |
+| none are pending | the version PR was merged, so it publishes to npm |
+
+So releasing is: merge the Version Packages PR. That is the whole ritual.
+
+`npx changeset status` tells you what is queued without changing anything.
+
+### Why changesets rather than a tag
+
+A tag encodes a decision — "this is a minor" — at the moment you release, which
+is the moment you have least context. A changeset encodes it in the PR that
+caused it, when you still remember whether the prop rename was breaking. The
+changelog then writes itself from those notes rather than from commit subjects,
+which is why `CHANGELOG.md` in this repo is one heading and a pointer.
 
 ### Before the first release, decide these
 
-- **The scope name.** `@apostel/bedrock` is what the README, the docs and all
-  24 registry items say. Changing it later means changing the registry too,
-  which people will have already installed.
+- **The scope name.** `@apostel/bedrock` is what the README, the docs, the agent
+  skill and all 24 registry items say. Changing it later means changing the
+  registry too, which people will have already installed.
 - **`0.1.0`, not `1.0.0`.** Several things in `docs/gaps.md` are open questions
-  whose answers change public API. Semver before 1.0 lets those move.
-- **Whether `Dialog` keeps its current bundle.** `npm pack --dry-run` shows what
-  ships: `dist/`, `README.md`, `LICENSE`. No source maps of the tests, no
-  registry, no docs.
+  whose answers change public API. Semver before 1.0 lets those move. The queued
+  changeset says `minor`, which from `0.0.0` gives `0.1.0`.
+- **What ships.** `npm pack --dry-run` lists it: `dist/`, `skills/`,
+  `README.md`, `LICENSE`. No tests, no registry sources, no docs.
 
 ---
 
@@ -142,9 +171,10 @@ in the reader's browser, and a generator wrapping it would break that.
 
 ## What is deliberately not automated
 
-- **Version bumps.** `npm version` is a human decision; nothing infers semver
-  from commit messages here.
-- **Changelog entries.** `CHANGELOG.md` is written, not generated. It says what
-  changed for a consumer, which a commit list does not.
-- **The `main` branch.** There is no release branch and no backporting. Tag what
-  is on `main`.
+- **Deciding the bump.** Changesets asks; it does not infer semver from commit
+  messages. Whether a prop rename is breaking is a judgement, and the person who
+  made the change is the one who knows.
+- **Merging the version PR.** That is the release. Leaving it open is how you
+  batch several changes into one version.
+- **Branching.** There is no release branch and no backporting. What is on
+  `main` is what ships.

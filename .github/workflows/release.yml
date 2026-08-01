@@ -2,17 +2,27 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      # The action opens and updates the version PR.
+      contents: write
+      pull-requests: write
       # Required for npm provenance, which package.json opts into.
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # changesets needs history to work out what has been released.
+          fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -22,13 +32,26 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
 
-      # prepublishOnly runs the same verify chain; this makes a failure visible
-      # as its own step rather than buried in npm's output.
+      # Gate both paths on the same chain CI runs. prepublishOnly runs it again
+      # at publish time; this makes a failure its own step rather than something
+      # buried in npm's output.
       - run: npm run verify
 
-      # NPM_TOKEN is optional: with trusted publishing configured on npm, the
-      # OIDC token from `id-token: write` authenticates on its own and the env
-      # var is simply empty. See RELEASING.md.
-      - run: npm publish
+      # Two behaviours in one action, decided by whether changesets are pending:
+      #
+      #   changesets present → open or update a "Version Packages" PR that bumps
+      #                        the version and writes CHANGELOG.md
+      #   none present       → the version PR was merged, so publish
+      #
+      # Nobody types a version number, and nothing publishes without a changeset
+      # describing why.
+      - uses: changesets/action@v1
+        with:
+          version: npm run version
+          publish: npm run release
+          commit: 'Version packages'
+          title: 'Version packages'
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -9,6 +9,7 @@
 - [Migrating from Radix](./migration-from-radix.md)
 - [Radix's test suite, run against bedrock](./radix-parity.md) — 30 pass, 0 fail, 13 N/A
 - [shadcn registry](./shadcn-registry.md)
+- [The migration skill for agents](./agent-skill.md)
 - [Gaps, and reasons not to migrate](./gaps.md)
 
 Start with [gaps](./gaps.md) if you are evaluating rather than using. It is the

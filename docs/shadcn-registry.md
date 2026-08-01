@@ -34,7 +34,7 @@ Radix primitive.
 
 Mixing is safe: Radix and bedrock are separate packages with no shared globals
 and no CSS collisions. It does mean both are in your bundle until the migration
-finishes — see [gaps](./gaps.md#2-the-saving-is-uneven-and-the-menus-barely-save-anything).
+finishes — see [gaps](./gaps.md#3-the-saving-is-uneven-and-menus-barely-save-anything).
 
 ## What changed inside the component
 
@@ -56,7 +56,7 @@ one console warning pointing at the `backdrop:` variant on `DialogContent`,
 where those styles now live.
 
 If your overlay had children (a spinner, a close affordance), that is a redesign
-rather than a migration. See [gaps](./gaps.md#9-the-backdrop-is-not-a-node).
+rather than a migration. See [gaps](./gaps.md#6-several-parts-render-nothing-and-that-is-a-redesign-not-a-rename).
 
 ### Animation keys off `:open`
 

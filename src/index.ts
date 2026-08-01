@@ -1,3 +1,7 @@
+// Every part uses hooks or context, so the whole graph is client-side.
+// Without this the package cannot be imported from a React Server Component.
+'use client'
+
 export { Slot } from './slot'
 export { composeRefs } from './compose-refs'
 export { validateTrigger } from './validate-trigger'

@@ -138,10 +138,11 @@ The reason is short: there is no native roving tabindex, no native typeahead, no
 focus trap for non-modal layers, and no way to anchor to a pointer coordinate.
 Every menu-shaped primitive needs all four.
 
-Expect a bundle in the region of a fifth of the Radix equivalent for the first
-group and much less of a saving for the third. The bigger win is behavioural —
-no z-index fights, no portal-and-clipping bugs, no positioning recalculation on
-every scroll frame.
+Measured for Dialog — esbuild, minified, gzipped, React external — it is
+**1.42 kB against `@radix-ui/react-dialog`'s 13.7 kB**, or 1.55 kB for the
+controlled entry point. Expect roughly that ratio for the first group, much less
+for the third. The bigger win is behavioural — no z-index fights, no
+portal-and-clipping bugs, no positioning recalculation on every scroll frame.
 
 ## Browser support
 
@@ -164,6 +165,20 @@ Ship `bedrock.css` or don't — every part takes `className` and renders one
 element. Open and closed states are selectable with `:open` and
 `:popover-open`; enter and exit animation is `@starting-style` plus
 `transition-behavior: allow-discrete`, no `forceMount`, no presence wrapper.
+
+## Docs
+
+[`docs/`](./docs/README.md) — getting started, the Dialog API, styling, the
+[migration guide](./docs/migration-from-radix.md), and a
+[shadcn registry](./docs/shadcn-registry.md) that swaps Radix for bedrock in
+shadcn's own components.
+
+[`docs/compat.html`](./docs/compat.html) tests every platform feature bedrock
+uses in whatever browser you open it in, and says what each missing one does to
+your UI. Chrome 141 scores 20 of 21.
+
+[`docs/gaps.md`](./docs/gaps.md) is the case against adopting this. Read it
+first if you are evaluating.
 
 ## Status
 

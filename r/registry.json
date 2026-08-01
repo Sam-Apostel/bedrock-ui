@@ -1,0 +1,24 @@
+{
+  "name": "bedrock",
+  "homepage": "https://github.com/Sam-Apostel/bedrock-ui",
+  "items": [
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "shadcn/ui's Dialog on bedrock. Native <dialog>, no portal, no overlay element, no focus-trap JavaScript. Uncontrolled — install dialog-controlled if React needs to own the open state."
+    },
+    {
+      "name": "dialog-controlled",
+      "type": "registry:ui",
+      "title": "Dialog (controlled)",
+      "description": "The same Dialog against bedrock's controlled entry point. Takes a required `open` prop that can refuse an open or a close."
+    },
+    {
+      "name": "alert-dialog",
+      "type": "registry:ui",
+      "title": "Alert Dialog",
+      "description": "shadcn/ui's AlertDialog on bedrock's Dialog, with role=\"alertdialog\". Action and Cancel are both close buttons."
+    }
+  ]
+}

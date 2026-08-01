@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * Separate module graph from the root entry point. If nothing in an app
  * imports '@apostel/bedrock/controlled', none of this reaches the bundle —

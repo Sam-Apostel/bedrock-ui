@@ -47,6 +47,7 @@
     "lint:graph": "depcruise src --config .dependency-cruiser.cjs",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
+    "registry:build": "node scripts/build-registry.mjs",
     "test": "playwright test",
     "test:install": "playwright install chromium",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm run lint:graph && npm run build && npm run test",

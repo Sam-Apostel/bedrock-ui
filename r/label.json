@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "label",
+  "type": "registry:ui",
+  "title": "Label",
+  "description": "A <label> that does not select its own text on a double click.",
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
+  "files": [
+    {
+      "path": "registry/bedrock/ui/label.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/label.tsx",
+      "content": "'use client'\n\nimport * as React from 'react'\nimport { Label as Bedrock } from '@apostel/bedrock'\n\nimport { cn } from '@/lib/utils'\n\nfunction Label({ className, ...props }: React.ComponentProps<typeof Bedrock.Root>) {\n  return (\n    <Bedrock.Root\n      data-slot=\"label\"\n      className={cn(\n        'flex items-center gap-2 text-sm leading-none font-medium select-none',\n        'group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50',\n        'peer-disabled:cursor-not-allowed peer-disabled:opacity-50',\n        className,\n      )}\n      {...props}\n    />\n  )\n}\n\nexport { Label }\n"
+    }
+  ]
+}

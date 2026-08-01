@@ -192,12 +192,15 @@ dialog invoker does not — `Dialog.Trigger` writes it by hand. The message is
 right for Popover and Tooltip and slightly wrong for the primitive most people
 will hit it on.
 
-### The registry covers three components
+### The registry is untested
 
-`dialog`, `dialog-controlled` and `alert-dialog`. Every primitive the rest need
-now exists, so what is missing is the shadcn wrapper for each — a writing job
-rather than an engineering one, and listed per component in
-[the registry docs](./shadcn-registry.md#coverage) rather than implied.
+24 items, covering every shadcn component that was Radix-backed. They are
+type-checked only as far as being valid TypeScript — nothing installs them into
+a real shadcn app and renders them, so a wrong class name or a missing export
+would not be caught here.
+
+`menubar`, `navigation-menu`, `toast`, `sheet` and `drawer` are not written yet;
+the primitives they need all exist.
 
 ### No bundle-size regression check
 

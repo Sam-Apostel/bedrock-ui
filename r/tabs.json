@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "tabs",
+  "type": "registry:ui",
+  "title": "Tabs",
+  "description": "Roving tab list. The unselected panel is unmounted, so leaving a tab resets it.",
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
+  "files": [
+    {
+      "path": "registry/bedrock/ui/tabs.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/tabs.tsx",
+      "content": "'use client'\n\nimport * as React from 'react'\nimport { Tabs as Bedrock } from '@apostel/bedrock'\n\nimport { cn } from '@/lib/utils'\n\n/** Note: the unselected panel is unmounted, so leaving a tab resets it. */\nfunction Tabs({ className, ...props }: React.ComponentProps<typeof Bedrock.Root>) {\n  return (\n    <Bedrock.Root data-slot=\"tabs\" className={cn('flex flex-col gap-2', className)} {...props} />\n  )\n}\n\nfunction TabsList({ className, ...props }: React.ComponentProps<typeof Bedrock.List>) {\n  return (\n    <Bedrock.List\n      data-slot=\"tabs-list\"\n      className={cn(\n        'bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]',\n        className,\n      )}\n      {...props}\n    />\n  )\n}\n\nfunction TabsTrigger({ className, ...props }: React.ComponentProps<typeof Bedrock.Trigger>) {\n  return (\n    <Bedrock.Trigger\n      data-slot=\"tabs-trigger\"\n      className={cn(\n        \"text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4\",\n        'aria-selected:bg-background dark:aria-selected:text-foreground aria-selected:shadow-sm dark:aria-selected:border-input dark:aria-selected:bg-input/30',\n        className,\n      )}\n      {...props}\n    />\n  )\n}\n\nfunction TabsContent({ className, ...props }: React.ComponentProps<typeof Bedrock.Content>) {\n  return (\n    <Bedrock.Content\n      data-slot=\"tabs-content\"\n      className={cn('flex-1 outline-none', className)}\n      {...props}\n    />\n  )\n}\n\nexport { Tabs, TabsList, TabsTrigger, TabsContent }\n"
+    }
+  ]
+}

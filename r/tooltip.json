@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "tooltip",
+  "type": "registry:ui",
+  "title": "Tooltip",
+  "description": "popover=\"hint\", so it layers above an open menu instead of closing it.",
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
+  "files": [
+    {
+      "path": "registry/bedrock/ui/tooltip.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/tooltip.tsx",
+      "content": "'use client'\n\nimport * as React from 'react'\nimport { Tooltip as Bedrock } from '@apostel/bedrock'\n\nimport { cn } from '@/lib/utils'\n\n/**\n * `popover=\"hint\"`, so a tooltip layers above an open menu instead of closing\n * it. There is no Provider: the delay is a prop on the root, because there is\n * no shared timer to coordinate.\n */\nfunction TooltipProvider({ children }: { children?: React.ReactNode; delayDuration?: number }) {\n  return <>{children}</>\n}\n\nfunction Tooltip({ ...props }: React.ComponentProps<typeof Bedrock.Root>) {\n  return <Bedrock.Root data-slot=\"tooltip\" {...props} />\n}\n\nfunction TooltipTrigger({ ...props }: React.ComponentProps<typeof Bedrock.Trigger>) {\n  return <Bedrock.Trigger data-slot=\"tooltip-trigger\" {...props} />\n}\n\nfunction TooltipContent({\n  className,\n  sideOffset = 4,\n  children,\n  ...props\n}: React.ComponentProps<typeof Bedrock.Content>) {\n  return (\n    <Bedrock.Content\n      data-slot=\"tooltip-content\"\n      sideOffset={sideOffset}\n      className={cn(\n        'bg-primary text-primary-foreground w-fit rounded-md px-3 py-1.5 text-xs text-balance',\n        'scale-95 opacity-0 transition-all transition-discrete duration-100',\n        'open:scale-100 open:opacity-100 starting:open:scale-95 starting:open:opacity-0',\n        className,\n      )}\n      {...props}\n    >\n      {children}\n    </Bedrock.Content>\n  )\n}\n\nexport { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }\n"
+    }
+  ]
+}

@@ -5,29 +5,30 @@ back. Same exports, same `data-slot` attributes, same class names — the diff i
 your app is the import inside `components/ui/*.tsx`, and nothing above it.
 
 ```bash
-npx shadcn@latest add https://raw.githubusercontent.com/Sam-Apostel/bedrock-ui/main/r/dialog.json
-npx shadcn@latest add https://raw.githubusercontent.com/Sam-Apostel/bedrock-ui/main/r/alert-dialog.json
+npx shadcn@latest add https://bedrock.sams.land/r/dialog.json
+npx shadcn@latest add https://bedrock.sams.land/r/dropdown-menu.json
 ```
 
-These overwrite `components/ui/dialog.tsx` and `components/ui/alert-dialog.tsx`.
-Commit first; the CLI will ask before overwriting, and you want to be able to
-read the diff.
+Each one overwrites the matching file in `components/ui/`. Commit first; the CLI
+asks before overwriting, and the diff is the thing worth reading.
 
 ## Coverage
 
-Every primitive a shadcn component needs now exists, so the ceiling is no longer
-coverage. What is shipped here is **3 registry items**; the rest are a writing
-job rather than an engineering one, and they are listed as pending rather than
-implied.
+**24 registry items**, covering every shadcn/ui component that was backed by a
+Radix primitive.
 
 | shadcn component | status | notes |
 | --- | --- | --- |
 | `dialog` | **replaced** | Uncontrolled. `Portal` and `Overlay` are kept as no-ops so blocks keep compiling. |
 | `dialog-controlled` | **added** | Same file, controlled entry point, required `open`. Not a shadcn name — install it *as* `dialog` when you need the veto. |
 | `alert-dialog` | **replaced** | `role="alertdialog"` on the same primitive. `Action`/`Cancel` are close buttons. |
-| `sheet`, `drawer` | pending | Both are dialogs plus positioning; `Dialog` backs them already. |
-| `popover`, `tooltip`, `hover-card`, `dropdown-menu`, `context-menu`, `menubar`, `navigation-menu`, `select` | pending | Primitive exists; the shadcn wrapper is not written yet. |
-| `accordion`, `collapsible`, `tabs`, `checkbox`, `radio-group`, `switch`, `toggle`, `toggle-group`, `slider`, `progress`, `separator`, `label`, `aspect-ratio`, `scroll-area`, `avatar`, `toast` | pending | Same. Several get simpler rather than harder: the `Indicator` and `Thumb` elements disappear into pseudo-elements. |
+| `popover`, `tooltip`, `hover-card` | **replaced** | Anchor positioning; `side`/`align`/`sideOffset` keep their names. |
+| `dropdown-menu`, `context-menu` | **replaced** | Popover plus roving focus. `ContextMenuTrigger` renders its children in place — the root *is* the trigger area. |
+| `select` | **replaced** | A real `<select>`. `SelectValue` is `<selectedcontent>`; there is no `placeholder` render prop, because the closed state mirrors the chosen option's markup. |
+| `checkbox`, `switch`, `radio-group`, `slider`, `progress` | **replaced** | Native inputs. Every `Indicator` and `Thumb` element is gone; the marks are pseudo-elements, which is a smaller component and a bigger CSS change. |
+| `accordion`, `collapsible`, `tabs` | **replaced** | `<details>` for the first two. `AccordionTrigger` renders inside the `<summary>`. |
+| `label`, `separator`, `aspect-ratio`, `avatar`, `scroll-area`, `toggle`, `toggle-group` | **replaced** | |
+| `menubar`, `navigation-menu`, `toast`/`sonner`, `sheet`, `drawer` | pending | Primitives exist; the wrapper is not written. `sheet` and `drawer` are `Dialog` plus positioning. |
 | `combobox`, `command` | stays on Radix | Built on `cmdk`, not on a Radix primitive. |
 | `button`, `card`, `input`, `table`, `badge`, and the other unstyled-div components | unaffected | They never used Radix primitives. |
 
@@ -104,5 +105,5 @@ Reads `registry.json`, inlines each component's source, and writes `r/*.json` �
 the same output shape `shadcn build` produces, generated so a component and its
 registry entry cannot drift.
 
-Serve `r/` from anywhere static. The URLs above point at GitHub raw, which is
-enough until there is a docs site.
+`r/` is published as part of the docs site, so the registry URL and the
+documentation are the same host.

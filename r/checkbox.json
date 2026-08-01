@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "checkbox",
+  "type": "registry:ui",
+  "title": "Checkbox",
+  "description": "A real <input type=\"checkbox\">. The tick is a masked ::before under :checked, so there is no Indicator element.",
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
+  "files": [
+    {
+      "path": "registry/bedrock/ui/checkbox.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/checkbox.tsx",
+      "content": "'use client'\n\nimport * as React from 'react'\nimport { Checkbox as Bedrock } from '@apostel/bedrock'\n\nimport { cn } from '@/lib/utils'\n\n/**\n * A real `<input type=\"checkbox\">`, so there is no hidden input shadowing a\n * button and nothing to keep in sync.\n *\n * The tick is drawn by the element rather than by a `CheckIcon` inside it — an\n * input has no children — so `CheckboxIndicator` is gone and the mark is a\n * masked `::before` under `:checked` and `:indeterminate`.\n */\nfunction Checkbox({ className, ...props }: React.ComponentProps<typeof Bedrock.Root>) {\n  return (\n    <Bedrock.Root\n      data-slot=\"checkbox\"\n      className={cn(\n        'peer border-input dark:bg-input/30 size-4 shrink-0 appearance-none rounded-[4px] border shadow-xs outline-none transition-shadow',\n        'checked:bg-primary checked:border-primary checked:text-primary-foreground',\n        'indeterminate:bg-primary indeterminate:border-primary indeterminate:text-primary-foreground',\n        'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',\n        'disabled:cursor-not-allowed disabled:opacity-50',\n        // The mark itself: a checkmark when checked, a dash when indeterminate.\n        \"before:block before:size-3.5 before:bg-current before:opacity-0 before:content-['']\",\n        'before:[mask:var(--check)_center/contain_no-repeat] checked:before:opacity-100',\n        'indeterminate:before:opacity-100 indeterminate:before:[mask:var(--dash)_center/contain_no-repeat]',\n        \"[--check:url(\\\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='black' d='M6.2 11.3 3.3 8.4l1.1-1.1 1.8 1.8 4.4-4.4 1.1 1.1z'/></svg>\\\")]\",\n        \"[--dash:url(\\\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect fill='black' x='3' y='7' width='10' height='2'/></svg>\\\")]\",\n        'grid place-content-center',\n        className,\n      )}\n      {...props}\n    />\n  )\n}\n\nexport { Checkbox }\n"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "popover",
+  "type": "registry:ui",
+  "title": "Popover",
+  "description": "Top layer plus anchor positioning: no portal, no z-index, no scroll recalculation.",
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
+  "files": [
+    {
+      "path": "registry/bedrock/ui/popover.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/popover.tsx",
+      "content": "'use client'\n\nimport * as React from 'react'\nimport { Popover as Bedrock } from '@apostel/bedrock'\n\nimport { cn } from '@/lib/utils'\n\n/**\n * The top layer plus anchor positioning: no portal, no z-index, no positioning\n * recalculation on scroll. `side`, `align` and `sideOffset` keep Radix's names\n * and become one `position-area` declaration.\n */\nfunction Popover({ ...props }: React.ComponentProps<typeof Bedrock.Root>) {\n  return <Bedrock.Root data-slot=\"popover\" {...props} />\n}\n\nfunction PopoverTrigger({ ...props }: React.ComponentProps<typeof Bedrock.Trigger>) {\n  return <Bedrock.Trigger data-slot=\"popover-trigger\" {...props} />\n}\n\nfunction PopoverAnchor({ ...props }: React.ComponentProps<typeof Bedrock.Anchor>) {\n  return <Bedrock.Anchor data-slot=\"popover-anchor\" {...props} />\n}\n\nfunction PopoverContent({\n  className,\n  align = 'center',\n  sideOffset = 4,\n  ...props\n}: React.ComponentProps<typeof Bedrock.Content>) {\n  return (\n    <Bedrock.Content\n      data-slot=\"popover-content\"\n      align={align}\n      sideOffset={sideOffset}\n      className={cn(\n        'bg-popover text-popover-foreground w-72 rounded-md border p-4 shadow-md outline-hidden',\n        'scale-95 opacity-0 transition-all transition-discrete duration-150',\n        'open:scale-100 open:opacity-100 starting:open:scale-95 starting:open:opacity-0',\n        className,\n      )}\n      {...props}\n    />\n  )\n}\n\n/** Kept for API parity; it is a close button rather than a wrapper. */\nfunction PopoverClose({ ...props }: React.ComponentProps<typeof Bedrock.Close>) {\n  return <Bedrock.Close data-slot=\"popover-close\" {...props} />\n}\n\nexport { Popover, PopoverTrigger, PopoverContent, PopoverAnchor, PopoverClose }\n"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "radio-group",
+  "type": "registry:ui",
+  "title": "Radio Group",
+  "description": "Real radios sharing a name, which is the whole of roving focus.",
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
+  "files": [
+    {
+      "path": "registry/bedrock/ui/radio-group.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/radio-group.tsx",
+      "content": "'use client'\n\nimport * as React from 'react'\nimport { RadioGroup as Bedrock } from '@apostel/bedrock'\n\nimport { cn } from '@/lib/utils'\n\n/**\n * Real `<input type=\"radio\">`s sharing a name, which is the whole of roving\n * focus: one tab stop, arrow keys that move and select, wrapping, Home and End\n * — from the browser rather than from a keydown handler.\n */\nfunction RadioGroup({ className, ...props }: React.ComponentProps<typeof Bedrock.Root>) {\n  return <Bedrock.Root data-slot=\"radio-group\" className={cn('grid gap-3', className)} {...props} />\n}\n\nfunction RadioGroupItem({ className, ...props }: React.ComponentProps<typeof Bedrock.Item>) {\n  return (\n    <Bedrock.Item\n      data-slot=\"radio-group-item\"\n      className={cn(\n        'border-input text-primary dark:bg-input/30 aspect-square size-4 shrink-0 appearance-none rounded-full border shadow-xs outline-none transition-[color,box-shadow]',\n        'checked:border-primary',\n        'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',\n        'disabled:cursor-not-allowed disabled:opacity-50',\n        // The dot, drawn by the input rather than by an Indicator element.\n        \"grid place-content-center before:size-2 before:rounded-full before:bg-current before:opacity-0 before:content-[''] checked:before:opacity-100\",\n        className,\n      )}\n      {...props}\n    />\n  )\n}\n\nexport { RadioGroup, RadioGroupItem }\n"
+    }
+  ]
+}

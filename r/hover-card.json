@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "hover-card",
+  "type": "registry:ui",
+  "title": "Hover Card",
+  "description": "A hoverable popover whose trigger may be an <a>, which link previews need.",
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
+  "files": [
+    {
+      "path": "registry/bedrock/ui/hover-card.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/hover-card.tsx",
+      "content": "'use client'\n\nimport * as React from 'react'\nimport { HoverCard as Bedrock } from '@apostel/bedrock'\n\nimport { cn } from '@/lib/utils'\n\n/** The trigger may be an `<a>`, which is what link previews need. */\nfunction HoverCard({ ...props }: React.ComponentProps<typeof Bedrock.Root>) {\n  return <Bedrock.Root data-slot=\"hover-card\" {...props} />\n}\n\nfunction HoverCardTrigger({ ...props }: React.ComponentProps<typeof Bedrock.Trigger>) {\n  return <Bedrock.Trigger data-slot=\"hover-card-trigger\" {...props} />\n}\n\nfunction HoverCardContent({\n  className,\n  align = 'center',\n  sideOffset = 4,\n  ...props\n}: React.ComponentProps<typeof Bedrock.Content>) {\n  return (\n    <Bedrock.Content\n      data-slot=\"hover-card-content\"\n      align={align}\n      sideOffset={sideOffset}\n      className={cn(\n        'bg-popover text-popover-foreground w-64 rounded-md border p-4 shadow-md outline-hidden',\n        'scale-95 opacity-0 transition-all transition-discrete duration-150',\n        'open:scale-100 open:opacity-100 starting:open:scale-95 starting:open:opacity-0',\n        className,\n      )}\n      {...props}\n    />\n  )\n}\n\nexport { HoverCard, HoverCardTrigger, HoverCardContent }\n"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "aspect-ratio",
+  "type": "registry:ui",
+  "title": "Aspect Ratio",
+  "description": "One element with the aspect-ratio property, not a padding-bottom wrapper.",
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
+  "files": [
+    {
+      "path": "registry/bedrock/ui/aspect-ratio.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/aspect-ratio.tsx",
+      "content": "'use client'\n\nimport * as React from 'react'\nimport { AspectRatio as Bedrock } from '@apostel/bedrock'\n\n/**\n * One element with `aspect-ratio`. Radix wraps a padding-bottom box around an\n * absolutely positioned child; the CSS property has been Baseline since 2021,\n * so both go away and the element lays out normally.\n */\nfunction AspectRatio({ ...props }: React.ComponentProps<typeof Bedrock.Root>) {\n  return <Bedrock.Root data-slot=\"aspect-ratio\" {...props} />\n}\n\nexport { AspectRatio }\n"
+    }
+  ]
+}

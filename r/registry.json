@@ -19,6 +19,132 @@
       "type": "registry:ui",
       "title": "Alert Dialog",
       "description": "shadcn/ui's AlertDialog on bedrock's Dialog, with role=\"alertdialog\". Action and Cancel are both close buttons."
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "title": "Label",
+      "description": "A <label> that does not select its own text on a double click."
+    },
+    {
+      "name": "separator",
+      "type": "registry:ui",
+      "title": "Separator",
+      "description": "One element, role=\"separator\" or removed from the tree when decorative."
+    },
+    {
+      "name": "aspect-ratio",
+      "type": "registry:ui",
+      "title": "Aspect Ratio",
+      "description": "One element with the aspect-ratio property, not a padding-bottom wrapper."
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "description": "A real <input type=\"checkbox\">. The tick is a masked ::before under :checked, so there is no Indicator element."
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "title": "Switch",
+      "description": "A checkbox with role=\"switch\"; the thumb is a ::before rather than an element."
+    },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "title": "Progress",
+      "description": "A real <progress>. Omit value for indeterminate; the fill is ::-webkit-progress-value."
+    },
+    {
+      "name": "slider",
+      "type": "registry:ui",
+      "title": "Slider",
+      "description": "An <input type=\"range\">. Single value, because a range input has one thumb."
+    },
+    {
+      "name": "radio-group",
+      "type": "registry:ui",
+      "title": "Radio Group",
+      "description": "Real radios sharing a name, which is the whole of roving focus."
+    },
+    {
+      "name": "collapsible",
+      "type": "registry:ui",
+      "title": "Collapsible",
+      "description": "<details> and <summary>: opens before hydration and without JavaScript."
+    },
+    {
+      "name": "accordion",
+      "type": "registry:ui",
+      "title": "Accordion",
+      "description": "<details name> for single-open exclusivity, so no effect closes the siblings."
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "Tabs",
+      "description": "Roving tab list. The unselected panel is unmounted, so leaving a tab resets it."
+    },
+    {
+      "name": "toggle",
+      "type": "registry:ui",
+      "title": "Toggle",
+      "description": "A button with aria-pressed. State is [aria-pressed=true], not [data-state=on]."
+    },
+    {
+      "name": "toggle-group",
+      "type": "registry:ui",
+      "title": "Toggle Group",
+      "description": "Toggle buttons sharing one tab stop."
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "An <img> with a fallback shown only when it fails to load."
+    },
+    {
+      "name": "scroll-area",
+      "type": "registry:ui",
+      "title": "Scroll Area",
+      "description": "Native scrolling styled with scrollbar-width and scrollbar-color."
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "Top layer plus anchor positioning: no portal, no z-index, no scroll recalculation."
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "title": "Tooltip",
+      "description": "popover=\"hint\", so it layers above an open menu instead of closing it."
+    },
+    {
+      "name": "hover-card",
+      "type": "registry:ui",
+      "title": "Hover Card",
+      "description": "A hoverable popover whose trigger may be an <a>, which link previews need."
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "A real <select> under appearance: base-select, so a phone still gets its own picker."
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown Menu",
+      "description": "Popover plus roving focus and typeahead. Submenus need no configuration."
+    },
+    {
+      "name": "context-menu",
+      "type": "registry:ui",
+      "title": "Context Menu",
+      "description": "The same menu anchored to the pointer. Root is the trigger area."
     }
   ]
 }

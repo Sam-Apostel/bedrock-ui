@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "scroll-area",
+  "type": "registry:ui",
+  "title": "Scroll Area",
+  "description": "Native scrolling styled with scrollbar-width and scrollbar-color.",
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
+  "files": [
+    {
+      "path": "registry/bedrock/ui/scroll-area.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/scroll-area.tsx",
+      "content": "'use client'\n\nimport * as React from 'react'\nimport { ScrollArea as Bedrock } from '@apostel/bedrock'\n\nimport { cn } from '@/lib/utils'\n\n/**\n * Native scrolling, styled with `scrollbar-width` and `scrollbar-color` rather\n * than scrollbars rebuilt out of divs. Momentum, overscroll behaviour and\n * scroll anchoring come with it; a scrollbar with its own hover animation does\n * not.\n */\nfunction ScrollArea({ className, children, ...props }: React.ComponentProps<typeof Bedrock.Root>) {\n  return (\n    <Bedrock.Root\n      data-slot=\"scroll-area\"\n      className={cn(\n        'relative [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]',\n        'focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:ring-[3px]',\n        className,\n      )}\n      {...props}\n    >\n      <Bedrock.Viewport data-slot=\"scroll-area-viewport\" className=\"size-full\">\n        {children}\n      </Bedrock.Viewport>\n    </Bedrock.Root>\n  )\n}\n\nexport { ScrollArea }\n"
+    }
+  ]
+}

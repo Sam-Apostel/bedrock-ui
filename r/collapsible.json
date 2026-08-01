@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "collapsible",
+  "type": "registry:ui",
+  "title": "Collapsible",
+  "description": "<details> and <summary>: opens before hydration and without JavaScript.",
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
+  "files": [
+    {
+      "path": "registry/bedrock/ui/collapsible.tsx",
+      "type": "registry:ui",
+      "target": "components/ui/collapsible.tsx",
+      "content": "'use client'\n\nimport * as React from 'react'\nimport { Collapsible as Bedrock } from '@apostel/bedrock'\n\nimport { cn } from '@/lib/utils'\n\n/**\n * `<details>` and `<summary>`. The trigger is bound to its parent by the\n * parser, so it opens before hydration and keeps working without JavaScript.\n */\nfunction Collapsible({ ...props }: React.ComponentProps<typeof Bedrock.Root>) {\n  return <Bedrock.Root data-slot=\"collapsible\" {...props} />\n}\n\nfunction CollapsibleTrigger({ className, ...props }: React.ComponentProps<typeof Bedrock.Trigger>) {\n  return (\n    <Bedrock.Trigger\n      data-slot=\"collapsible-trigger\"\n      className={cn('cursor-pointer list-none [&::-webkit-details-marker]:hidden', className)}\n      {...props}\n    />\n  )\n}\n\nfunction CollapsibleContent({ className, ...props }: React.ComponentProps<typeof Bedrock.Content>) {\n  return (\n    <Bedrock.Content\n      data-slot=\"collapsible-content\"\n      className={cn('overflow-hidden text-sm', className)}\n      {...props}\n    />\n  )\n}\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent }\n"
+    }
+  ]
+}

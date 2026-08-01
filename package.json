@@ -1,0 +1,35 @@
+{
+  "name": "@apostel/bedrock",
+  "version": "0.0.0",
+  "description": "Headless React primitives built on the browser instead of on top of it.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "bedrock.css"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./controlled": {
+      "types": "./dist/controlled/index.d.ts",
+      "default": "./dist/controlled/index.js"
+    },
+    "./bedrock.css": "./bedrock.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.6.0"
+  }
+}

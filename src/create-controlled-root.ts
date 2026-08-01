@@ -78,6 +78,12 @@ export function useControlledRoot(
   useEffect(() => {
     if (!node) return
     if (adapter.isOpen(node) === open) return
+
+    // Note for adapter authors: a state update from a discrete event is flushed
+    // synchronously, so this runs while the browser is still inside the dispatch
+    // it is reacting to. An adapter whose close is a *request* — anything built
+    // on a close watcher — will find that call silently dropped as re-entrant.
+    // Adapters must close outright here; the veto already happened.
     if (open) adapter.open(node)
     else adapter.close(node)
   }, [node, open, adapter])

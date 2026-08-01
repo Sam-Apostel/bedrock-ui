@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "semi": false,
+  "singleQuote": true,
+  "jsxSingleQuote": false,
+  "trailingComma": "all",
+  "arrowParens": "always",
+  "_comment": "Markdown is excluded: the formatter rewrites emphasis markers and list spacing in hand-written prose, which is churn, not consistency.",
+  "ignorePatterns": ["dist", "package-lock.json", "**/*.md"]
+}

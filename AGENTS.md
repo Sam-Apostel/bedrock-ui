@@ -193,6 +193,16 @@ The allowlist lives in `validate-trigger.ts`.
 `<dialog>` exposes. Using it would make the controlled root unable to refuse a
 close.
 
+### D7a — the adapter's `close` is `close()`, and only there
+
+D7 governs the `Close` *part*, which must stay `request-close` so the user's
+close is offered to `cancel` and can be refused.
+
+`OpenStateAdapter.close` is the opposite situation: it runs only from
+reconciliation, after React has already decided. Asking again is both wrong and
+impossible — see §7. Adapters for close-watcher-backed elements (`<dialog>`,
+popovers, and anything with `closedby`) must close outright.
+
 ### D8 — React 19 minimum
 
 `ref` as a regular prop removes `forwardRef` from every component and keeps
@@ -286,10 +296,18 @@ Trivial and can be done any time between the above: `AspectRatio`, `Separator`,
 
 Raise these rather than solving them silently.
 
-- **`<dialog>` `beforetoggle` cancelability.** The code feature-detects
-  `event.cancelable` and falls back to effect reconciliation. Needs a real
-  Chrome test to confirm which path actually runs. Popover is expected to be
-  cleaner.
+- ~~**`<dialog>` `beforetoggle` cancelability.**~~ **Answered, Chrome 141.**
+  `beforetoggle` is cancelable for `closed->open` and *not* for `open->closed`;
+  `cancel` is cancelable for both Escape and `command="request-close"`. So opens
+  are refused outright with no visible movement, and closes are refused through
+  `cancel`. Covered by `tests/controlled.spec.ts`.
+
+  It surfaced a second thing, which is now D11: reconciliation cannot use
+  `requestClose()`. React flushes the effect synchronously inside the dispatch
+  it is reacting to, and a close watcher ignores a `requestClose()` re-entered
+  from its own cancel action — no error, no close, React and the DOM silently
+  disagree. A microtask is not enough; only a full task is, or `close()`, which
+  is what the adapter uses.
 - **Arrow direction after a position-try flip.** `@position-try` accepts a
   limited property set — inset, margin, sizing, self-alignment — and there is no
   selector exposing which fallback was applied. Verify against the current spec

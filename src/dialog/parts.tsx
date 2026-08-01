@@ -83,7 +83,9 @@ export function DialogClose({ asChild, ref, ...props }: DialogCloseProps) {
       // <dialog> has, and the controlled root's close veto is built on it.
       command="request-close"
       data-bedrock-dialog-close=""
-      ref={composeRefs<HTMLElement>(ref, (node) => validateTrigger(node, 'command', 'Dialog.Close'))}
+      ref={composeRefs<HTMLElement>(ref, (node) =>
+        validateTrigger(node, 'command', 'Dialog.Close'),
+      )}
     />
   )
 }

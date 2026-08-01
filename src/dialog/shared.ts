@@ -12,8 +12,13 @@ export function useDialogContext(part: string): RootContextValue {
 export const dialogAdapter: OpenStateAdapter = {
   isOpen: (node) => (node as HTMLDialogElement).open,
   open: (node) => (node as HTMLDialogElement).showModal(),
-  // requestClose rather than close, so `cancel` fires and stays vetoable.
-  close: (node) => (node as HTMLDialogElement).requestClose(),
+  // close(), not requestClose(), and only here. This runs when React has
+  // already decided — the user's close was offered to `cancel` and either
+  // refused or accepted, so asking a second time is both wrong and impossible:
+  // a close watcher ignores requestClose() re-entered from its own cancel
+  // action, and drops the call without an error. Dialog.Close still uses
+  // command="request-close", which is what keeps the veto vetoable.
+  close: (node) => (node as HTMLDialogElement).close(),
   closeVetoEvent: 'cancel',
 }
 

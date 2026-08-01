@@ -28,11 +28,7 @@ function list(tags: readonly string[]) {
  * removes. Development throws so it can't be shipped by accident. Production
  * logs, so a trigger behind a rarely-rendered branch isn't a silent mystery.
  */
-export function validateTrigger(
-  node: HTMLElement | null,
-  kind: InvokerKind,
-  part: string,
-): void {
+export function validateTrigger(node: HTMLElement | null, kind: InvokerKind, part: string): void {
   if (!node) return
 
   const allowed = ALLOWED[kind]

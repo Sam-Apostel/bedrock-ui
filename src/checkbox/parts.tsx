@@ -31,6 +31,7 @@ export interface CheckboxProps
  */
 export function CheckboxRoot({
   asChild,
+  children: _children,
   indeterminate = false,
   onCheckedChange,
   onChange,

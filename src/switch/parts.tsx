@@ -17,7 +17,13 @@ export interface SwitchProps
  * the input, so the difference between this and Checkbox really is one
  * attribute.
  */
-export function SwitchRoot({ asChild, onCheckedChange, onChange, ...props }: SwitchProps) {
+export function SwitchRoot({
+  asChild,
+  children: _children,
+  onCheckedChange,
+  onChange,
+  ...props
+}: SwitchProps) {
   const Part: ElementType = asChild ? Slot : 'input'
 
   const handleChange = useCallback(

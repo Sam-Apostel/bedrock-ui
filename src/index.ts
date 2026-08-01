@@ -16,6 +16,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from './accordion/parts'
+import { AlertDialogAction, AlertDialogCancel, AlertDialogContent } from './alert-dialog/parts'
 import { AspectRatioRoot } from './aspect-ratio/parts'
 import { AvatarFallback, AvatarImage, AvatarRoot } from './avatar/parts'
 import { DialogRoot } from './dialog/root'
@@ -67,7 +68,35 @@ import { ToolbarButton, ToolbarLink, ToolbarRoot, ToolbarSeparator } from './too
 import { TooltipRoot } from './tooltip/root'
 import { TooltipContent, TooltipTrigger } from './tooltip/parts'
 import { ToggleRoot } from './toggle/parts'
+import {
+  ScrollAreaCorner,
+  ScrollAreaRoot,
+  ScrollAreaScrollbar,
+  ScrollAreaThumb,
+  ScrollAreaViewport,
+} from './scroll-area/parts'
+import {
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectItemIndicator,
+  SelectItemText,
+  SelectRoot,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from './select/parts'
 import { SeparatorRoot } from './separator/parts'
+import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from './slider/parts'
+import {
+  ToastAction,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastRoot,
+  ToastTitle,
+  ToastViewport,
+} from './toast/parts'
 import { VisuallyHiddenRoot } from './visually-hidden/parts'
 
 export const Dialog = {
@@ -80,6 +109,15 @@ export const Dialog = {
 }
 
 export const AccessibleIcon = { Root: AccessibleIconRoot }
+export const AlertDialog = {
+  Root: DialogRoot,
+  Trigger: DialogTrigger,
+  Content: AlertDialogContent,
+  Title: DialogTitle,
+  Description: DialogDescription,
+  Action: AlertDialogAction,
+  Cancel: AlertDialogCancel,
+}
 export const Accordion = {
   Root: AccordionRoot,
   Item: AccordionItem,
@@ -191,7 +229,40 @@ export const Tooltip = {
 }
 export const Toggle = { Root: ToggleRoot }
 export const Progress = { Root: ProgressRoot, Indicator: ProgressIndicator }
+export const ScrollArea = {
+  Root: ScrollAreaRoot,
+  Viewport: ScrollAreaViewport,
+  Scrollbar: ScrollAreaScrollbar,
+  Thumb: ScrollAreaThumb,
+  Corner: ScrollAreaCorner,
+}
+export const Select = {
+  Root: SelectRoot,
+  Trigger: SelectTrigger,
+  Value: SelectValue,
+  Content: SelectContent,
+  Item: SelectItem,
+  ItemText: SelectItemText,
+  ItemIndicator: SelectItemIndicator,
+  Group: SelectGroup,
+  Separator: SelectSeparator,
+}
 export const Separator = { Root: SeparatorRoot }
+export const Slider = {
+  Root: SliderRoot,
+  Track: SliderTrack,
+  Range: SliderRange,
+  Thumb: SliderThumb,
+}
+export const Toast = {
+  Provider: ToastProvider,
+  Viewport: ToastViewport,
+  Root: ToastRoot,
+  Title: ToastTitle,
+  Description: ToastDescription,
+  Action: ToastAction,
+  Close: ToastClose,
+}
 export const VisuallyHidden = { Root: VisuallyHiddenRoot }
 
 export { useDialogTrigger } from './dialog/shared'
@@ -262,5 +333,24 @@ export type { TooltipRootProps } from './tooltip/root'
 export type { TooltipContentProps, TooltipTriggerProps } from './tooltip/parts'
 export type { ToggleProps } from './toggle/parts'
 export type { ProgressIndicatorProps, ProgressProps } from './progress/parts'
+export type { AlertDialogActionProps, AlertDialogContentProps } from './alert-dialog/parts'
+export type { ScrollAreaProps, ScrollAreaViewportProps } from './scroll-area/parts'
+export type {
+  SelectContentProps,
+  SelectGroupProps,
+  SelectItemProps,
+  SelectItemTextProps,
+  SelectRootProps,
+  SelectTriggerProps,
+  SelectValueProps,
+} from './select/parts'
 export type { SeparatorProps } from './separator/parts'
+export type { SliderProps } from './slider/parts'
+export type {
+  ToastCloseProps,
+  ToastPartProps,
+  ToastProviderProps,
+  ToastRootProps,
+  ToastViewportProps,
+} from './toast/parts'
 export type { VisuallyHiddenProps } from './visually-hidden/parts'

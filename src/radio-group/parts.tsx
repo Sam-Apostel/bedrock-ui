@@ -96,7 +96,13 @@ export interface RadioGroupItemProps
   value: string
 }
 
-export function RadioGroupItem({ asChild, value, onChange, ...props }: RadioGroupItemProps) {
+export function RadioGroupItem({
+  asChild,
+  children: _children,
+  value,
+  onChange,
+  ...props
+}: RadioGroupItemProps) {
   const { name, defaultValue, value: controlled, report } = useRadioGroupContext('RadioGroup.Item')
   const Part: ElementType = asChild ? Slot : 'input'
   const checkedProps =

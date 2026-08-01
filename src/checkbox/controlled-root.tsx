@@ -20,6 +20,7 @@ export interface ControlledCheckboxProps
  */
 export function CheckboxRoot({
   asChild,
+  children: _children,
   checked,
   indeterminate = false,
   onCheckedChange,

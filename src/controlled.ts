@@ -33,6 +33,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from './accordion/parts'
+import { AlertDialogAction, AlertDialogCancel, AlertDialogContent } from './alert-dialog/parts'
 import { CheckboxRoot } from './checkbox/controlled-root'
 import { CheckboxIndicator } from './checkbox/parts'
 import { CollapsibleRoot } from './collapsible/controlled-root'
@@ -74,6 +75,15 @@ export const Collapsible = {
   Root: CollapsibleRoot,
   Trigger: CollapsibleTrigger,
   Content: CollapsibleContent,
+}
+export const AlertDialog = {
+  Root: DialogRoot,
+  Trigger: DialogTrigger,
+  Content: AlertDialogContent,
+  Title: DialogTitle,
+  Description: DialogDescription,
+  Action: AlertDialogAction,
+  Cancel: AlertDialogCancel,
 }
 export const Checkbox = { Root: CheckboxRoot, Indicator: CheckboxIndicator }
 export const RadioGroup = {

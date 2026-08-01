@@ -3,6 +3,7 @@ import { Dialog } from '../../src/index'
 import { Dialog as ControlledDialog } from '../../src/controlled'
 import { PARITY_CASES } from './parity'
 import { MENU_CASES } from './menus'
+import { REST_CASES } from './rest'
 import { OVERLAY_CASES } from './overlays'
 import { PRIMITIVE_CASES } from './primitives'
 
@@ -225,4 +226,5 @@ export const CASES: Record<string, ReactNode> = {
   ...PRIMITIVE_CASES,
   ...OVERLAY_CASES,
   ...MENU_CASES,
+  ...REST_CASES,
 }

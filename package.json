@@ -17,7 +17,7 @@
     "./bedrock.css": "./dist/bedrock.css"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/postbuild.mjs",
     "lint:graph": "depcruise src --config .dependency-cruiser.cjs"
   },
   "peerDependencies": {

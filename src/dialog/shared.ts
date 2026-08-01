@@ -26,5 +26,7 @@ export const dialogAdapter: OpenStateAdapter = {
  */
 export function useDialogTrigger() {
   const { id } = useDialogContext('useDialogTrigger')
-  return { commandFor: id, command: 'show-modal' } as const
+  // Lowercase: react-dom 19.2 doesn't recognise a camelCased `commandFor` and
+  // warns the consumer about a prop they never wrote.
+  return { commandfor: id, command: 'show-modal' } as const
 }

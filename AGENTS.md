@@ -20,7 +20,9 @@ conflicts with Radix's API we follow the platform and document the difference.
 Zero runtime dependencies. React and react-dom are peers. This is enforced by a
 lint rule, not by discipline.
 
-Current state: `Dialog` plus shared internals. Everything else is unbuilt.
+Current state: all 29 primitives exist. The shared internals are `slot`,
+`compose-refs`, `open-state`, `client-render`, `anchor`, `roving`, `interest`,
+`capabilities`, `validate-trigger` and `create-controlled-root`.
 
 ---
 
@@ -282,7 +284,7 @@ a signal the API is leaking implementation — stop and raise it.
 
 Do them in this order. Each one is chosen to surface a specific unknown early.
 
-**1. Popover** — next. Exercises anchor positioning, the unique
+**1. Popover** — done. Exercised anchor positioning, the unique
 `anchor-name`-per-instance problem, and `beforetoggle` on the path where it
 genuinely is cancelable. Also settles whether `side`/`align` map onto
 `position-area` cleanly enough to keep Radix's prop names. If they don't, that

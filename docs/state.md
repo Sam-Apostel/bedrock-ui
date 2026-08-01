@@ -92,11 +92,15 @@ has — using it would make the veto above impossible.
 
 Measured with esbuild, minified, gzipped, React external:
 
-| import                                   | gzip     |
-| ---------------------------------------- | -------- |
-| `Dialog` from `@apostel/bedrock`          | 1.42 kB |
-| `Dialog` from `@apostel/bedrock/controlled` | 1.55 kB |
-| `@radix-ui/react-dialog`                  | 13.7 kB |
+| import                                      | gzip    |
+| ------------------------------------------- | ------- |
+| `Dialog` from `@apostel/bedrock`            | 1.95 kB |
+| `Dialog` from `@apostel/bedrock/controlled` | 2.09 kB |
+| `@radix-ui/react-dialog`                    | 13.7 kB |
+
+The gap between the two entry points is the whole cost of controlled mode for a
+Dialog. It is much smaller for the menu family, where both roots pull in the
+same roving module — see [gaps](./gaps.md).
 
 The two entry points are separate module graphs. If nothing in your app imports
 `/controlled`, none of the reconciliation code is in your bundle — that is a

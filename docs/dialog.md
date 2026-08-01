@@ -139,4 +139,4 @@ are UA behaviour for `showModal()`, and both are why Dialog needs no focus code.
 - **`modal={false}`.** A non-modal dialog is a different element and a different
   set of guarantees; it will be `Popover`, not a prop on this.
 - **Scroll locking.** `showModal()` makes the background inert but does not lock
-  scroll. See [gaps](./gaps.md#no-scroll-lock).
+  scroll. See [gaps](./gaps.md#5-no-scroll-lock).

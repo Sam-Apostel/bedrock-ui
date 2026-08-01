@@ -5,10 +5,10 @@ the page that matters; everything else in `docs/` assumes you already decided.
 
 ## The short version
 
-One primitive of roughly thirty exists. The bundle win is real and large for
-that one primitive. The costs land on your tests, your CSS conventions, and any
-trigger that is not a `<button>` — and those costs are paid up front, on day
-one, for a benefit that only completes when the last Radix import is gone.
+All 29 primitives exist, so the coverage argument is gone. What is left is
+sharper and does not go away with more components: **your existing component
+tests stop working**, your CSS conventions change repo-wide, and any trigger
+that is not a `<button>` becomes a build error rather than a warning.
 
 ## Reasons not to migrate
 
@@ -26,21 +26,20 @@ Every dialog test in your suite gets rewritten against a real browser. If you
 have hundreds of component tests and no Playwright setup, that cost dwarfs
 every saving on this page.
 
-### 2. Coverage is one primitive
+### 2. The saving is uneven, and the menus barely save anything
 
-`Dialog`. That is the list. Radix stays in your `package.json` for
-`DropdownMenu`, `Select`, `Tabs`, `Tooltip`, `Popover`, `Accordion`, `Checkbox`
-and the rest, which means:
+Coverage is complete, but the win is not evenly spread:
 
-- you ship both libraries, so the bundle *grows* until the migration completes
-- your team learns two idioms for the same concept — `:open` here,
-  `data-state` there
-- the primitives most likely to dominate your bundle (menus, select) are the
-  ones where bedrock's own build order admits the saving is small, because
-  roving tabindex, typeahead and pointer-anchored positioning have no native
-  equivalent
+| group | what replaces the JavaScript |
+| --- | --- |
+| Progress, Slider, Select, Checkbox, Switch, RadioGroup, Separator, Label, AspectRatio, VisuallyHidden, ScrollArea | the native element. Effectively all of it. |
+| Dialog, AlertDialog, Popover, Collapsible, Accordion | the top layer, invoker commands, `<details name>`. Nearly all of it. |
+| Tooltip, HoverCard, Avatar, Toggle, Toast | layering and dismissal are native; intent, image fallback and pressed state are not. |
+| DropdownMenu, ContextMenu, Menubar, NavigationMenu, Tabs, Toolbar, ToggleGroup | layering is native; roving tabindex, typeahead and pointer anchoring are not, and `roving.ts` ships from either entry point. |
 
-A Dialog-only migration is safe to do and hard to justify on bundle size alone.
+So a menu-heavy application saves far less than the Dialog headline suggests,
+and `/controlled` buys almost nothing for that last group. Budget from the table,
+not from the 1.42 kB figure.
 
 ### 3. Chrome-first is not a formality
 
@@ -138,9 +137,22 @@ without an answer are unavailable rather than inconvenient.
 
 ### 11. It is pre-alpha, and the surface will move
 
-Version `0.0.0`, unpublished, one contributor, no deprecation policy. Three
+Version `0.0.0`, unpublished, one contributor, no deprecation policy. Several
 things on this page are open questions whose answers change public API. If you
 adopt now you are the one finding those.
+
+### 12. Some parts render nothing, and that is a redesign not a rename
+
+Every one of these is an element in Radix and a pseudo-element or nothing here:
+`Dialog.Overlay`, `Progress.Indicator`, `Checkbox.Indicator`, `Switch.Thumb`,
+`RadioGroup.Indicator`, `Slider.Track`/`Range`/`Thumb`,
+`ScrollArea.Scrollbar`/`Thumb`, `Select.ItemIndicator`,
+`NavigationMenu.Viewport`.
+
+They keep their names so existing markup compiles, and they warn in development
+when you pass them a `className`. But if your design puts *content* inside one —
+a spinner in the overlay, an icon component in the checkbox tick, a scrollbar
+with its own hover animation — there is nowhere for it to go.
 
 ## Gaps in what exists today
 
@@ -179,10 +191,12 @@ The trigger's `commandfor` points at it. It is the one exception to "every part
 forwards `id`", and a consumer who passes one gets it silently ignored — no
 warning, no error.
 
-### The registry covers two components
+### The registry covers three components
 
-`dialog` and `alert-dialog`. Everything else in shadcn/ui stays on Radix, and
-the registry says so per component rather than pretending otherwise.
+`dialog`, `dialog-controlled` and `alert-dialog`. Every primitive the rest need
+now exists, so what is missing is the shadcn wrapper for each — a writing job
+rather than an engineering one, and listed per component in
+[the registry docs](./shadcn-registry.md#coverage) rather than implied.
 
 ### No bundle-size regression check
 
@@ -203,11 +217,19 @@ Playwright runs Chrome only, and asserts behaviour, not appearance. The
 transition sequencing that `bedrock.css` demonstrates — the thing most likely to
 regress silently — has no test at all.
 
+### Test depth is uneven across the 29
+
+Dialog has Radix's own suite ported plus 20 of its own. Most primitives have
+between one and seven specs covering the behaviour that makes them interesting:
+enough to catch the design being wrong, not enough to catch every regression.
+Menubar, NavigationMenu and ContextMenu are the thinnest.
+
 ## Reasons it is still worth doing
 
 Kept short, because the rest of the docs make this case.
 
-- **1.42 kB against 13.7 kB, gzipped**, for the same Dialog surface.
+- **1.95 kB against 13.7 kB gzipped for Dialog**, 0.84 against 31.5 for Select,
+  3.55 against 31.6 for DropdownMenu — measured, per primitive, in the README.
 - The failure modes it deletes are the ones that recur forever: z-index fights,
   clipped overlays, focus escaping a trap, a portal in the wrong container, a
   positioning recalculation on every scroll frame.

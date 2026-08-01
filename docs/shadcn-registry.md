@@ -15,22 +15,25 @@ read the diff.
 
 ## Coverage
 
-Be clear about what this is: **2 of shadcn/ui's ~46 components**, because
-bedrock has one primitive.
+Every primitive a shadcn component needs now exists, so the ceiling is no longer
+coverage. What is shipped here is **3 registry items**; the rest are a writing
+job rather than an engineering one, and they are listed as pending rather than
+implied.
 
 | shadcn component | status | notes |
 | --- | --- | --- |
 | `dialog` | **replaced** | Uncontrolled. `Portal` and `Overlay` are kept as no-ops so blocks keep compiling. |
 | `dialog-controlled` | **added** | Same file, controlled entry point, required `open`. Not a shadcn name — install it *as* `dialog` when you need the veto. |
 | `alert-dialog` | **replaced** | `role="alertdialog"` on the same primitive. `Action`/`Cancel` are close buttons. |
-| `sheet`, `drawer` | stays on Radix | Both are dialogs, and both are mostly *positioning* — natural next step once `Popover` lands, and a real candidate for `<dialog>` plus a transform. |
-| `popover`, `tooltip`, `hover-card`, `dropdown-menu`, `context-menu`, `menubar`, `navigation-menu`, `select`, `combobox`, `command` | stays on Radix | No bedrock primitive yet. `Popover` is next in the build order. |
-| `accordion`, `collapsible`, `tabs`, `checkbox`, `radio-group`, `switch`, `toggle`, `toggle-group`, `slider`, `progress`, `separator`, `label`, `aspect-ratio`, `scroll-area`, `avatar`, `toast`/`sonner` | stays on Radix | Same. |
+| `sheet`, `drawer` | pending | Both are dialogs plus positioning; `Dialog` backs them already. |
+| `popover`, `tooltip`, `hover-card`, `dropdown-menu`, `context-menu`, `menubar`, `navigation-menu`, `select` | pending | Primitive exists; the shadcn wrapper is not written yet. |
+| `accordion`, `collapsible`, `tabs`, `checkbox`, `radio-group`, `switch`, `toggle`, `toggle-group`, `slider`, `progress`, `separator`, `label`, `aspect-ratio`, `scroll-area`, `avatar`, `toast` | pending | Same. Several get simpler rather than harder: the `Indicator` and `Thumb` elements disappear into pseudo-elements. |
+| `combobox`, `command` | stays on Radix | Built on `cmdk`, not on a Radix primitive. |
 | `button`, `card`, `input`, `table`, `badge`, and the other unstyled-div components | unaffected | They never used Radix primitives. |
 
 Mixing is safe: Radix and bedrock are separate packages with no shared globals
 and no CSS collisions. It does mean both are in your bundle until the migration
-finishes — see [gaps](./gaps.md#2-coverage-is-one-primitive).
+finishes — see [gaps](./gaps.md#2-the-saving-is-uneven-and-the-menus-barely-save-anything).
 
 ## What changed inside the component
 

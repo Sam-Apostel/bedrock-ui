@@ -1,9 +1,12 @@
 # Migrating from Radix
 
-Only `Dialog` exists today, so this guide is complete for `Dialog` and
-`AlertDialog` and a promise for everything else. If you use more than those two
-Radix primitives, read [gaps](./gaps.md) before you start — a partial migration
-that leaves both libraries installed is usually the wrong trade.
+Every Radix primitive has a bedrock equivalent, so a complete migration is
+possible. Whether it is a good idea is [gaps](./gaps.md), and that page is worth
+reading first: what changes is your test suite and your CSS conventions, not
+your component tree.
+
+This guide is written against `Dialog` because every divergence shows up there.
+The per-primitive notes at the end cover what is specific to the others.
 
 ## The shape is the same
 
@@ -142,16 +145,26 @@ Radix's own Dialog suite — all 42 cases — is ported in
 divergences, 17 test API that does not exist here.
 [The scorecard names every one](./radix-parity.md).
 
-## Not migrating: the honest list
+## Per-primitive notes
 
-If your app uses any of these, they have no bedrock equivalent today:
-`DropdownMenu`, `ContextMenu`, `Menubar`, `NavigationMenu`, `Select`, `Tabs`,
-`Toast`, `Toolbar`, `ToggleGroup`, `Slider`, `ScrollArea`, `Popover`,
-`Tooltip`, `HoverCard`, `Accordion`, `Collapsible`, `Checkbox`, `RadioGroup`,
-`Switch`, `Toggle`, `Progress`, `Separator`, `Label`, `AspectRatio`,
-`VisuallyHidden`.
+Only the differences worth knowing before you start. Everything not listed is a
+straight swap.
+
+| primitive | what changes |
+| --- | --- |
+| `Accordion` | `type="single"` is `<details name>`, so an open item can always be closed — Radix's `collapsible={false}` has no native equivalent. `Header` renders the `<summary>` and `Trigger` sits inside it, because a button inside a summary would be two tab stops. |
+| `Checkbox`, `Switch`, `RadioGroup` | real `<input>`s. `Indicator` and `Thumb` render nothing; draw the mark with `::before` under `:checked`. `onCheckedChange` gives a boolean, never `"indeterminate"`. |
+| `Progress` | a real `<progress>`. `Indicator` renders nothing — style `::-webkit-progress-value`. |
+| `Slider` | `<input type="range">`, so **one thumb**. A two-thumb range has no native equivalent. `Track`/`Range`/`Thumb` render nothing. |
+| `Select` | a real `<select>` under `appearance: base-select`. Options are `<option>`, so on a phone you get the OS picker. `ItemIndicator` is `option::checkmark`. |
+| `ScrollArea` | native scrolling. `Scrollbar`/`Thumb`/`Corner` render nothing; use `scrollbar-width` and `scrollbar-color`. |
+| `Tabs` | the unselected panel is unmounted rather than hidden, so switching away resets it. |
+| `Toast` | one `popover="manual"` region for the stack. No swipe-to-dismiss. |
+| `Tooltip`, `HoverCard` | `delayDuration`/`openDelay` unchanged. The trigger may be an `<a>`, which is what makes link previews work without a wrapper. |
+| `DropdownMenu`, `ContextMenu`, `Menubar` | same anatomy. Submenus need no configuration — a nested popover keeps its parent open because the invoker is inside it. |
+| `NavigationMenu` | `Viewport` renders nothing: each content is anchored to its own item and already in the top layer. |
+| `AspectRatio` | one element with `aspect-ratio`, not a padding wrapper. |
+| `AccessibleIcon` | `role="img"` and `aria-label` on the glyph, not a visually hidden text node beside it. |
 
 Radix and bedrock coexist without conflict — different packages, no shared
-globals, no CSS collisions — so a Dialog-only migration is safe. Whether it is
-worth 12 kB and a divergence in how your team writes state selectors is a
-judgement call, and [gaps](./gaps.md) argues both sides.
+globals, no CSS collisions — so migrating one primitive at a time is safe.

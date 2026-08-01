@@ -126,23 +126,43 @@ Be clear-eyed about this. The platform deleted positioning and layering. It did
 not delete focus management.
 
 **Almost entirely native** — AspectRatio, Separator, Label, VisuallyHidden,
-Progress, Collapsible, Dialog, AlertDialog, Popover.
+Progress, Slider, ScrollArea, Collapsible, Accordion, Checkbox, Switch,
+RadioGroup, Select, Dialog, AlertDialog, Popover.
 
-**Native positioning, small JS state layer** — Tooltip, HoverCard, Accordion,
-Switch, Checkbox, RadioGroup, Toggle, Select.
+Several of those are one element and no state at all: `Progress` is
+`<progress>`, `Slider` is `<input type="range">`, `Select` is a `<select>` under
+`appearance: base-select`, and `Accordion` gets single-open exclusivity from
+`<details name>` rather than from an effect that closes its siblings.
+
+**Native layering, small JS state layer** — Tooltip, HoverCard, Avatar, Toggle,
+Toast.
 
 **Still substantially JS** — DropdownMenu, ContextMenu, Menubar,
-NavigationMenu, Tabs, Slider, ScrollArea, Toast, Toolbar, ToggleGroup.
+NavigationMenu, Tabs, Toolbar, ToggleGroup.
 
 The reason is short: there is no native roving tabindex, no native typeahead, no
 focus trap for non-modal layers, and no way to anchor to a pointer coordinate.
-Every menu-shaped primitive needs all four.
+Every menu-shaped primitive needs all four, and they all share one `roving.ts` —
+which ships from either entry point, so the two-root split saves them almost
+nothing. The docs say that rather than implying otherwise.
 
-Measured for Dialog — esbuild, minified, gzipped, React external — it is
-**1.42 kB against `@radix-ui/react-dialog`'s 13.7 kB**, or 1.55 kB for the
-controlled entry point. Expect roughly that ratio for the first group, much less
-for the third. The bigger win is behavioural — no z-index fights, no
-portal-and-clipping bugs, no positioning recalculation on every scroll frame.
+Measured, not estimated — esbuild, minified, gzipped, React external:
+
+| primitive | bedrock | Radix | |
+| --- | --- | --- | --- |
+| Checkbox | **0.70 kB** | 5.9 kB | 8.5× |
+| Slider | **0.74 kB** | 9.8 kB | 13× |
+| Select | **0.84 kB** | 31.5 kB | 37× |
+| Accordion | **1.61 kB** | 8.8 kB | 5.5× |
+| Dialog | **1.95 kB** | 13.7 kB | 7× |
+| Popover | **2.11 kB** | 24.2 kB | 11× |
+| Tooltip | **2.55 kB** | 19.3 kB | 7.6× |
+| DropdownMenu | **3.55 kB** | 31.6 kB | 8.9× |
+
+The ratio narrows as the roving module gets involved and widens where the
+platform has a whole element to hand over. The bigger win is behavioural — no
+z-index fights, no portal-and-clipping bugs, no positioning recalculation on
+every scroll frame.
 
 ## Browser support
 
@@ -182,4 +202,6 @@ first if you are evaluating.
 
 ## Status
 
-Pre-alpha. Dialog and the shared internals exist. Everything else is a list.
+Pre-alpha, but no longer a list: all 29 primitives exist, with 97 Playwright
+tests against real Chrome. What is missing is soak time, other engines, and the
+things named in [gaps](./docs/gaps.md) — not components.

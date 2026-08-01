@@ -71,7 +71,7 @@ above it — which then gets blamed on `z-index`.
 It is a pseudo-element, so it cannot be a React node, cannot take a `className`,
 and cannot have children. If you need a clickable or animated overlay with
 content in it, that is a real limitation — see
-[gaps](./gaps.md#the-backdrop-is-not-a-node).
+[gaps](./gaps.md#9-the-backdrop-is-not-a-node).
 
 Backdrop transitions need their own `@starting-style` block; a pseudo-element
 does not inherit the host's.

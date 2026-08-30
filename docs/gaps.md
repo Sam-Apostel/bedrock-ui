@@ -144,13 +144,21 @@ page have answers that change public API. Adopting now means finding those.
 
 Ordered by how likely they are to bite.
 
-### Only Dialog has an API reference
+### Nothing renders on a page you cannot open
 
-[`dialog.md`](./dialog.md) documents one primitive of 29. The other 28 have
-their props in TypeScript, their behaviour in the tests, and their divergences
-in the [migration guide](./migration-from-radix.md#per-primitive-notes) — but no
-page you can send someone. This is the largest documentation gap, and it is a
-writing job rather than a design one.
+Every primitive now has a reference page and a running demo, and every demo is
+asserted to mount and to work. What is still missing is narrower and worth
+naming precisely:
+
+- **The demos run in one browser.** They are built and tested against Chrome,
+  like the rest of the suite. A reader on Safari or Firefox sees the same page
+  and may see a primitive degrade — which is documented on
+  [browser support](./compat.html), but not demonstrated.
+- **No visual regression testing.** A demo can mount, pass its interaction test,
+  and still look broken. Nothing catches that.
+- **The registry components are still unrendered.** The 24 shadcn items are
+  generated and served, and nothing has ever installed one into a real Next.js
+  app and looked at it.
 
 ### No scroll lock
 

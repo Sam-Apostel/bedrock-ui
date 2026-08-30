@@ -167,3 +167,28 @@ rather than in a follow-up.
 feature-detects in the reader's browser. Add a row when a primitive starts
 depending on a new platform feature, with the degradation spelled out — "what
 happens when this is missing" is the column that makes the page worth having.
+
+### Live demos
+
+A reference page without a demo is a claim without evidence. To add one:
+
+1. Write `demos/cases/<name>.tsx` with a default-exported component.
+2. Put `<!-- demo: <name> -->` in the markdown where it should appear.
+3. Add `['<name>.html', '<name>']` to `PAGES` in `tests/docs.spec.ts`.
+
+That is the whole workflow — the registry is built from the filesystem by a glob
+in `demos/main.tsx`, so there is nothing to register by hand.
+
+A comment rather than a fence, so the markdown still reads as markdown in the
+repository, where there is no bundle to run. The source of the file is rendered
+under the demo automatically, which is why the demo file is the only copy: do
+not paste the same code into the page as well, or the two will disagree.
+
+The build fails if a page names a demo with no file, **and** if a demo file no
+page names. Both are the same failure — something that looks finished and does
+nothing.
+
+Demos are typechecked and linted like everything else, and `npm run verify`
+builds the site and drives the real generated pages, so a demo that mounts an
+empty box fails the suite rather than shipping. Keep them short: a demo is an
+argument for one behaviour, not a kitchen sink.

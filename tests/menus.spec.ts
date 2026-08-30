@@ -175,3 +175,71 @@ test.describe('Menubar', () => {
     await expect(page.getByTestId('edit-menu')).toBeHidden()
   })
 })
+
+test.describe('NavigationMenu', () => {
+  test('is a nav landmark whose links are real anchors', async ({ page }) => {
+    await page.goto('/?case=navigation-menu')
+
+    // A landmark, so a screen reader can jump to it.
+    await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible()
+
+    // Links, not buttons calling router.push — so middle-click, copy-link and
+    // open-in-new-tab all work, which is the whole reason this is not a menu.
+    const pricing = page.getByTestId('pricing')
+    await expect(pricing).toHaveJSProperty('tagName', 'A')
+    expect(await pricing.getAttribute('href')).toBe('/pricing')
+
+    // `active` is the current page, announced as such.
+    await expect(pricing).toHaveAttribute('aria-current', 'page')
+    await expect(page.getByTestId('docs')).not.toHaveAttribute('aria-current', 'page')
+  })
+
+  test('the list is one tab stop, walked with arrow keys', async ({ page }) => {
+    await page.goto('/?case=navigation-menu')
+
+    await page.getByTestId('products').focus()
+    await page.keyboard.press('ArrowRight')
+    await expect(page.getByTestId('pricing')).toBeFocused()
+
+    await page.keyboard.press('ArrowRight')
+    await expect(page.getByTestId('docs')).toBeFocused()
+
+    // Roving: everything but the active item is out of the tab order.
+    expect(await page.getByTestId('pricing').evaluate((node) => node.tabIndex)).toBe(-1)
+  })
+
+  test('an item opens its own panel into the top layer', async ({ page }) => {
+    await page.goto('/?case=navigation-menu')
+
+    const content = page.getByTestId('products-content')
+    await page.getByTestId('products').click()
+
+    await expect(content).toBeVisible()
+    expect(await content.evaluate((node) => node.matches(':popover-open'))).toBe(true)
+
+    // Anchored to its own item, which is why there is no shared viewport.
+    await expect(page.getByTestId('hosting')).toBeVisible()
+
+    await page.keyboard.press('Escape')
+    await expect(content).toBeHidden()
+  })
+
+  test('Viewport renders nothing', async ({ page }) => {
+    await page.goto('/?case=navigation-menu')
+
+    // Each content is anchored to its item and already in the top layer, so
+    // Radix's shared animatable box has nothing to do here. The panel itself is
+    // a <div popover>, so the assertion is that no *other* div exists — one
+    // contributed by Viewport would be exactly that.
+    const stray = await page
+      .getByTestId('nav')
+      .evaluate(
+        (node) =>
+          Array.from(node.querySelectorAll('div')).filter(
+            (div) => !div.hasAttribute('data-bedrock-menu'),
+          ).length,
+      )
+
+    expect(stray).toBe(0)
+  })
+})

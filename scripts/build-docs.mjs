@@ -45,9 +45,18 @@ const NAV = [
 
   [null, 'Primitives'],
   ['dialog.html', 'Dialog'],
+  ['alert-dialog.html', 'AlertDialog'],
   ['popover.html', 'Popover'],
+  ['tooltip.html', 'Tooltip & HoverCard'],
   ['menus.html', 'Menus'],
+  ['collapsible.html', 'Collapsible'],
   ['accordion.html', 'Accordion'],
+  ['tabs.html', 'Tabs & Toolbar'],
+  ['forms.html', 'Form controls'],
+  ['select.html', 'Select'],
+  ['slider.html', 'Slider'],
+  ['toast.html', 'Toast'],
+  ['display.html', 'Display'],
 
   [null, 'Moving over'],
   ['migration-from-radix.html', 'Migrating'],

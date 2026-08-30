@@ -13,9 +13,18 @@ const SITE = 'http://localhost:5174'
 /** Every page that embeds a demo, and the demo it should mount. */
 const PAGES = [
   ['dialog.html', 'dialog'],
+  ['alert-dialog.html', 'alert-dialog'],
   ['popover.html', 'popover'],
+  ['tooltip.html', 'tooltip'],
   ['menus.html', 'dropdown-menu'],
+  ['collapsible.html', 'collapsible'],
   ['accordion.html', 'accordion'],
+  ['tabs.html', 'tabs'],
+  ['forms.html', 'forms'],
+  ['select.html', 'select'],
+  ['slider.html', 'slider'],
+  ['toast.html', 'toast'],
+  ['display.html', 'display'],
 ] as const
 
 test.describe('docs site', () => {
@@ -31,7 +40,10 @@ test.describe('docs site', () => {
 
       // The placeholder is replaced by React. Still there means it never ran.
       await expect(stage.locator('.demo-pending')).toHaveCount(0)
-      await expect(stage.locator('button, details, input').first()).toBeVisible()
+      // A control, not just any node — and deliberately not `img`, because the
+      // display demo's avatar image is *meant* to be hidden: its src 404s, and
+      // hiding itself is the fallback behaviour that demo exists to show.
+      await expect(stage.locator('button, details, input, select, progress').first()).toBeVisible()
 
       expect(errors).toEqual([])
     })

@@ -1,6 +1,14 @@
 import type { ReactNode } from 'react'
 import { useState } from 'react'
-import { ContextMenu, DropdownMenu, Menubar, Tabs, ToggleGroup, Toolbar } from '../../src/index'
+import {
+  ContextMenu,
+  DropdownMenu,
+  Menubar,
+  NavigationMenu,
+  Tabs,
+  ToggleGroup,
+  Toolbar,
+} from '../../src/index'
 
 function MenuCase() {
   const [chosen, setChosen] = useState('')
@@ -111,10 +119,42 @@ function MenubarCase() {
   )
 }
 
+function NavigationMenuCase() {
+  return (
+    <NavigationMenu.Root data-testid="nav" aria-label="Main">
+      <NavigationMenu.List data-testid="list">
+        <NavigationMenu.Item>
+          <NavigationMenu.Trigger data-testid="products">Products</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="products-content">
+            <NavigationMenu.Link href="/hosting" data-testid="hosting">
+              Hosting
+            </NavigationMenu.Link>
+            <NavigationMenu.Link href="/domains" data-testid="domains">
+              Domains
+            </NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="/pricing" active data-testid="pricing">
+            Pricing
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="/docs" data-testid="docs">
+            Docs
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+      <NavigationMenu.Viewport />
+    </NavigationMenu.Root>
+  )
+}
+
 export const MENU_CASES: Record<string, ReactNode> = {
   menu: <MenuCase />,
   'context-menu': <ContextMenuCase />,
   tabs: <TabsCase />,
   toolbar: <ToolbarCase />,
   menubar: <MenubarCase />,
+  'navigation-menu': <NavigationMenuCase />,
 }

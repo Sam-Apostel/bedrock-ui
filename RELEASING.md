@@ -10,90 +10,104 @@ Everything marked **you** below is a manual step outside this repository.
 
 ## Part 1 — npm
 
-### One-time
+Nothing is published yet, so this is the first release as well as the setup for
+every one after it. Four things to do, roughly ten minutes.
 
-1. **Own the scope.** `@apostel` must exist and be yours.
+### 1. Own the scope
 
-   ```bash
-   npm login
-   npm org create apostel        # skip if @apostel is your username
-   npm whoami                    # confirm
-   ```
-
-   If `@apostel` is already taken by someone else, the name in `package.json`
-   has to change — it is the only place it appears.
-
-2. **Choose how CI authenticates.** Two options, and the first is better:
-
-   **Trusted publishing (OIDC).** No token to leak or rotate. On npmjs.com →
-   the package's *Settings* → *Trusted publishers*, add:
-
-   | field | value |
-   | --- | --- |
-   | Repository | `Sam-Apostel/bedrock-ui` |
-   | Workflow | `.github/workflows/release.yml` |
-   | Environment | *(leave empty)* |
-
-   A package must exist before it can have settings, so this needs one manual
-   `npm publish` first — see *First release* below.
-
-   **Automation token.** Simpler to set up, worse to live with. npmjs.com →
-   *Access Tokens* → *Generate* → **Automation** (it bypasses 2FA, which a
-   *Publish* token does not). Then in GitHub → *Settings* → *Secrets and
-   variables* → *Actions* → *New repository secret*, name it `NPM_TOKEN`.
-
-   `.github/workflows/release.yml` already reads `NPM_TOKEN` and already
-   requests `id-token: write`, so either route works with no edit.
-
-3. **Provenance is already on.** `package.json` sets
-   `publishConfig.provenance: true`, which makes npm attach a signed statement
-   linking the tarball to the commit and workflow that built it. It only works
-   from CI, which is why the first manual publish needs `--no-provenance`.
-
-### First release
-
-The package does not exist yet, and npm has nothing to attach a trusted
-publisher to, so the first one is by hand:
+`@apostel` must exist and be yours.
 
 ```bash
-npx changeset version        # applies .changeset/*.md → version + CHANGELOG
-npm run verify               # format, lint, types, graph, build, 102 tests
-npm publish --no-provenance  # access: public is already in package.json
-git add -A && git commit -m 'Version packages' && git push
+npm login
+npm org create apostel        # skip if @apostel is already your username
+npm whoami
 ```
 
-Then go back and add the trusted publisher from step 2. Every release after
-that is automated.
+`@apostel/bedrock` is unclaimed as of writing. If the scope turns out to be
+taken by someone else, the name in `package.json` has to change — and it appears
+in the README, the docs, the agent skill and all 24 registry items, so change it
+before anyone installs one, not after.
 
-### Every release after that: changesets
+### 2. Give CI a token
 
-Nobody types a version number, and nothing publishes without a note explaining
-why. The loop has two halves and both are CI's.
+npmjs.com → *Access Tokens* → *Generate New Token* → **Granular Access Token**:
 
-**When you change something a consumer would notice**, add a changeset in the
-same PR:
+| field | value |
+| --- | --- |
+| Expiration | your call; it must have one |
+| Packages and scopes | *Read and write*, limited to `@apostel/*` |
+| Bypass 2FA | **ticked** — without it a CI publish fails once 2FA is on |
+
+Then GitHub → *Settings* → *Secrets and variables* → *Actions* → *New
+repository secret*, named `NPM_TOKEN`.
+
+### 3. Let Actions open pull requests
+
+GitHub → *Settings* → *Actions* → *General* → *Workflow permissions* → tick
+**Allow GitHub Actions to create and approve pull requests**.
+
+Without it the release workflow runs, the tests pass, and opening the version PR
+fails at the last step — which reads like a broken workflow rather than a
+missing checkbox.
+
+### 4. Push, then merge the PR it opens
+
+That is the release.
+
+```bash
+git push origin main
+```
+
+The workflow runs the whole verify chain, sees the queued changesets, and opens
+a **Version packages** PR that bumps `0.0.0` → `0.1.0` and writes
+`CHANGELOG.md`. Merge it. The workflow runs again, finds nothing queued, and
+publishes.
+
+Watch it under the *Actions* tab; the publish step is the one that takes about
+two minutes, because it runs the 102 Playwright tests again through
+`prepublishOnly` before npm sees anything.
+
+### Every release after that
+
+Identical, minus the setup. When you change something a consumer would notice,
+add a changeset in the same PR:
 
 ```bash
 npm run changeset
 ```
 
 It asks for the bump — patch, minor or major — and for a description. Write that
-description for someone *using* the package, not for someone reading the diff;
-it becomes the changelog entry verbatim.
+for someone *using* the package, not for someone reading the diff; it becomes
+the changelog entry verbatim. Tests, docs and internal refactors need no
+changeset.
 
-Tests, docs and internal refactors need no changeset.
+Then: merge to `main` → merge the version PR it opens → published. Nobody types
+a version number, and nothing ships without a note saying why.
 
-**On merge to `main`**, `.github/workflows/release.yml` runs the whole verify
-chain and then does one of two things:
+`npx changeset status` shows what is queued without changing anything.
 
-| state | what happens |
+### Optional: drop the token later
+
+Once the package exists on npm, you can switch to **trusted publishing** and
+delete `NPM_TOKEN` entirely — no credential to leak, rotate, or find expired at
+an inconvenient moment.
+
+npmjs.com → the package → *Settings* → *Trusted Publisher*:
+
+| field | value |
 | --- | --- |
-| changesets are pending | opens or updates a **Version Packages** PR that bumps the version, rewrites `CHANGELOG.md` and deletes the consumed changesets |
-| none are pending | the version PR was merged, so it publishes to npm |
+| Repository | `Sam-Apostel/bedrock-ui` |
+| Workflow | `release.yml` |
+| Environment | *(leave empty)* |
 
-So releasing is: merge the Version Packages PR. That is the whole ritual.
+The workflow already requests `id-token: write` and already upgrades npm, which
+matters: trusted publishing needs npm ≥ 11.5.1 and Node ≥ 22.14, and Node 22
+ships npm 10.x. Without that upgrade the OIDC exchange never happens and the
+publish quietly falls back to looking for a token that is no longer there.
 
-`npx changeset status` tells you what is queued without changing anything.
+Delete the secret once a publish has succeeded without it. The workflow reads
+the secret through `NODE_AUTH_TOKEN`, and an unset secret is an empty string
+that npm ignores, so nothing needs editing.
 
 ### Why changesets rather than a tag
 
@@ -101,16 +115,15 @@ A tag encodes a decision — "this is a minor" — at the moment you release, wh
 is the moment you have least context. A changeset encodes it in the PR that
 caused it, when you still remember whether the prop rename was breaking. The
 changelog then writes itself from those notes rather than from commit subjects,
-which is why `CHANGELOG.md` in this repo is one heading and a pointer.
+which is why `CHANGELOG.md` here is one heading and a pointer.
 
-### Before the first release, decide these
+### Before you publish, decide these
 
-- **The scope name.** `@apostel/bedrock` is what the README, the docs, the agent
-  skill and all 24 registry items say. Changing it later means changing the
-  registry too, which people will have already installed.
+- **The scope name**, as above. It is the one thing that is expensive to change
+  after the fact.
 - **`0.1.0`, not `1.0.0`.** Several things in `docs/gaps.md` are open questions
-  whose answers change public API. Semver before 1.0 lets those move. The queued
-  changeset says `minor`, which from `0.0.0` gives `0.1.0`.
+  whose answers change public API. Semver before 1.0 leaves room for them, and
+  the queued changeset is a `minor`, which from `0.0.0` gives `0.1.0`.
 - **What ships.** `npm pack --dry-run` lists it: `dist/`, `skills/`,
   `README.md`, `LICENSE`. No tests, no registry sources, no docs.
 

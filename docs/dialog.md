@@ -9,6 +9,8 @@ import { Dialog } from '@apostel/bedrock'
 // or, for a veto: import { Dialog } from '@apostel/bedrock/controlled'
 ```
 
+<!-- demo: dialog -->
+
 ## Anatomy
 
 ```tsx

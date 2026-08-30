@@ -1,4 +1,12 @@
-import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { basename, join } from 'node:path'
 import { marked } from 'marked'
 
@@ -27,19 +35,75 @@ const PAGES = [
   { source: 'CHANGELOG.md', out: 'changelog.html', title: 'Changelog' },
 ]
 
+/** A `null` href is a section heading rather than a link. */
 const NAV = [
   ['index.html', 'Home'],
   ['getting-started.html', 'Getting started'],
   ['state.html', 'Two roots'],
-  ['dialog.html', 'Dialog'],
   ['styling.html', 'Styling'],
   ['compat.html', 'Browser support'],
+
+  [null, 'Primitives'],
+  ['dialog.html', 'Dialog'],
+  ['popover.html', 'Popover'],
+  ['menus.html', 'Menus'],
+  ['accordion.html', 'Accordion'],
+
+  [null, 'Moving over'],
   ['migration-from-radix.html', 'Migrating'],
   ['radix-parity.html', 'Radix parity'],
   ['shadcn-registry.html', 'shadcn registry'],
   ['agent-skill.html', 'Agent skill'],
   ['gaps.html', 'Gaps'],
 ]
+
+const DEMOS = 'demos/cases'
+
+/**
+ * `<!-- demo: popover -->` in a markdown file becomes a running popover on the
+ * site, with the source of demos/cases/popover.tsx underneath it.
+ *
+ * A comment rather than a fence so the markdown still reads as markdown in the
+ * repository and on GitHub, where there is no bundle to run.
+ *
+ * Two passes, because the substitution cannot happen before marked sees the
+ * file: demo source contains blank lines, and a blank line ends a markdown HTML
+ * block — the rest of the snippet would then be parsed as markdown and arrive
+ * as mangled prose. So the comment becomes a text token, marked wraps it in a
+ * paragraph, and the paragraph is replaced afterwards.
+ */
+const DEMO_COMMENT = /<!--\s*demo:\s*([\w-]+)\s*-->/g
+const DEMO_TOKEN = /(?:<p>)?@@bedrock-demo:([\w-]+)@@(?:<\/p>)?/g
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function demoBlock(name) {
+  const file = join(DEMOS, `${name}.tsx`)
+
+  // Louder than an empty box on a page that otherwise looks finished.
+  if (!existsSync(file)) {
+    throw new Error(`docs reference demo "${name}", but ${file} does not exist`)
+  }
+
+  const source = escapeHtml(readFileSync(file, 'utf8').trim())
+
+  return (
+    `<div class="demo">` +
+    `<div class="demo-stage" data-demo="${name}">` +
+    // Replaced when the bundle mounts. Says so, in case it never does.
+    `<span class="demo-pending">Loading demo…</span>` +
+    `</div>` +
+    `<details class="demo-source"><summary>Source</summary>` +
+    `<pre><code class="language-tsx">${source}</code></pre>` +
+    `</details></div>`
+  )
+}
 
 /** Markdown links point at files in the repo; on the site they point at pages. */
 function rewriteLinks(markdown) {
@@ -63,6 +127,7 @@ nav strong { display:block; font-size:1.15rem; letter-spacing:-.02em; margin-bot
 nav a { display:block; padding:.3rem 0; color:var(--muted); text-decoration:none; font-size:.92rem }
 nav a:hover, nav a[aria-current=page] { color:var(--fg) }
 nav a[aria-current=page] { font-weight:600 }
+.nav-group { display:block; margin:1.1rem 0 .3rem; font-size:.72rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-weight:600 }
 main { min-width:0 }
 h1 { font-size:clamp(1.7rem,4vw,2.3rem); letter-spacing:-.02em; margin:0 0 1rem }
 h2 { margin-top:2.5rem; letter-spacing:-.01em; border-top:1px solid var(--line); padding-top:1.5rem }
@@ -78,11 +143,16 @@ blockquote { margin:0; padding:.6rem 1rem; border-left:3px solid var(--line); co
 hr { border:0; border-top:1px solid var(--line); margin:2rem 0 }
 `
 
-function page({ title, body, current }) {
-  const links = NAV.map(
-    ([href, label]) =>
-      `<a href="./${href}"${href === current ? ' aria-current="page"' : ''}>${label}</a>`,
+function page({ title, body, current, demos }) {
+  const links = NAV.map(([href, label]) =>
+    href === null
+      ? `<span class="nav-group">${label}</span>`
+      : `<a href="./${href}"${href === current ? ' aria-current="page"' : ''}>${label}</a>`,
   ).join('')
+
+  // Only pages with demos pay for the bundle; most pages are prose.
+  const head = demos ? `\n    <link rel="stylesheet" href="./demo/demos.css" />` : ''
+  const script = demos ? `\n    <script type="module" src="./demo/demos.js"></script>` : ''
 
   return `<!doctype html>
 <html lang="en">
@@ -90,13 +160,13 @@ function page({ title, body, current }) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${title}</title>
-    <style>${STYLE}</style>
+    <style>${STYLE}</style>${head}
   </head>
   <body>
     <div class="shell">
       <nav><strong>bedrock</strong>${links}</nav>
       <main>${body}</main>
-    </div>
+    </div>${script}
   </body>
 </html>
 `
@@ -105,14 +175,43 @@ function page({ title, body, current }) {
 rmSync(OUT, { recursive: true, force: true })
 mkdirSync(OUT, { recursive: true })
 
+const mounted = new Set()
+
 for (const { source, out, title } of PAGES) {
   const markdown = rewriteLinks(readFileSync(source, 'utf8'))
-  const body = marked.parse(markdown, { async: false })
+  const used = new Set()
+
+  const tokenised = markdown.replace(DEMO_COMMENT, (_comment, name) => {
+    used.add(name)
+    return `@@bedrock-demo:${name}@@`
+  })
+
+  const parsed = marked.parse(tokenised, { async: false })
+  const body = parsed.replace(DEMO_TOKEN, (_token, name) => demoBlock(name))
+
   const heading = /^#\s+(.+)$/m.exec(markdown)?.[1]
   const name = title ?? heading ?? basename(source, '.md')
 
   const heading_title = name === 'bedrock' ? 'bedrock' : `${name} — bedrock`
-  writeFileSync(join(OUT, out), page({ title: heading_title, body, current: out }))
+  writeFileSync(
+    join(OUT, out),
+    page({ title: heading_title, body, current: out, demos: used.size > 0 }),
+  )
+
+  for (const demo of used) mounted.add(demo)
+}
+
+// A demo nothing references is dead weight that still costs bundle size, and
+// the glob in demos/main.tsx means nobody would notice.
+if (existsSync(DEMOS)) {
+  const orphans = readdirSync(DEMOS)
+    .filter((file) => file.endsWith('.tsx'))
+    .map((file) => basename(file, '.tsx'))
+    .filter((name) => !mounted.has(name))
+
+  if (orphans.length > 0) {
+    throw new Error(`demos never referenced by any page: ${orphans.join(', ')}`)
+  }
 }
 
 // The compat page tests the reader's browser, so it ships exactly as written.

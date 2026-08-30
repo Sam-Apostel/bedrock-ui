@@ -1,0 +1,185 @@
+/*
+ * Presentation for the docs demos only. None of this ships in the package —
+ * bedrock has no styles of its own beyond the optional animation in
+ * src/bedrock.css, and the point of a demo is to show that a plain element
+ * with a class name is all a part renders.
+ *
+ * Reuses the docs tokens, which are defined on :root by scripts/build-docs.mjs,
+ * with fallbacks so a demo still looks deliberate if it is ever mounted
+ * somewhere else.
+ */
+
+.demo {
+  border: 1px solid var(--line, #e3e4e8);
+  border-radius: 10px;
+  margin: 1.25rem 0;
+  overflow: hidden;
+}
+
+.demo-stage {
+  padding: 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  min-height: 3.5rem;
+}
+
+/* Replaced when the bundle mounts; visible only if it never does. */
+.demo-pending {
+  color: var(--muted, #5c5f6b);
+  font-size: 0.9rem;
+}
+
+.demo-source {
+  border-top: 1px solid var(--line, #e3e4e8);
+  background: var(--card, #f7f7f9);
+}
+
+.demo-source summary {
+  cursor: pointer;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.82rem;
+  color: var(--muted, #5c5f6b);
+  user-select: none;
+}
+
+.demo-source pre {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--line, #e3e4e8);
+  border-radius: 0;
+}
+
+/* Controls. Deliberately generic: every part below is one element. */
+.demo button,
+.demo .btn {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line, #e3e4e8);
+  border-radius: 7px;
+  background: var(--bg, #fff);
+  color: var(--fg, #16161a);
+  cursor: pointer;
+}
+
+.demo button:hover {
+  border-color: var(--muted, #5c5f6b);
+}
+
+.demo :focus-visible {
+  outline: 2px solid var(--accent, #0a58c2);
+  outline-offset: 2px;
+}
+
+.demo [data-bedrock-dialog] {
+  border: 1px solid var(--line, #e3e4e8);
+  border-radius: 12px;
+  background: var(--bg, #fff);
+  color: var(--fg, #16161a);
+  padding: 1.25rem;
+  max-width: 24rem;
+}
+
+.demo [data-bedrock-dialog]::backdrop {
+  background: rgb(0 0 0 / 0.42);
+}
+
+.demo [popover] {
+  border: 1px solid var(--line, #e3e4e8);
+  border-radius: 10px;
+  background: var(--bg, #fff);
+  color: var(--fg, #16161a);
+  padding: 0.75rem;
+  margin: 0;
+}
+
+.demo [data-bedrock-menu],
+.demo [data-bedrock-select-content] {
+  padding: 0.3rem;
+  min-width: 11rem;
+}
+
+.demo [data-bedrock-menu-item] {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.demo [data-bedrock-menu-item]:hover,
+.demo [data-bedrock-menu-item]:focus {
+  background: var(--card, #f7f7f9);
+  outline: none;
+}
+
+.demo [data-bedrock-menu-separator] {
+  height: 1px;
+  background: var(--line, #e3e4e8);
+  margin: 0.3rem 0;
+  border: 0;
+}
+
+.demo [data-bedrock-menu-label] {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted, #5c5f6b);
+}
+
+.demo [data-bedrock-tabs-list],
+.demo [data-bedrock-toolbar] {
+  display: flex;
+  gap: 0.3rem;
+  border-bottom: 1px solid var(--line, #e3e4e8);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.9rem;
+}
+
+.demo [data-bedrock-tabs-trigger][aria-selected='true'] {
+  border-color: var(--accent, #0a58c2);
+  color: var(--accent, #0a58c2);
+}
+
+.demo [data-bedrock-accordion-item],
+.demo [data-bedrock-collapsible] {
+  border-bottom: 1px solid var(--line, #e3e4e8);
+}
+
+.demo summary {
+  cursor: pointer;
+  padding: 0.55rem 0;
+}
+
+.demo [data-bedrock-accordion-content],
+.demo [data-bedrock-collapsible-content] {
+  padding-bottom: 0.7rem;
+  color: var(--muted, #5c5f6b);
+  font-size: 0.93rem;
+}
+
+/* One column, so a demo that is a form reads as a form. */
+.demo-stage.stack {
+  display: block;
+}
+
+.demo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
+}
+
+.demo output {
+  font:
+    13px ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  color: var(--muted, #5c5f6b);
+}

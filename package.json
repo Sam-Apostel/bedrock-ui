@@ -53,16 +53,18 @@
     "test:install": "playwright install chromium",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm run lint:graph && npm run build && npm run test",
     "prepublishOnly": "npm run verify",
-    "docs:build": "node scripts/build-docs.mjs",
+    "docs:build": "node scripts/build-docs.mjs && npm run demos:build",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "demos:build": "vite build --config vite.demos.config.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
     "@changesets/cli": "^3.0.1",
     "@playwright/test": "^1.62.1",
     "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.2.5",
     "@vitejs/plugin-react": "^6.0.5",
     "dependency-cruiser": "^16.0.0",
     "marked": "^15.0.12",

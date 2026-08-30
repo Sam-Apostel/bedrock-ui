@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const PORT = 5173
+const SITE_PORT = 5174
 
 /**
  * Chrome only, and deliberately: the library targets features other engines are
@@ -32,10 +33,23 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: `vite --port ${PORT} --strictPort`,
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
-    stdout: 'ignore',
-  },
+  webServer: [
+    {
+      command: `vite --port ${PORT} --strictPort`,
+      url: `http://localhost:${PORT}`,
+      reuseExistingServer: !process.env.CI,
+      stdout: 'ignore',
+    },
+    // The docs site, built and then served, so tests/docs.spec.ts drives the
+    // real generated pages. It means a broken docs build fails `npm run verify`
+    // rather than only the Docs workflow, which is where it went unnoticed for
+    // six runs.
+    {
+      command: `npm run docs:build && node scripts/serve-site.mjs`,
+      url: `http://localhost:${SITE_PORT}`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+      stdout: 'ignore',
+    },
+  ],
 })

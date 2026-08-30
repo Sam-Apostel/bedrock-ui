@@ -76,6 +76,11 @@ test.describe('content mounting', () => {
 
     await page.getByRole('button', { name: 'Delete project' }).click()
     await expect(page.getByTestId('body')).toBeVisible()
+    // Visible is one commit ahead of the counter: the reporter mounts with the
+    // body, but its effect and the re-render it causes come after. Reading here
+    // without waiting captures 0 and compares it against a number that was
+    // always going to change.
+    await expect(page.getByTestId('mounts')).not.toHaveText('0')
     const mounts = await page.getByTestId('mounts').textContent()
 
     // Close and reopen inside the 180ms fade. Tearing down and rebuilding here

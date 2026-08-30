@@ -36,6 +36,17 @@ export function useOpenState(onToggle?: (open: boolean) => void, initialOpen = f
   const callbackRef = useRef(onToggle)
   callbackRef.current = onToggle
 
+  // The last state the consumer has been told about, seeded with the initial
+  // one: an element born open declaratively has nothing to report, because
+  // nobody opened it. Only the recovery path reads this — a toggle event fires
+  // solely on a real change, so it always reports.
+  const reportedRef = useRef(initialOpen)
+
+  const report = useCallback((next: boolean) => {
+    reportedRef.current = next
+    callbackRef.current?.(next)
+  }, [])
+
   const settle = useCallback((node: HTMLElement) => {
     // A frame, so transitions started by the state change exist to be found.
     requestAnimationFrame(() => {
@@ -63,14 +74,14 @@ export function useOpenState(onToggle?: (open: boolean) => void, initialOpen = f
   const handleToggle = useCallback(
     (event: Event) => {
       const next = (event as ToggleEvent).newState === 'open'
-      callbackRef.current?.(next)
+      report(next)
 
       const node = nodeRef.current
       if (!node) return setOpen(next)
       if (next) return setOpen(true)
       settle(node)
     },
-    [settle],
+    [report, settle],
   )
 
   const observe = useCallback(
@@ -86,9 +97,22 @@ export function useOpenState(onToggle?: (open: boolean) => void, initialOpen = f
 
       node.addEventListener('beforetoggle', handleBeforeToggle)
       node.addEventListener('toggle', handleToggle)
-      if (isOpen(node)) setOpen(true)
+
+      // An invoker works with no JavaScript at all, so the element can already
+      // be open by the time this listener attaches — a click landing before
+      // hydration finishes is enough. Recover both halves: the state, so the
+      // children mount, and the report, so a consumer watching `onOpenChange`
+      // is not left believing it is still closed.
+      //
+      // `reportedRef` is what separates that from `defaultOpen`, where the
+      // element is open because we asked for it and there is nothing to report.
+      // It also keeps a ref that reattaches while open from reporting twice.
+      if (isOpen(node)) {
+        setOpen(true)
+        if (!reportedRef.current) report(true)
+      }
     },
-    [handleBeforeToggle, handleToggle],
+    [handleBeforeToggle, handleToggle, report],
   )
 
   return { open, observe, nodeRef }

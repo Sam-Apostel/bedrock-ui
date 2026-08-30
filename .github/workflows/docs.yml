@@ -13,6 +13,12 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # `enablement: true` below turns Pages on through the API, which is a
+      # write to repository settings rather than to the site.
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,7 +35,14 @@ jobs:
 
       - run: npm run docs:build
 
+      # Turns Pages on, with Actions as the source, if it is not on already.
+      # Without this the first run of this workflow on a fresh repository fails
+      # with "Get Pages site failed ... Not Found", which reads like a broken
+      # workflow rather than a setting nobody has touched yet. It is idempotent:
+      # once Pages is on, this is a no-op that reports the existing site.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

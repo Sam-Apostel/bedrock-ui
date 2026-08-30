@@ -4,7 +4,9 @@
   "type": "registry:ui",
   "title": "Tabs",
   "description": "Roving tab list. The unselected panel is unmounted, so leaving a tab resets it.",
-  "dependencies": ["@apostel/bedrock"],
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
   "files": [
     {
       "path": "registry/bedrock/ui/tabs.tsx",

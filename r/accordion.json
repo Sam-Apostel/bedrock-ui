@@ -4,7 +4,10 @@
   "type": "registry:ui",
   "title": "Accordion",
   "description": "<details name> for single-open exclusivity, so no effect closes the siblings.",
-  "dependencies": ["@apostel/bedrock", "lucide-react"],
+  "dependencies": [
+    "@apostel/bedrock",
+    "lucide-react"
+  ],
   "files": [
     {
       "path": "registry/bedrock/ui/accordion.tsx",

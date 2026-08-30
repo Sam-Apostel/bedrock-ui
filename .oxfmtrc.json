@@ -6,6 +6,6 @@
   "jsxSingleQuote": false,
   "trailingComma": "all",
   "arrowParens": "always",
-  "_comment": "Markdown is excluded: the formatter rewrites emphasis markers and list spacing in hand-written prose, which is churn, not consistency.",
-  "ignorePatterns": ["dist", "package-lock.json", "**/*.md"]
+  "_comment": "Markdown is excluded: the formatter rewrites emphasis markers and list spacing in hand-written prose, which is churn, not consistency. r/ is excluded because scripts/build-registry.mjs writes it and the Docs workflow fails if the committed copy differs from a fresh build — with the formatter collapsing the arrays JSON.stringify expands, the two rewrite each other forever and that check can never pass.",
+  "ignorePatterns": ["dist", "package-lock.json", "**/*.md", "r"]
 }

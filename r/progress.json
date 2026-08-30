@@ -4,7 +4,9 @@
   "type": "registry:ui",
   "title": "Progress",
   "description": "A real <progress>. Omit value for indeterminate; the fill is ::-webkit-progress-value.",
-  "dependencies": ["@apostel/bedrock"],
+  "dependencies": [
+    "@apostel/bedrock"
+  ],
   "files": [
     {
       "path": "registry/bedrock/ui/progress.tsx",

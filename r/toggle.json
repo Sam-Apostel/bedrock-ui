@@ -4,7 +4,10 @@
   "type": "registry:ui",
   "title": "Toggle",
   "description": "A button with aria-pressed. State is [aria-pressed=true], not [data-state=on].",
-  "dependencies": ["@apostel/bedrock", "class-variance-authority"],
+  "dependencies": [
+    "@apostel/bedrock",
+    "class-variance-authority"
+  ],
   "files": [
     {
       "path": "registry/bedrock/ui/toggle.tsx",

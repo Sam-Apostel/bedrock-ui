@@ -4,7 +4,10 @@
   "type": "registry:ui",
   "title": "Select",
   "description": "A real <select> under appearance: base-select, so a phone still gets its own picker.",
-  "dependencies": ["@apostel/bedrock", "lucide-react"],
+  "dependencies": [
+    "@apostel/bedrock",
+    "lucide-react"
+  ],
   "files": [
     {
       "path": "registry/bedrock/ui/select.tsx",

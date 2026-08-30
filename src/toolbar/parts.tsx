@@ -1,5 +1,5 @@
 import type { ComponentPropsWithRef, ElementType } from 'react'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { useRoving, type Orientation } from '../roving'
 import { SeparatorRoot, type SeparatorProps } from '../separator/parts'
 import { Slot } from '../slot'
@@ -31,7 +31,7 @@ export function ToolbarRoot({
       role="toolbar"
       aria-orientation={orientation === 'both' ? undefined : orientation}
       data-orientation={orientation}
-      ref={composeRefs<HTMLElement>(ref, registerContainer)}
+      ref={useComposedRefs<HTMLElement>(ref, registerContainer)}
       data-bedrock-toolbar=""
     />
   )

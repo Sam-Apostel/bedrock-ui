@@ -6,7 +6,7 @@ import {
   type ComponentPropsWithRef,
   type ElementType,
 } from 'react'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
 
@@ -58,7 +58,7 @@ export function CheckboxRoot({
       {...props}
       type="checkbox"
       onChange={handleChange}
-      ref={composeRefs<HTMLInputElement>(ref, (node) => {
+      ref={useComposedRefs<HTMLInputElement>(ref, (node) => {
         nodeRef.current = node
       })}
       data-bedrock-checkbox=""

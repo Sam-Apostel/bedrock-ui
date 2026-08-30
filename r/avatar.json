@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Avatar",
   "description": "An <img> with a fallback shown only when it fails to load.",
-  "dependencies": [
-    "@apostel/bedrock"
-  ],
+  "dependencies": ["@apostel/bedrock"],
   "files": [
     {
       "path": "registry/bedrock/ui/avatar.tsx",

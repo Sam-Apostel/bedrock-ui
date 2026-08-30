@@ -10,7 +10,7 @@ import {
   type ElementType,
   type ReactNode,
 } from 'react'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
 
@@ -58,7 +58,7 @@ export function ToastViewport({ asChild, ref, ...props }: ToastViewportProps) {
       role="region"
       aria-live="polite"
       tabIndex={-1}
-      ref={composeRefs<HTMLElement>(ref, show)}
+      ref={useComposedRefs<HTMLElement>(ref, show)}
       data-bedrock-toast-viewport=""
     />
   )
@@ -127,17 +127,16 @@ export function ToastRoot({
     }
   }, [total])
 
+  // Above the early return: a hook cannot be called conditionally, and this one
+  // has to keep its identity across the render that dismisses the toast.
+  const composedRef = useComposedRefs<HTMLElement>(ref, (node) => {
+    nodeRef.current = node
+  })
+
   if (!open) return null
 
   return (
-    <Part
-      {...props}
-      role="status"
-      ref={composeRefs<HTMLElement>(ref, (node) => {
-        nodeRef.current = node
-      })}
-      data-bedrock-toast=""
-    >
+    <Part {...props} role="status" ref={composedRef} data-bedrock-toast="">
       {children}
     </Part>
   )

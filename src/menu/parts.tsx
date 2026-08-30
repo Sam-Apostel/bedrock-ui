@@ -14,7 +14,7 @@ import {
 } from 'react'
 import { anchorName, placementStyles, type Align, type Side } from '../anchor'
 import { useClientRender } from '../client-render'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { useRoving } from '../roving'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
@@ -35,7 +35,7 @@ export function MenuTrigger({ asChild, ref, style, ...props }: MenuTriggerProps)
       command="toggle-popover"
       aria-haspopup="menu"
       style={{ anchorName: anchor, ...style } as typeof style}
-      ref={composeRefs<HTMLElement>(ref, (node) =>
+      ref={useComposedRefs<HTMLElement>(ref, (node) =>
         validateTrigger(node, 'command', 'Menu.Trigger'),
       )}
       data-bedrock-menu-trigger=""
@@ -79,8 +79,15 @@ export function MenuContent({
 
   useEffect(() => {
     if (!open) return
-    const first = nodeRef.current?.querySelector<HTMLElement>('[data-bedrock-roving-item]')
-    first?.focus()
+
+    // The popover opens synchronously on the invoker's click; this effect runs
+    // a frame or two later. Anything the user did in between — a key that
+    // already moved focus into the menu — wins, because re-focusing the first
+    // item here would silently undo it.
+    const menu = nodeRef.current
+    if (!menu || menu.contains(document.activeElement)) return
+
+    menu.querySelector<HTMLElement>('[data-bedrock-roving-item]')?.focus()
   }, [open])
 
   return (
@@ -92,7 +99,7 @@ export function MenuContent({
       style={{ ...placementStyles(anchor, { side, align, sideOffset, avoidCollisions }), ...style }}
       data-side={side}
       data-align={align}
-      ref={composeRefs<HTMLElement>(ref, registerContent, registerContainer, (node) => {
+      ref={useComposedRefs<HTMLElement>(ref, registerContent, registerContainer, (node) => {
         nodeRef.current = node
       })}
       data-bedrock-menu=""
@@ -304,7 +311,7 @@ export function MenuSubTrigger({ asChild, ref, style, onKeyDown, ...props }: Men
       aria-haspopup="menu"
       onKeyDown={handleKeyDown}
       style={{ anchorName: anchor, ...style } as typeof style}
-      ref={composeRefs<HTMLElement>(ref, (node) =>
+      ref={useComposedRefs<HTMLElement>(ref, (node) =>
         validateTrigger(node, 'command', 'Menu.SubTrigger'),
       )}
       data-bedrock-roving-item=""

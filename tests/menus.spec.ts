@@ -20,6 +20,7 @@ test.describe('DropdownMenu', () => {
     await page.goto('/?case=menu')
 
     await page.getByTestId('trigger').click()
+    await expect(page.getByTestId('cut')).toBeFocused()
     await page.keyboard.press('s')
 
     await expect(page.getByTestId('share')).toBeFocused()
@@ -29,6 +30,10 @@ test.describe('DropdownMenu', () => {
     await page.goto('/?case=menu')
 
     await page.getByTestId('trigger').click()
+    // Focus lands on the first item a frame after the popover opens; pressing a
+    // key before that sends it to the trigger, which is not what is under test.
+    await expect(page.getByTestId('cut')).toBeFocused()
+
     await page.keyboard.press('End')
     await expect(page.getByTestId('share')).toBeFocused()
 
@@ -70,7 +75,10 @@ test.describe('DropdownMenu', () => {
     await page.goto('/?case=menu')
 
     await page.getByTestId('trigger').click()
+    await expect(page.getByTestId('cut')).toBeFocused()
+
     await page.keyboard.press('End')
+    await expect(page.getByTestId('share')).toBeFocused()
     await page.keyboard.press('ArrowRight')
 
     await expect(page.getByTestId('sub-content')).toBeVisible()

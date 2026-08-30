@@ -4,12 +4,8 @@
   "type": "registry:ui",
   "title": "Alert Dialog",
   "description": "shadcn/ui's AlertDialog on bedrock's Dialog, with role=\"alertdialog\". Action and Cancel are both close buttons.",
-  "dependencies": [
-    "@apostel/bedrock"
-  ],
-  "registryDependencies": [
-    "button"
-  ],
+  "dependencies": ["@apostel/bedrock"],
+  "registryDependencies": ["button"],
   "files": [
     {
       "path": "registry/bedrock/ui/alert-dialog.tsx",

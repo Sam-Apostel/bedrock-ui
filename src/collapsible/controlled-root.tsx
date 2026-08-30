@@ -1,5 +1,5 @@
 import type { ComponentPropsWithRef, ElementType } from 'react'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { useControlledRoot, type ControlledRootProps } from '../create-controlled-root'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
@@ -33,7 +33,7 @@ export function CollapsibleRoot({
     <CollapsibleContext.Provider value={context}>
       <Part
         {...props}
-        ref={composeRefs<HTMLElement>(ref, context.registerContent)}
+        ref={useComposedRefs<HTMLElement>(ref, context.registerContent)}
         data-bedrock-collapsible=""
       >
         {children}

@@ -1,7 +1,7 @@
 import type { ComponentPropsWithRef, ElementType } from 'react'
 import { placementStyles, type Align, type Side } from '../anchor'
 import { useClientRender } from '../client-render'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
 import { validateTrigger } from '../validate-trigger'
@@ -29,7 +29,7 @@ export function TooltipTrigger({ asChild, ref, style, ...props }: TooltipTrigger
       // Describes rather than labels: the trigger keeps its own name.
       aria-describedby={id}
       style={{ anchorName: anchor, ...style } as typeof style}
-      ref={composeRefs<HTMLElement>(ref, registerTrigger, (node) =>
+      ref={useComposedRefs<HTMLElement>(ref, registerTrigger, (node) =>
         validateTrigger(node, 'interest', 'Tooltip.Trigger'),
       )}
       data-bedrock-tooltip-trigger=""
@@ -68,7 +68,7 @@ export function TooltipContent({
       style={{ ...placementStyles(anchor, { side, align, sideOffset, avoidCollisions }), ...style }}
       data-side={side}
       data-align={align}
-      ref={composeRefs<HTMLElement>(ref, registerContent)}
+      ref={useComposedRefs<HTMLElement>(ref, registerContent)}
       data-bedrock-tooltip=""
     >
       {open || !onClient ? children : null}

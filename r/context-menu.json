@@ -4,10 +4,7 @@
   "type": "registry:ui",
   "title": "Context Menu",
   "description": "The same menu anchored to the pointer. Root is the trigger area.",
-  "dependencies": [
-    "@apostel/bedrock",
-    "lucide-react"
-  ],
+  "dependencies": ["@apostel/bedrock", "lucide-react"],
   "files": [
     {
       "path": "registry/bedrock/ui/context-menu.tsx",

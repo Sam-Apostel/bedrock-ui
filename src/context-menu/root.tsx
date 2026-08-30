@@ -8,7 +8,7 @@ import {
   type MouseEvent,
 } from 'react'
 import { anchorName } from '../anchor'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { MenuContext } from '../menu/shared'
 import { useOpenState } from '../open-state'
 import { Slot } from '../slot'
@@ -80,7 +80,7 @@ export function ContextMenuRoot({
       <Part
         {...props}
         onContextMenu={handleContextMenu}
-        ref={composeRefs<HTMLElement>(ref)}
+        ref={useComposedRefs<HTMLElement>(ref)}
         data-bedrock-context-menu-trigger=""
       >
         {children}

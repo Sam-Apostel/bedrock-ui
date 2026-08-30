@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Scroll Area",
   "description": "Native scrolling styled with scrollbar-width and scrollbar-color.",
-  "dependencies": [
-    "@apostel/bedrock"
-  ],
+  "dependencies": ["@apostel/bedrock"],
   "files": [
     {
       "path": "registry/bedrock/ui/scroll-area.tsx",

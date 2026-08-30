@@ -15,7 +15,8 @@ jobs:
       # The action opens and updates the version PR.
       contents: write
       pull-requests: write
-      # Required for npm provenance, which package.json opts into.
+      # The OIDC token npm exchanges for publish rights under trusted
+      # publishing, and what provenance is signed against.
       id-token: write
     steps:
       - uses: actions/checkout@v4
@@ -25,9 +26,17 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
+          # Trusted publishing needs Node >= 22.14; `22` resolves to the latest
+          # 22.x, which is well past that.
           node-version: 22
           cache: npm
           registry-url: https://registry.npmjs.org
+
+      # The npm bundled with Node 22 is 10.x, and trusted publishing needs
+      # >= 11.5.1. Without this the OIDC exchange never happens and publishing
+      # falls back to looking for a token — which fails quietly once the token
+      # has been removed.
+      - run: npm install -g npm@latest
 
       - run: npm ci
       - run: npx playwright install --with-deps chromium
@@ -45,13 +54,18 @@ jobs:
       #
       # Nobody types a version number, and nothing publishes without a changeset
       # describing why.
-      - uses: changesets/action@v1
+      #
+      # Needs "Allow GitHub Actions to create and approve pull requests" under
+      # Settings → Actions → General, or opening the version PR fails.
+      - uses: changesets/action@v2
         with:
-          version: npm run version
-          publish: npm run release
-          commit: 'Version packages'
-          title: 'Version packages'
+          version-script: npm run version
+          publish-script: npm run release
+          commit-message: 'Version packages'
+          pr-title: 'Version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Only used until trusted publishing is configured on npm; after that
+          # the secret can be deleted and this line left as-is, since an unset
+          # secret is an empty string and npm ignores it.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Checkbox",
   "description": "A real <input type=\"checkbox\">. The tick is a masked ::before under :checked, so there is no Indicator element.",
-  "dependencies": [
-    "@apostel/bedrock"
-  ],
+  "dependencies": ["@apostel/bedrock"],
   "files": [
     {
       "path": "registry/bedrock/ui/checkbox.tsx",

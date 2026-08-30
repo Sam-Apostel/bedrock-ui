@@ -7,7 +7,7 @@ import {
   type ComponentPropsWithRef,
   type ElementType,
 } from 'react'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
 import { AccordionContext } from './shared'
@@ -87,7 +87,7 @@ export function AccordionRoot({
     <AccordionContext.Provider value={context}>
       <Part
         {...props}
-        ref={composeRefs<HTMLElement>(ref, (node) => {
+        ref={useComposedRefs<HTMLElement>(ref, (node) => {
           nodeRef.current = node
         })}
         data-orientation={orientation}

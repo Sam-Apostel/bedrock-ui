@@ -1,7 +1,7 @@
 import type { ComponentPropsWithRef, ElementType } from 'react'
 import { anchorName, placementStyles, type Align, type Side } from '../anchor'
 import { useClientRender } from '../client-render'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
 import { validateTrigger } from '../validate-trigger'
@@ -27,7 +27,7 @@ export function PopoverTrigger({ asChild, ref, style, ...props }: PopoverTrigger
       // The anchor name has to live on the element the content points at, and
       // it is per instance, so it cannot come from a stylesheet.
       style={{ anchorName: anchor, ...style } as typeof style}
-      ref={composeRefs<HTMLElement>(ref, (node) =>
+      ref={useComposedRefs<HTMLElement>(ref, (node) =>
         validateTrigger(node, 'command', 'Popover.Trigger'),
       )}
       data-bedrock-popover-trigger=""
@@ -81,7 +81,7 @@ export function PopoverContent({
       style={{ ...placementStyles(anchor, { side, align, sideOffset, avoidCollisions }), ...style }}
       data-side={side}
       data-align={align}
-      ref={composeRefs<HTMLElement>(ref, registerContent)}
+      ref={useComposedRefs<HTMLElement>(ref, registerContent)}
       data-bedrock-popover=""
     >
       {open || !onClient ? children : null}
@@ -101,7 +101,7 @@ export function PopoverClose({ asChild, ref, ...props }: PopoverCloseProps) {
       type="button"
       commandfor={id}
       command="hide-popover"
-      ref={composeRefs<HTMLElement>(ref, (node) =>
+      ref={useComposedRefs<HTMLElement>(ref, (node) =>
         validateTrigger(node, 'command', 'Popover.Close'),
       )}
       data-bedrock-popover-close=""

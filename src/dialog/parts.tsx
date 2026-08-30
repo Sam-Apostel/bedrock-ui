@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import { useClientRender } from '../client-render'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
 import { validateElement } from '../validate-element'
@@ -36,7 +36,7 @@ export function DialogTrigger({ asChild, ref, ...props }: DialogTriggerProps) {
       // element is worse than no reference.
       aria-controls={open ? id : undefined}
       data-bedrock-dialog-trigger=""
-      ref={composeRefs<HTMLElement>(ref, (node) =>
+      ref={useComposedRefs<HTMLElement>(ref, (node) =>
         validateTrigger(node, 'command', 'Dialog.Trigger'),
       )}
     />
@@ -105,7 +105,7 @@ export function DialogContent({ asChild, ref, children, ...props }: DialogConten
       aria-labelledby={label}
       aria-describedby={description}
       data-bedrock-dialog=""
-      ref={composeRefs<HTMLElement>(ref, registerContent, (node) =>
+      ref={useComposedRefs<HTMLElement>(ref, registerContent, (node) =>
         validateElement(node, 'DIALOG', 'Dialog.Content'),
       )}
     >
@@ -153,7 +153,7 @@ export function DialogClose({ asChild, ref, ...props }: DialogCloseProps) {
       // <dialog> has, and the controlled root's close veto is built on it.
       command="request-close"
       data-bedrock-dialog-close=""
-      ref={composeRefs<HTMLElement>(ref, (node) =>
+      ref={useComposedRefs<HTMLElement>(ref, (node) =>
         validateTrigger(node, 'command', 'Dialog.Close'),
       )}
     />

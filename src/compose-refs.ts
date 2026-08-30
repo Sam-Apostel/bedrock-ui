@@ -1,4 +1,4 @@
-import type { Ref } from 'react'
+import { useCallback, useRef, type Ref } from 'react'
 
 type RefCleanup = () => void
 
@@ -31,4 +31,38 @@ export function composeRefs<T>(...refs: Array<Ref<T> | undefined>) {
       for (const ref of refs) assign(ref, null)
     }
   }
+}
+
+/**
+ * The same thing, with a stable identity, for use inside a component.
+ *
+ * `composeRefs` returns a new function on every call, and React treats a new
+ * ref callback as a different ref: it detaches the old one and attaches the new
+ * one on every render. For a ref that only stores a node that is merely
+ * wasteful. For one that attaches event listeners it is a bug — an event
+ * arriving in the gap between detach and attach is dropped, and nothing
+ * re-delivers it. A popover that opens in that window stays open with its
+ * content never mounted, because the `toggle` that would have told React went
+ * nowhere.
+ *
+ * The returned callback never changes, so React attaches once and detaches at
+ * unmount. The refs are read through a box, so a consumer passing a new ref
+ * each render still gets the current one.
+ */
+export function useComposedRefs<T>(...refs: Array<Ref<T> | undefined>) {
+  const latest = useRef(refs)
+  latest.current = refs
+
+  return useCallback((node: T | null): RefCleanup => {
+    const current = latest.current
+    const cleanups = current.map((ref) => assign(ref, node)).filter(Boolean) as RefCleanup[]
+
+    return () => {
+      if (cleanups.length > 0) {
+        for (const cleanup of cleanups) cleanup()
+        return
+      }
+      for (const ref of current) assign(ref, null)
+    }
+  }, [])
 }

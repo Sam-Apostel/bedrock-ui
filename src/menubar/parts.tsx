@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { anchorName } from '../anchor'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { MenuContext } from '../menu/shared'
 import { MenuTrigger, type MenuTriggerProps } from '../menu/parts'
 import { useOpenState } from '../open-state'
@@ -33,7 +33,7 @@ export function MenubarRoot({ asChild, loop = true, ref, ...props }: MenubarRoot
     <Part
       {...props}
       role="menubar"
-      ref={composeRefs<HTMLElement>(ref, registerContainer)}
+      ref={useComposedRefs<HTMLElement>(ref, registerContainer)}
       data-bedrock-menubar=""
     />
   )

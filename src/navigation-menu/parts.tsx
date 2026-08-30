@@ -1,6 +1,6 @@
 import { useId, useMemo, type ComponentPropsWithRef, type ElementType, type ReactNode } from 'react'
 import { anchorName } from '../anchor'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { MenuContext } from '../menu/shared'
 import { useOpenState } from '../open-state'
 import { useRoving } from '../roving'
@@ -31,7 +31,7 @@ export function NavigationMenuList({
   return (
     <Part
       {...props}
-      ref={composeRefs<HTMLElement>(ref, registerContainer)}
+      ref={useComposedRefs<HTMLElement>(ref, registerContainer)}
       data-bedrock-navigation-menu-list=""
     />
   )
@@ -64,7 +64,7 @@ export function NavigationMenuItem({
       <Part
         {...props}
         style={{ anchorName: anchor, ...style } as typeof style}
-        ref={composeRefs<HTMLElement>(ref)}
+        ref={useComposedRefs<HTMLElement>(ref)}
         data-bedrock-navigation-menu-item=""
       >
         {children}

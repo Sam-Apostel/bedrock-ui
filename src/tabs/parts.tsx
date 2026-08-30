@@ -1,6 +1,6 @@
 import { useCallback, type ComponentPropsWithRef, type ElementType, type MouseEvent } from 'react'
 import { useClientRender } from '../client-render'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { useRoving } from '../roving'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
@@ -26,7 +26,7 @@ export function TabsList({ asChild, loop = true, ref, ...props }: TabsListProps)
       role="tablist"
       aria-orientation={orientation === 'both' ? undefined : orientation}
       data-orientation={orientation}
-      ref={composeRefs<HTMLElement>(ref, registerContainer)}
+      ref={useComposedRefs<HTMLElement>(ref, registerContainer)}
       data-bedrock-tabs-list=""
     />
   )

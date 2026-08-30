@@ -65,6 +65,11 @@ test.describe('Popover', () => {
     await expect(page.getByTestId('content')).toBeHidden()
     await expect(page.getByTestId('log')).toHaveText('true,false')
 
+    // Hidden is not yet unmounted: the subtree survives the exit transition on
+    // purpose, and reopening inside that window reuses it. Wait for it to go,
+    // or this races the behaviour the next test asserts.
+    await expect(page.getByTestId('field')).toHaveCount(0)
+
     await page.getByTestId('trigger').click()
     await expect(page.getByTestId('field')).toHaveValue('')
   })

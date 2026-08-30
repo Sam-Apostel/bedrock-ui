@@ -1,5 +1,5 @@
 import { cloneElement, isValidElement, type Ref } from 'react'
-import { composeRefs } from './compose-refs'
+import { useComposedRefs } from './compose-refs'
 import type { AnyProps, SlotProps } from './types'
 
 type Handler = (...args: unknown[]) => void
@@ -49,7 +49,7 @@ export function Slot({ children, ...slotProps }: SlotProps) {
 
   // Ours reads the node for tag validation and, under the controlled root, for
   // event wiring; theirs must keep working regardless.
-  merged.ref = composeRefs(slotProps.ref as Ref<unknown>, childProps.ref as Ref<unknown>)
+  merged.ref = useComposedRefs(slotProps.ref as Ref<unknown>, childProps.ref as Ref<unknown>)
 
   return cloneElement(children, merged)
 }

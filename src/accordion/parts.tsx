@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, type ComponentPropsWithRef, type ElementType } from 'react'
 import { useClientRender } from '../client-render'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { useOpenState } from '../open-state'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
@@ -50,7 +50,7 @@ export function AccordionItem({
         // A disabled disclosure is not a native concept; removing the summary
         // from the tab order and blocking the toggle is the closest thing.
         data-disabled={disabled ? '' : undefined}
-        ref={composeRefs<HTMLElement>(ref, observe)}
+        ref={useComposedRefs<HTMLElement>(ref, observe)}
         data-bedrock-accordion-item=""
       >
         {children}

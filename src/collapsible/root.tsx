@@ -6,7 +6,7 @@ import {
   type ComponentPropsWithRef,
   type ElementType,
 } from 'react'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { useOpenState } from '../open-state'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
@@ -52,7 +52,7 @@ export function CollapsibleRoot({
         // Read once. React only writes a DOM property when the value it renders
         // changes, so the user's own toggling is never undone by a re-render.
         open={defaultOpenRef.current}
-        ref={composeRefs<HTMLElement>(ref, observe)}
+        ref={useComposedRefs<HTMLElement>(ref, observe)}
         data-bedrock-collapsible=""
       >
         {children}

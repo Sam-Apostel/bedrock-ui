@@ -9,7 +9,7 @@ import {
   type ElementType,
   type MouseEvent,
 } from 'react'
-import { composeRefs } from '../compose-refs'
+import { useComposedRefs } from '../compose-refs'
 import { useRoving, type Orientation } from '../roving'
 import { Slot } from '../slot'
 import type { AsChildProps } from '../types'
@@ -94,7 +94,7 @@ export function ToggleGroupRoot({
         {...props}
         role="group"
         data-orientation={orientation}
-        ref={composeRefs<HTMLElement>(ref, registerContainer)}
+        ref={useComposedRefs<HTMLElement>(ref, registerContainer)}
         data-bedrock-toggle-group=""
       >
         {children}

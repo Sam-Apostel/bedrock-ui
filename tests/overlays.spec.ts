@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 test.describe('Popover', () => {
   test('the invoker opens it into the top layer', async ({ page }) => {
@@ -141,5 +141,115 @@ test.describe('HoverCard', () => {
 
     await page.getByTestId('inner-link').hover()
     await expect(page.getByTestId('content')).toBeVisible()
+  })
+})
+
+/**
+ * The content of a popover-backed primitive mounts on `beforetoggle` and stays
+ * until it closes.
+ *
+ * Regression: `useOpenState` asked `:open`, which does not match an open
+ * popover in Chrome, so `settle()` concluded a frame later that the element was
+ * closed and unmounted the children under it. The popover stayed open and
+ * empty, collapsing to the width of nothing — a flicker open followed by a jump
+ * to the smallest possible size.
+ *
+ * The faulty read affected every popover-backed primitive, but only Tooltip and
+ * HoverCard showed it. It is a race between the queued `toggle` event, which
+ * sets the flag back, and the `requestAnimationFrame` in `settle`, which clears
+ * it — and the two land in a different order when `showPopover()` is called
+ * from a timer than from a click. So the hover card test below is the one that
+ * discriminates; the popover one is a guard that does not currently reproduce,
+ * and is kept because the underlying read is shared.
+ *
+ * Measured across frames rather than asserted once, because the failure is that
+ * the first frame is right and the second is not.
+ */
+interface Frame {
+  open: boolean
+  kids: number
+  width: number
+}
+
+declare global {
+  interface Window {
+    bedrockFrames?: Frame[]
+  }
+}
+
+/**
+ * Records every animation frame from *before* the thing is opened.
+ *
+ * Sampling after an `expect(...).toBeVisible()` is what an earlier version of
+ * this did, and it caught nothing: waiting for visibility already consumes the
+ * frames where the subtree is torn down, so the bad frame is gone by the time
+ * the first sample is taken.
+ */
+async function record(page: Page, selector: string) {
+  await page.evaluate((target) => {
+    window.bedrockFrames = []
+    const tick = () => {
+      const node = document.querySelector<HTMLElement>(target)
+      if (node) {
+        window.bedrockFrames?.push({
+          open: node.matches(':popover-open'),
+          kids: node.childElementCount,
+          width: Math.round(node.getBoundingClientRect().width),
+        })
+      }
+      requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }, selector)
+}
+
+async function openFrames(page: Page) {
+  const frames = await page.evaluate(() => window.bedrockFrames ?? [])
+  return frames.filter((frame) => frame.open)
+}
+
+test.describe('open content stays mounted', () => {
+  test('a hover card never has an open, empty frame', async ({ page }) => {
+    await page.goto('/?case=hover-card')
+    await record(page, '[data-testid="content"]')
+
+    await page.getByTestId('trigger').hover()
+    await expect(page.getByTestId('content')).toBeVisible()
+    await page.waitForTimeout(500)
+
+    const frames = await openFrames(page)
+
+    expect(frames.length).toBeGreaterThan(4)
+    // Open with no children is the bug, whether it lasts one frame or forever.
+    expect(frames.filter((frame) => frame.kids === 0)).toEqual([])
+  })
+
+  test('a popover never has an open, empty frame', async ({ page }) => {
+    await page.goto('/?case=popover')
+    await record(page, '[data-testid="content"]')
+
+    await page.getByTestId('trigger').click()
+    await expect(page.getByTestId('content')).toBeVisible()
+    await page.waitForTimeout(500)
+
+    const frames = await openFrames(page)
+
+    expect(frames.length).toBeGreaterThan(4)
+    expect(frames.filter((frame) => frame.kids === 0)).toEqual([])
+  })
+
+  test('the DOM open state is read through :popover-open, not just :open', async ({ page }) => {
+    await page.goto('/?case=popover')
+    await page.getByTestId('trigger').click()
+
+    // Pins the platform fact the fix rests on. If a future Chrome makes `:open`
+    // match popovers, this failing is the signal that the workaround can go.
+    const support = await page.getByTestId('content').evaluate((node) => ({
+      popoverOpen: node.matches(':popover-open'),
+      colonOpen: node.matches(':open'),
+    }))
+
+    expect(support.popoverOpen).toBe(true)
+    expect(support.colonOpen).toBe(false)
   })
 })

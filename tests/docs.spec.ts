@@ -140,3 +140,64 @@ test.describe('docs demos are interactive', () => {
     await expect(content).toBeHidden()
   })
 })
+
+/**
+ * The four faults found by a reader in the first minute of browsing, each now
+ * a test rather than a memory.
+ */
+test.describe('site chrome', () => {
+  test('the current page is a marker in the nav, not a link to itself', async ({ page }) => {
+    await page.goto(`${SITE}/dialog.html`)
+
+    const here = page.locator('nav .here')
+    await expect(here).toHaveText('Dialog')
+    await expect(here).toHaveAttribute('aria-current', 'page')
+    // The whole point: it is not clickable.
+    await expect(page.locator('nav a', { hasText: /^Dialog$/ })).toHaveCount(0)
+  })
+
+  // One test per page rather than a loop: these navigate the same tab, so they
+  // cannot run in parallel, and a loop of awaits is the thing the linter is
+  // right to object to.
+  for (const path of ['index.html', 'docs.html', 'compat.html']) {
+    test(`${path} does not link to the site it is served from`, async ({ page }) => {
+      await page.goto(`${SITE}/${path}`)
+
+      // An absolute self-link leaves the site and comes back, and breaks on any
+      // host that is not the production domain — a preview deploy, or this test.
+      await expect(page.locator('a[href^="https://bedrock.sams.land"]')).toHaveCount(0)
+    })
+  }
+
+  test('the compat page has the site navigation', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    // It used to be copied in verbatim as a standalone document, so there was
+    // no way back to the rest of the docs.
+    await expect(page.locator('nav .masthead')).toBeVisible()
+    await expect(page.locator('nav a[href="./dialog.html"]')).toBeVisible()
+  })
+
+  test('the support matrix carries real versions and a live column', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    const invokers = page.locator('tr.floor', { hasText: 'commandfor' })
+    await expect(invokers).toBeVisible()
+    // The floor, from MDN data rather than from memory.
+    await expect(invokers).toContainText('135')
+    await expect(invokers).toContainText('144')
+
+    // The probe is filled in by the inline script, in this browser.
+    const probe = invokers.locator('.probe')
+    await expect(probe).toHaveAttribute('data-state', /yes|no/)
+    await expect(probe).not.toHaveText('·')
+  })
+
+  test('the prose that was previously overwritten is on the page', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+    // compat.md rendered to compat.html and was then clobbered by the copy of
+    // the hand-written compat.html, so none of this had ever been visible.
+    await expect(page.getByText('The stance')).toBeVisible()
+    await expect(page.getByRole('heading', { name: /degrades/ })).toBeVisible()
+  })
+})

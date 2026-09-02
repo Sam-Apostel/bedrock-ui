@@ -1,9 +1,11 @@
 # Browser support
 
-**Open [`compat.html`](./compat.html) in the browser you care about.** It runs a
-real feature detection for every platform feature bedrock depends on and tells
-you what each missing one does to your UI. This page is the summary; that page
-is the answer.
+bedrock targets current browsers on purpose. This page says exactly how current:
+the minimum version of each engine for every platform feature the library uses,
+what each feature is for, and what happens to your UI when it is missing.
+
+The **Here** column is not a claim. It is measured in the browser you are
+reading this in, as you read it.
 
 ## The stance
 
@@ -35,27 +37,9 @@ Accessibility never lands in the degradation column. Focus trapping, dismissal,
 naming and keyboard operation come from `<dialog>`, the popover stack and native
 buttons — the parts that shipped everywhere years ago.
 
-## Measured, Chrome 141
+## The matrix
 
-The live table scores 20 of 21 here. The single miss is `interestfor`, which is
-**not standardised and not in Chrome stable** — it is behind a flag. That is
-worth stating plainly because the README describes it as driving Tooltip and
-HoverCard triggers: those primitives will ship with the JavaScript fallback as
-the default path, not as a contingency.
-
-## Other engines
-
-Rather than publish version numbers that go stale, run the live table. What the
-shape of the answer will be:
-
-- `<dialog>`, `::backdrop`, `:open` and the Popover API are broadly available,
-  so the required tier is in reasonable shape outside Chrome.
-- Invoker commands and anchor positioning are the ones to actually check —
-  they are the difference between "works" and "works and looks right".
-- `@starting-style` and `allow-discrete` travel together in practice; if one is
-  missing you lose transitions, not function.
-- `appearance: base-select` is the newest and least likely to be present, which
-  is why Select is late in the build order.
+<!-- support-matrix -->
 
 ## Testing
 

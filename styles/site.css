@@ -1,0 +1,372 @@
+/*
+ * The docs site's design system.
+ *
+ * Inlined into every page by scripts/build-docs.mjs — one file, one request,
+ * no flash of unstyled text. Kept out of that script so it can be edited and
+ * formatted as CSS rather than as a string.
+ *
+ * The proportions come from a fixed brief: a 64-character grid (8×8, so an
+ * 8px unit and a power-of-two scale), four typographic voices in fixed
+ * measure — structural capitals, lowercase prose, figures, punctuation — and
+ * one rule that does most of the work: never two adjacent blocks of the same
+ * texture. Prose, then code, then a live thing, then a table, then prose. That
+ * is what keeps a page of documentation from reading as a wall.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* 8px unit. Every measurement below is a multiple of it. */
+  --u: 8px;
+  --u2: calc(var(--u) * 2);
+  --u3: calc(var(--u) * 3);
+  --u4: calc(var(--u) * 4);
+  --u6: calc(var(--u) * 6);
+  --u8: calc(var(--u) * 8);
+
+  --paper: #fbfaf8;
+  --sunk: #f2efe8;
+  --ink: #101013;
+  --muted: #62626b;
+  --rule: #e3e0d8;
+  --accent: #b3350f;
+  --accent-soft: #f3e6df;
+
+  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Prose stays narrow however wide the window is. Measure beats width. */
+  --measure: 42rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0b0b0e;
+    --sunk: #141419;
+    --ink: #eceae4;
+    --muted: #91919b;
+    --rule: #24242a;
+    --accent: #ff7a45;
+    --accent-soft: #241610;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Shell ─────────────────────────────────────────────────────────────── */
+
+.shell {
+  max-width: 84rem;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  gap: var(--u8);
+  padding: var(--u4) var(--u3) calc(var(--u) * 12);
+}
+
+@media (max-width: 62rem) {
+  .shell {
+    grid-template-columns: 1fr;
+    gap: var(--u3);
+    padding: var(--u2) var(--u2) var(--u8);
+  }
+}
+
+main {
+  min-width: 0;
+  counter-reset: section;
+}
+
+/* ── Navigation ────────────────────────────────────────────────────────── */
+
+.masthead {
+  display: block;
+  font: 600 1.05rem/1 var(--mono);
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  text-decoration: none;
+  margin-bottom: var(--u3);
+}
+
+.masthead .dot {
+  color: var(--accent);
+}
+
+nav {
+  position: sticky;
+  top: var(--u4);
+  align-self: start;
+  max-height: calc(100vh - var(--u8));
+  overflow-y: auto;
+}
+
+@media (max-width: 62rem) {
+  nav {
+    position: static;
+    max-height: none;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: var(--u2);
+  }
+}
+
+nav a {
+  display: block;
+  padding: 3px 0;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  border-left: 2px solid transparent;
+  padding-left: var(--u);
+  margin-left: calc(var(--u) * -1);
+}
+
+nav a:hover {
+  color: var(--ink);
+}
+
+/* The page you are on is not a link. It is a marker. */
+nav .here {
+  display: block;
+  padding: 3px 0 3px var(--u);
+  margin-left: calc(var(--u) * -1);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  border-left: 2px solid var(--accent);
+}
+
+.nav-group {
+  display: block;
+  margin: var(--u3) 0 var(--u);
+  font: 600 0.68rem/1 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.nav-group::after {
+  content: ' /';
+  color: var(--accent);
+}
+
+/* ── Type ──────────────────────────────────────────────────────────────── */
+
+h1 {
+  font-size: clamp(1.9rem, 4.5vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  margin: 0 0 var(--u2);
+  max-width: var(--measure);
+}
+
+h2 {
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+  margin: var(--u8) 0 var(--u2);
+  padding-top: var(--u3);
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure);
+}
+
+/* Figures and punctuation as ornament, in fixed proportion to the words. */
+h2::before {
+  counter-increment: section;
+  content: counter(section, decimal-leading-zero) ' — ';
+  font: 500 0.8rem var(--mono);
+  color: var(--accent);
+  letter-spacing: 0;
+}
+
+h3 {
+  font-size: 1.02rem;
+  margin: var(--u4) 0 var(--u);
+  letter-spacing: -0.01em;
+  max-width: var(--measure);
+}
+
+p,
+ul,
+ol,
+blockquote {
+  max-width: var(--measure);
+}
+
+p {
+  margin: 0 0 var(--u2);
+}
+
+li {
+  margin-bottom: calc(var(--u) * 0.75);
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 2px;
+}
+
+strong {
+  font-weight: 640;
+}
+
+blockquote {
+  margin: 0 0 var(--u2);
+  padding: var(--u) var(--u2);
+  border-left: 2px solid var(--accent);
+  background: var(--sunk);
+  color: var(--muted);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: var(--u6) 0;
+}
+
+/* ── Code ──────────────────────────────────────────────────────────────── */
+
+code {
+  font: 0.855em/1.5 var(--mono);
+  background: var(--sunk);
+  padding: 0.1em 0.32em;
+  border-radius: 3px;
+}
+
+pre {
+  background: var(--sunk);
+  border: 1px solid var(--rule);
+  border-radius: var(--u);
+  padding: var(--u2);
+  overflow-x: auto;
+  margin: 0 0 var(--u3);
+  font-size: 0.9rem;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ── Tables ────────────────────────────────────────────────────────────── */
+
+.table-wrap {
+  overflow-x: auto;
+  margin: 0 0 var(--u3);
+  border: 1px solid var(--rule);
+  border-radius: var(--u);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: var(--u) var(--u2);
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+th {
+  color: var(--muted);
+  font: 600 0.68rem/1.4 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--sunk);
+  white-space: nowrap;
+}
+
+/* Version numbers and other figures read as data, not as prose. */
+td.num,
+td:has(> code:only-child) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Support matrix ────────────────────────────────────────────────────── */
+
+.support th:not(:first-child) {
+  text-align: center;
+}
+
+.support td:not(:first-child):not(:last-child) {
+  text-align: center;
+  font: 0.85rem var(--mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.support td:first-child {
+  font: 0.85rem var(--mono);
+}
+
+.support td:last-child {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* A version number is support; a dash is not. Read at a glance, not by word. */
+.no {
+  color: var(--muted);
+  opacity: 0.55;
+}
+
+/* The floor rows are the ones that decide whether anything works at all. */
+tr.floor td {
+  background: var(--accent-soft);
+}
+
+tr.floor td:first-child {
+  font-weight: 640;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* ── Live browser probe ────────────────────────────────────────────────── */
+
+.probe {
+  font: 0.85rem var(--mono);
+  white-space: nowrap;
+}
+
+.probe[data-state='yes'] {
+  color: var(--accent);
+  font-weight: 640;
+}
+
+.probe[data-state='no'] {
+  color: var(--muted);
+}
+
+/* ── Callouts ──────────────────────────────────────────────────────────── */
+
+.lede {
+  font-size: 1.12rem;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: var(--measure);
+  margin: 0 0 var(--u4);
+}
+
+.eyebrow {
+  display: block;
+  font: 600 0.68rem/1 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  margin-bottom: var(--u2);
+}

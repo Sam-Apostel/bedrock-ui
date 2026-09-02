@@ -10,7 +10,7 @@
  */
 
 .demo {
-  border: 1px solid var(--line, #e3e4e8);
+  border: 1px solid var(--rule, #e3e4e8);
   border-radius: 10px;
   margin: 1.25rem 0;
   overflow: hidden;
@@ -32,8 +32,8 @@
 }
 
 .demo-source {
-  border-top: 1px solid var(--line, #e3e4e8);
-  background: var(--card, #f7f7f9);
+  border-top: 1px solid var(--rule, #e3e4e8);
+  background: var(--sunk, #f7f7f9);
 }
 
 .demo-source summary {
@@ -47,7 +47,7 @@
 .demo-source pre {
   margin: 0;
   border: 0;
-  border-top: 1px solid var(--line, #e3e4e8);
+  border-top: 1px solid var(--rule, #e3e4e8);
   border-radius: 0;
 }
 
@@ -57,10 +57,10 @@
   font: inherit;
   font-size: 0.9rem;
   padding: 0.4rem 0.8rem;
-  border: 1px solid var(--line, #e3e4e8);
+  border: 1px solid var(--rule, #e3e4e8);
   border-radius: 7px;
-  background: var(--bg, #fff);
-  color: var(--fg, #16161a);
+  background: var(--paper, #fff);
+  color: var(--ink, #16161a);
   cursor: pointer;
 }
 
@@ -74,10 +74,10 @@
 }
 
 .demo [data-bedrock-dialog] {
-  border: 1px solid var(--line, #e3e4e8);
+  border: 1px solid var(--rule, #e3e4e8);
   border-radius: 12px;
-  background: var(--bg, #fff);
-  color: var(--fg, #16161a);
+  background: var(--paper, #fff);
+  color: var(--ink, #16161a);
   padding: 1.25rem;
   max-width: 24rem;
 }
@@ -87,10 +87,10 @@
 }
 
 .demo [popover] {
-  border: 1px solid var(--line, #e3e4e8);
+  border: 1px solid var(--rule, #e3e4e8);
   border-radius: 10px;
-  background: var(--bg, #fff);
-  color: var(--fg, #16161a);
+  background: var(--paper, #fff);
+  color: var(--ink, #16161a);
   padding: 0.75rem;
   margin: 0;
 }
@@ -113,13 +113,13 @@
 
 .demo [data-bedrock-menu-item]:hover,
 .demo [data-bedrock-menu-item]:focus {
-  background: var(--card, #f7f7f9);
+  background: var(--sunk, #f7f7f9);
   outline: none;
 }
 
 .demo [data-bedrock-menu-separator] {
   height: 1px;
-  background: var(--line, #e3e4e8);
+  background: var(--rule, #e3e4e8);
   margin: 0.3rem 0;
   border: 0;
 }
@@ -136,7 +136,7 @@
 .demo [data-bedrock-toolbar] {
   display: flex;
   gap: 0.3rem;
-  border-bottom: 1px solid var(--line, #e3e4e8);
+  border-bottom: 1px solid var(--rule, #e3e4e8);
   padding-bottom: 0.4rem;
   margin-bottom: 0.9rem;
 }
@@ -148,7 +148,7 @@
 
 .demo [data-bedrock-accordion-item],
 .demo [data-bedrock-collapsible] {
-  border-bottom: 1px solid var(--line, #e3e4e8);
+  border-bottom: 1px solid var(--rule, #e3e4e8);
 }
 
 .demo summary {

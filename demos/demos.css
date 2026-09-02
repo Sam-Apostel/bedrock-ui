@@ -31,28 +31,204 @@
   font-size: 0.9rem;
 }
 
+/* ── The source under a demo ─────────────────────────────────────────────── */
+
 .demo-source {
   border-top: 1px solid var(--rule, #e3e4e8);
   background: var(--sunk, #f7f7f9);
+  /* What lets ::details-content transition from a height of 0 to auto. */
+  interpolate-size: allow-keywords;
+  /* One duration for the disclosure, collapsed below rather than switched off:
+   * the same shape bedrock.css uses for its own animation. */
+  --open-duration: 260ms;
 }
 
 .demo-source summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* The default marker is laid out outside the summary's padding box, so it
+   * sits hard against the left edge of the container while the label it belongs
+   * to is an indent away. A flex summary has no marker box at all; the chevron
+   * below replaces it, inside the padding and on the label's baseline. */
+  list-style: none;
   cursor: pointer;
-  padding: 0.5rem 0.9rem;
+  padding: 0.6rem 0.9rem;
   font-size: 0.82rem;
   color: var(--muted, #5c5f6b);
   user-select: none;
 }
 
-.demo-source pre {
+/* Safari and older Chrome need the marker removed by name as well. */
+.demo-source summary::-webkit-details-marker {
+  display: none;
+}
+
+.demo-source summary:hover {
+  color: var(--ink, #16161a);
+}
+
+.demo-source summary::before {
+  content: '';
+  flex: none;
+  width: 0.4em;
+  height: 0.4em;
+  border: 1.5px solid currentColor;
+  border-width: 0 1.5px 1.5px 0;
+  /* A right-pointing chevron closed, down when open. Its optical centre is off
+   * the geometric one in both directions, hence the nudge. */
+  rotate: -45deg;
+  translate: -0.1em 0;
+  transition:
+    rotate var(--open-duration) ease,
+    translate var(--open-duration) ease;
+}
+
+.demo-source[open] summary::before {
+  rotate: 45deg;
+  translate: 0 -0.1em;
+}
+
+/* The file this is, in the same monospace figures the rest of the site uses
+ * for data. It also gives the summary row a right-hand edge to sit against. */
+.demo-file {
+  margin-left: auto;
+  font: 0.72rem/1 var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  letter-spacing: 0.02em;
+  opacity: 0.7;
+}
+
+/*
+ * Opening and closing, done by the browser.
+ *
+ * ::details-content is the box the content sits in, and it is the only way to
+ * animate a <details> without a wrapper element and a script measuring it.
+ * content-visibility has to transition discretely so the content stays rendered
+ * for the length of the collapse instead of vanishing on the first frame.
+ */
+.demo-source::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size var(--open-duration) cubic-bezier(0.32, 0.72, 0, 1),
+    content-visibility var(--open-duration) allow-discrete;
+}
+
+.demo-source[open]::details-content {
+  block-size: auto;
+}
+
+.demo-code {
+  position: relative;
+  opacity: 0;
+  translate: 0 -0.35rem;
+  transition:
+    opacity var(--open-duration) ease,
+    translate var(--open-duration) ease;
+}
+
+.demo-source[open] .demo-code {
+  opacity: 1;
+  translate: 0;
+}
+
+/* Before it opens the content is not rendered, so there is no earlier style for
+ * the transition above to start from. This is that style. */
+@starting-style {
+  .demo-source[open] .demo-code {
+    opacity: 0;
+    translate: 0 -0.35rem;
+  }
+}
+
+.demo-code pre {
   margin: 0;
   border: 0;
   border-top: 1px solid var(--rule, #e3e4e8);
   border-radius: 0;
+  padding: 1rem 1.1rem;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  tab-size: 2;
 }
 
-/* Controls. Deliberately generic: every part below is one element. */
-.demo button:not(.registry-demo *),
+/* Present rather than hovering into existence — a control you have to find by
+ * sweeping the mouse over the block is not a control on a touchscreen. */
+.demo-copy {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 1;
+  padding: 0.35rem 0.5rem;
+  font: 600 0.66rem/1 var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted, #5c5f6b);
+  background: var(--paper, #fff);
+  border: 1px solid var(--rule, #e3e4e8);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.72;
+  transition:
+    opacity 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease;
+}
+
+.demo-code:hover .demo-copy,
+.demo-copy:focus-visible {
+  opacity: 1;
+  color: var(--ink, #16161a);
+}
+
+.demo-copy[data-copied] {
+  opacity: 1;
+  color: var(--accent, #0a58c2);
+  border-color: var(--accent, #0a58c2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-source {
+    --open-duration: 1ms;
+  }
+}
+
+/* Set by scripts/highlight.mjs at build time. */
+.tok-comment {
+  color: var(--code-comment, #8b8778);
+  font-style: italic;
+}
+
+.tok-keyword {
+  color: var(--code-keyword, #9b2c5e);
+}
+
+.tok-string {
+  color: var(--code-string, #3c6e47);
+}
+
+.tok-tag,
+.tok-type {
+  color: var(--code-type, #1f5673);
+}
+
+.tok-attribute,
+.tok-call {
+  color: var(--code-call, #7a4d0a);
+}
+
+.tok-number {
+  color: var(--code-number, #8f4310);
+}
+
+.tok-punctuation {
+  color: var(--code-punctuation, #7d7a6d);
+}
+
+/* Controls. Deliberately generic: every part below is one element. The copy
+ * button is chrome around a demo rather than part of one, and is excluded here
+ * rather than out-specified below — it is styled with the source block. */
+.demo button:not(.registry-demo *, .demo-copy),
 .demo .btn:not(.registry-demo *) {
   font: inherit;
   font-size: 0.9rem;
@@ -64,7 +240,7 @@
   cursor: pointer;
 }
 
-.demo button:not(.registry-demo *):hover {
+.demo button:not(.registry-demo *, .demo-copy):hover {
   border-color: var(--muted, #5c5f6b);
 }
 
@@ -151,7 +327,8 @@
   border-bottom: 1px solid var(--rule, #e3e4e8);
 }
 
-.demo summary:not(.registry-demo *) {
+/* The demo's own disclosures, not the source block's — that one is above. */
+.demo summary:not(.registry-demo *, .demo-source *) {
   cursor: pointer;
   padding: 0.55rem 0;
 }

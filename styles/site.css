@@ -32,6 +32,20 @@
   --accent: #b3350f;
   --accent-soft: #f3e6df;
 
+  /*
+   * Syntax colouring for the demo sources, applied at build time by
+   * scripts/highlight.mjs. Six hues and no more: a code block that uses every
+   * colour on the wheel is a second wall, and the point of colouring one is to
+   * let a reader find the component names and the strings without reading it.
+   */
+  --code-comment: #8b8778;
+  --code-keyword: #9b2c5e;
+  --code-string: #3c6e47;
+  --code-type: #1f5673;
+  --code-call: #7a4d0a;
+  --code-number: #8f4310;
+  --code-punctuation: #7d7a6d;
+
   --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
   --sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
@@ -48,6 +62,14 @@
     --rule: #24242a;
     --accent: #ff7a45;
     --accent-soft: #241610;
+
+    --code-comment: #74747f;
+    --code-keyword: #f292b4;
+    --code-string: #8fcb9f;
+    --code-type: #85c4e2;
+    --code-call: #e7bd80;
+    --code-number: #f0a878;
+    --code-punctuation: #8a8a94;
   }
 }
 

@@ -9,6 +9,7 @@ import {
 } from 'node:fs'
 import { basename, join } from 'node:path'
 import { marked } from 'marked'
+import { escapeHtml, highlight } from './highlight.mjs'
 import { checkAgainstBaseline, measure } from './texture.mjs'
 
 /**
@@ -106,14 +107,6 @@ function rewriteLinks(markdown) {
   )
 }
 
-function escapeHtml(text) {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
-
 /* ── Demos ───────────────────────────────────────────────────────────────── */
 
 /**
@@ -135,18 +128,64 @@ function demoBlock(name) {
     throw new Error(`docs reference demo "${name}", but ${file} does not exist`)
   }
 
-  const source = escapeHtml(readFileSync(file, 'utf8').trim())
+  const source = highlight(readFileSync(file, 'utf8').trim())
 
+  // The copy button ships hidden and is revealed by COPY_SCRIPT, so a reader
+  // without the script gets no button rather than a dead one. Its label is real
+  // text and not generated content, because the script swaps it for "Copied".
   return (
     `<div class="demo">` +
     `<div class="demo-stage" data-demo="${name}">` +
     `<span class="demo-pending">Loading demo…</span>` +
     `</div>` +
-    `<details class="demo-source"><summary>Source</summary>` +
+    `<details class="demo-source">` +
+    `<summary>Source<span class="demo-file">${name}.tsx</span></summary>` +
+    `<div class="demo-code">` +
+    `<button class="demo-copy" type="button" hidden>Copy</button>` +
     `<pre><code class="language-tsx">${source}</code></pre>` +
+    `</div>` +
     `</details></div>`
   )
 }
+
+/**
+ * Reveals and wires the copy buttons.
+ *
+ * Inline rather than part of the demo bundle: it is eight lines, it has nothing
+ * to do with React, and a source block should be copyable whether or not the
+ * bundle that renders the demo above it ever arrives.
+ */
+const COPY_SCRIPT = `<script>
+(function () {
+  for (const button of document.querySelectorAll('.demo-copy')) {
+    const code = button.parentElement.querySelector('code')
+    let restore
+
+    const settle = (label) => {
+      button.textContent = label
+      button.dataset.copied = ''
+      clearTimeout(restore)
+      restore = setTimeout(() => {
+        button.textContent = 'Copy'
+        delete button.dataset.copied
+      }, 1600)
+    }
+
+    button.hidden = false
+    button.addEventListener('click', () => {
+      navigator.clipboard.writeText(code.textContent).then(
+        () => settle('Copied'),
+        () => {
+          // Denied permission or an insecure origin. Selecting the block leaves
+          // the reader one keystroke away rather than at a dead end.
+          getSelection().selectAllChildren(code)
+          settle('Selected')
+        },
+      )
+    })
+  }
+})()
+</script>`
 
 /* ── Support matrix ──────────────────────────────────────────────────────── */
 
@@ -263,7 +302,9 @@ function page({ title, body, current, demos }) {
   }).join('')
 
   const head = demos ? `\n    <link rel="stylesheet" href="./demo/demos.css" />` : ''
-  const script = demos ? `\n    <script type="module" src="./demo/demos.js"></script>` : ''
+  const script = demos
+    ? `\n    <script type="module" src="./demo/demos.js"></script>\n    ${COPY_SCRIPT}`
+    : ''
 
   return `<!doctype html>
 <html lang="en">

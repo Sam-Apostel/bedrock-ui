@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
 
 /**
@@ -75,6 +76,105 @@ test.describe('docs site', () => {
     const item = (await response.json()) as { name: string; files: unknown[] }
     expect(item.name).toBe('dialog')
     expect(item.files.length).toBeGreaterThan(0)
+  })
+})
+
+/**
+ * The source block under a demo: coloured at build time by scripts/highlight.mjs,
+ * disclosed by <details>, and copied by eight inline lines of script.
+ */
+test.describe('demo source blocks', () => {
+  test('the source is coloured without a character of it going missing', async ({ page }) => {
+    await page.goto(`${SITE}/popover.html`)
+
+    const code = page.locator('.demo-source code')
+
+    // The scanner rewrites the file into spans, so the thing worth asserting is
+    // that what comes out still is the file — every character, in order.
+    const rendered = await code.evaluate((node) => node.textContent)
+    expect(rendered).toBe(readFileSync('demos/cases/popover.tsx', 'utf8').trim())
+
+    await expect(code.locator('.tok-keyword').first()).toHaveText('import')
+    await expect(code.locator('.tok-comment')).toHaveCount(1)
+
+    // Prose inside an element is not code, and colouring it as code is the
+    // failure mode that made the scanner mode-aware in the first place.
+    await expect(code.locator('.tok-type', { hasText: /^Filters$/ })).toHaveCount(0)
+  })
+
+  test('the disclosure marker is inside the row rather than against the edge', async ({ page }) => {
+    await page.goto(`${SITE}/popover.html`)
+
+    const summary = page.locator('.demo-source summary').first()
+    const marker = await summary.evaluate((node) => ({
+      display: getComputedStyle(node).display,
+      list: getComputedStyle(node).listStyleType,
+      chevron: getComputedStyle(node, '::before').content,
+    }))
+
+    // A flex summary has no marker box, which is what used to sit outside the
+    // padding; the chevron in ::before replaces it inside the row.
+    expect(marker.display).toBe('flex')
+    expect(marker.list).toBe('none')
+    expect(marker.chevron).not.toBe('none')
+  })
+
+  test('opening and closing is animated by the browser', async ({ page }) => {
+    await page.goto(`${SITE}/popover.html`)
+
+    const details = page.locator('.demo-source').first()
+
+    const content = await details.evaluate((node) => {
+      const style = getComputedStyle(node, '::details-content')
+      return { property: style.transitionProperty, duration: style.transitionDuration }
+    })
+    expect(content.property).toContain('block-size')
+    // Without the discrete transition the content vanishes on the first frame
+    // of the collapse and there is nothing left to animate the height of.
+    expect(content.property).toContain('content-visibility')
+    expect(content.duration).not.toBe('0s')
+
+    // The content fades in from @starting-style: before it opens there is no
+    // rendered box, so that is the only style this transition can start from.
+    // The chevron turns at the same time, hence a list rather than the first.
+    const started = await details.evaluate(
+      (node) =>
+        new Promise<string[]>((resolve) => {
+          const properties: string[] = []
+          node.addEventListener('transitionrun', (event) => {
+            properties.push((event as TransitionEvent).propertyName)
+          })
+          node.querySelector('summary')?.click()
+          setTimeout(() => resolve(properties), 300)
+        }),
+    )
+    expect(started).toContain('opacity')
+    expect(started).toContain('rotate')
+
+    const opened = await details.evaluate((node) => node.getBoundingClientRect().height)
+    await expect(page.locator('.demo-code').first()).toHaveCSS('opacity', '1')
+    expect(opened).toBeGreaterThan(100)
+  })
+
+  test('the copy button appears with the script and copies the source', async ({
+    context,
+    page,
+  }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+    await page.goto(`${SITE}/popover.html`)
+
+    // Shipped hidden: a button that cannot copy is worse than no button, and
+    // the inline script is what reveals it.
+    const button = page.locator('.demo-copy').first()
+    await expect(button).not.toHaveAttribute('hidden')
+
+    await page.locator('.demo-source summary').first().click()
+    await expect(button).toBeVisible()
+    await button.click()
+
+    await expect(button).toHaveText('Copied')
+    const copied = await page.evaluate(() => navigator.clipboard.readText())
+    expect(copied).toBe(readFileSync('demos/cases/popover.tsx', 'utf8').trim())
   })
 })
 

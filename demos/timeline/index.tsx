@@ -1,17 +1,22 @@
-import { useEffect, useId, useMemo, useState, type CSSProperties } from 'react'
+import { useEffect, useId, useMemo, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import {
+  AXIS,
   ENGINES,
   ENGINE_NAMES,
+  TODAY_AT,
+  bands,
   components,
   componentStateAt,
-  eras,
+  daysInto,
   formatDate,
   generated,
   moments,
+  nearest,
   nowIndex,
   plain,
   source,
   sourceVersion,
+  years,
   type ComponentState,
   type Engine,
   type Moment,
@@ -42,27 +47,16 @@ import './eras.css'
 
 const AUTOPLAY_MS = 1600
 
-/** Era bands under the track, sized by how many moments fall in each. */
-function bands(): { era: (typeof eras)[number]; count: number }[] {
-  const found: { era: (typeof eras)[number]; count: number }[] = []
-
-  for (const moment of moments) {
-    const last = found.at(-1)
-    if (last && last.era.id === moment.era.id) last.count += 1
-    else found.push({ era: moment.era, count: 1 })
-  }
-
-  return found
-}
-
-const BANDS = bands()
-
 const STATUS_LABEL = {
   dead: 'cannot work yet',
   degraded: 'works, with gaps',
   complete: 'every engine',
   gold: 'widely available',
 } as const
+
+/** Gold, but for the other reason: it never needed anything to begin with. */
+const badge = (state: ComponentState) =>
+  state.evergreen ? 'nothing to wait for' : STATUS_LABEL[state.status]
 
 function engineSummary(state: RowState): string {
   const yes = ENGINES.filter((engine) => state.engines[engine] === 'yes')
@@ -122,7 +116,15 @@ function Chips({ state }: { state: RowState }) {
   )
 }
 
-function Tile({ state }: { state: ComponentState }) {
+function Tile({
+  state,
+  expanded,
+  onPeek,
+}: {
+  state: ComponentState
+  expanded: boolean
+  onPeek(): void
+}) {
   const { component } = state
   const Live = TILES[component.id]
   const dead = state.status === 'dead'
@@ -132,11 +134,27 @@ function Tile({ state }: { state: ComponentState }) {
     <article
       className="tl-tile"
       data-status={state.status}
+      data-expanded={expanded || undefined}
       style={{ '--span': component.span } as CSSProperties}
     >
       <header className="tl-tile-head">
-        <h4>{component.name}</h4>
-        <span className="tl-badge">{STATUS_LABEL[state.status]}</span>
+        <span className="tl-dot" aria-hidden="true" />
+        <h4>
+          <span className="tl-name-long">{component.name}</span>
+          <span className="tl-name-short">{component.short ?? component.name}</span>
+        </h4>
+        <span className="tl-badge">{badge(state)}</span>
+        {/*
+          The zoomed-out layout's whole tile is this button, stretched over the
+          cell by CSS and invisible; on a wide screen it is display: none and
+          every tile is open. Expanding one moves it back to the header so it
+          stops covering the component it just revealed.
+        */}
+        <button type="button" className="tl-peek" aria-expanded={expanded} onClick={onPeek}>
+          <span className="tl-visually-hidden">
+            {expanded ? 'Collapse' : 'Expand'} {component.name}
+          </span>
+        </button>
       </header>
 
       {/*
@@ -169,6 +187,19 @@ function Tile({ state }: { state: ComponentState }) {
   )
 }
 
+/**
+ * The scrubber: a time axis, not a list of stops.
+ *
+ * Borrowed from the shape every video editor and every photo library uses,
+ * because the problem is the same — a long stretch where nothing happens and a
+ * short one where everything does. Four layers, back to front: year gridlines,
+ * the era ribbon, a tick per moment sized by how much that date mattered, and
+ * the playhead. A transparent range input lies over all of it, so dragging,
+ * arrow keys, Home and End are the platform's rather than mine.
+ *
+ * The input counts in days, which is what puts the thumb exactly where the
+ * date is; every change snaps to the nearest stop.
+ */
 function Scrubber({
   index,
   moment,
@@ -180,8 +211,83 @@ function Scrubber({
 }) {
   const id = useId()
 
+  const step = (event: KeyboardEvent<HTMLInputElement>) => {
+    const move: Record<string, number> = {
+      ArrowLeft: -1,
+      ArrowDown: -1,
+      ArrowRight: 1,
+      ArrowUp: 1,
+      PageDown: -5,
+      PageUp: 5,
+    }
+
+    // Days are the input's unit, so its own arrow key would move by one day and
+    // snap straight back to the stop it started on. Stops are the unit a reader
+    // wants, so the keys move by those instead.
+    if (event.key in move) {
+      event.preventDefault()
+      onChange(Math.min(moments.length - 1, Math.max(0, index + (move[event.key] as number))))
+    } else if (event.key === 'Home') {
+      event.preventDefault()
+      onChange(0)
+    } else if (event.key === 'End') {
+      event.preventDefault()
+      onChange(moments.length - 1)
+    }
+  }
+
   return (
-    <div className="tl-scrub">
+    <div className="tl-axis">
+      <div className="tl-years" aria-hidden="true">
+        {years.map(({ year, at }) => (
+          <span key={year} className="tl-year" style={{ '--at': `${at}%` } as CSSProperties}>
+            {year % 2 === 0 ? <i>{year}</i> : null}
+          </span>
+        ))}
+      </div>
+
+      <div className="tl-ribbon" aria-hidden="true">
+        {bands.map((band) => (
+          <span
+            key={band.era.id}
+            className="tl-band"
+            data-era={band.era.id}
+            data-current={band.era.id === moment.era.id}
+            title={`${band.era.name}, ${band.era.years}`}
+            style={{ '--at': `${band.at}%`, '--width': `${band.width}%` } as CSSProperties}
+          >
+            <i>{band.era.name}</i>
+          </span>
+        ))}
+        {/* Past the last release date there is nothing but arithmetic. */}
+        <span
+          className="tl-ahead"
+          style={{ '--at': `${TODAY_AT}%`, '--width': `${100 - TODAY_AT}%` } as CSSProperties}
+        >
+          <i>projected</i>
+        </span>
+      </div>
+
+      <div className="tl-ticks" aria-hidden="true">
+        {moments.map((stop, position) => (
+          <span
+            key={stop.date}
+            className="tl-tick"
+            data-kind={stop.kind}
+            data-past={position <= index || undefined}
+            style={{ '--at': `${stop.at}%` } as CSSProperties}
+          />
+        ))}
+      </div>
+
+      <div
+        className="tl-playhead"
+        aria-hidden="true"
+        style={{ '--at': `${moment.at}%` } as CSSProperties}
+      >
+        <span className="tl-playhead-date">{formatDate(moment.date)}</span>
+      </div>
+
       <label className="tl-visually-hidden" htmlFor={id}>
         Point in time
       </label>
@@ -190,25 +296,13 @@ function Scrubber({
         className="tl-range"
         type="range"
         min={0}
-        max={moments.length - 1}
+        max={Math.round(AXIS.days)}
         step={1}
-        value={index}
-        onChange={(event) => onChange(event.target.valueAsNumber)}
+        value={Math.round(daysInto(moment.date))}
+        onChange={(event) => onChange(nearest(event.target.valueAsNumber))}
+        onKeyDown={step}
         aria-valuetext={`${formatDate(moment.date)} — ${moment.headline}`}
       />
-      <div className="tl-bands" aria-hidden="true">
-        {BANDS.map((band) => (
-          <span
-            key={band.era.id}
-            className="tl-band"
-            data-era={band.era.id}
-            data-current={band.era.id === moment.era.id}
-            style={{ '--count': band.count } as CSSProperties}
-          >
-            <span>{band.era.name}</span>
-          </span>
-        ))}
-      </div>
     </div>
   )
 }
@@ -216,6 +310,8 @@ function Scrubber({
 export default function CompatTimeline() {
   const [index, setIndex] = useState(nowIndex)
   const [playing, setPlaying] = useState(false)
+  /** Which tile is open in the zoomed-out layout. Ignored on a wide screen. */
+  const [peeked, setPeeked] = useState<string | null>(null)
 
   const moment = moments[index] as Moment
   const states = useMemo(
@@ -313,7 +409,14 @@ export default function CompatTimeline() {
 
       <div className="tl-grid">
         {states.map((state) => (
-          <Tile key={state.component.id} state={state} />
+          <Tile
+            key={state.component.id}
+            state={state}
+            expanded={peeked === state.component.id}
+            onPeek={() =>
+              setPeeked((current) => (current === state.component.id ? null : state.component.id))
+            }
+          />
         ))}
       </div>
 

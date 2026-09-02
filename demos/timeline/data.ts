@@ -48,6 +48,8 @@ export interface Row {
 export interface Component {
   id: string
   name: string
+  /** For the zoomed-out layout, where a cell is a hundred pixels wide. */
+  short?: string
   span: number
   blurb: string
   requires: string[]
@@ -125,6 +127,10 @@ export interface Moment {
   era: Era
   events: TimelineEvent[]
   headline: string
+  /** Where it sits on the axis, 0–100. Time, not position in the list. */
+  at: number
+  /** The loudest thing that happened, which decides how tall its tick is. */
+  kind: EventKind
   /** A date the browsers have not reached yet: arithmetic, not an announcement. */
   ahead: boolean
 }
@@ -201,6 +207,10 @@ function dateOf(row: Row, event: TimelineEvent): string | null {
   return row.baseline.widely ?? row.baseline.projectedWidely
 }
 
+const DAY = 24 * 60 * 60 * 1000
+
+const day = (date: string) => Date.parse(`${date}T00:00:00Z`) / DAY
+
 /**
  * Every date on which something changed, oldest first.
  *
@@ -208,7 +218,7 @@ function dateOf(row: Row, event: TimelineEvent): string | null {
  * `<progress>` in 2010, and opening on a decade in which nothing happens is a
  * worse first impression than starting where the story does.
  */
-export const moments: Moment[] = (() => {
+const dated: [string, TimelineEvent[]][] = (() => {
   const byDate = new Map<string, TimelineEvent[]>()
 
   for (const row of compat.rows) {
@@ -222,20 +232,95 @@ export const moments: Moment[] = (() => {
     }
   }
 
-  const dated = [...byDate.entries()].toSorted(([a], [b]) => a.localeCompare(b))
-
-  return dated.map(([date, found]) => {
-    const ranked = found.toSorted((a, b) => b.weight - a.weight)
-
-    return {
-      date,
-      era: eraAt(date),
-      events: ranked,
-      headline: (ranked[0] as TimelineEvent).text,
-      ahead: date > TODAY,
-    }
-  })
+  return [...byDate.entries()].toSorted(([a], [b]) => a.localeCompare(b))
 })()
+
+/**
+ * The axis is time, not a list of stops evenly spaced.
+ *
+ * Fifty-four moments laid out evenly would give the eight quiet years between
+ * `<dialog>` and the Popover API the same width as the eighteen months that
+ * changed everything, and the last two years would fill half the track. Placed
+ * by date, the clustering is the argument: nothing, nothing, nothing, then all
+ * of it at once.
+ */
+export const AXIS = {
+  from: compat.timeline.from,
+  to: (dated.at(-1) as [string, TimelineEvent[]])[0],
+  days: day((dated.at(-1) as [string, TimelineEvent[]])[0]) - day(compat.timeline.from),
+}
+
+/** A date's position along the axis, 0–100. */
+export function positionOf(date: string): number {
+  return ((day(date) - day(AXIS.from)) / AXIS.days) * 100
+}
+
+/** Days from the start of the axis: the unit the range input counts in. */
+export function daysInto(date: string): number {
+  return day(date) - day(AXIS.from)
+}
+
+export const moments: Moment[] = dated.map(([date, found]) => {
+  const ranked = found.toSorted((a, b) => b.weight - a.weight)
+  const loudest = ranked[0] as TimelineEvent
+
+  return {
+    date,
+    era: eraAt(date),
+    events: ranked,
+    headline: loudest.text,
+    at: positionOf(date),
+    kind: loudest.kind,
+    ahead: date > TODAY,
+  }
+})
+
+/** Where today sits on the axis. Everything to its right is arithmetic. */
+export const TODAY_AT = Math.min(100, Math.max(0, positionOf(TODAY)))
+
+/**
+ * The era ribbon, in time rather than in stops.
+ *
+ * Each era runs until the next one starts; the last runs to today, because a
+ * band drawn across the projected tail would claim to know what 2028 looks
+ * like.
+ */
+export const bands = eras.map((era, index) => {
+  const next = eras[index + 1]
+  const start = positionOf(era.from)
+  const end = next ? positionOf(next.from) : TODAY_AT
+
+  return { era, at: start, width: Math.max(0, end - start) }
+})
+
+/** Every January on the axis, for the gridlines under it. */
+export const years = (() => {
+  const first = Number(AXIS.from.slice(0, 4)) + 1
+  const last = Number(AXIS.to.slice(0, 4))
+  const found: { year: number; at: number }[] = []
+
+  for (let year = first; year <= last; year += 1) {
+    found.push({ year, at: positionOf(`${year}-01-01`) })
+  }
+
+  return found
+})()
+
+/** The stop nearest a point on the axis, which is what dragging lands on. */
+export function nearest(days: number): number {
+  let best = 0
+  let distance = Number.POSITIVE_INFINITY
+
+  for (const [index, moment] of moments.entries()) {
+    const away = Math.abs(daysInto(moment.date) - days)
+    if (away < distance) {
+      distance = away
+      best = index
+    }
+  }
+
+  return best
+}
 
 /** The moment nearest today, which is where the slider should open. */
 export const nowIndex = Math.max(
@@ -332,9 +417,12 @@ export function componentStateAt(component: Component, date: string): ComponentS
       ? 'dead'
       : missing.length > 0
         ? 'degraded'
-        : // Everything it touches has been in every engine for thirty months.
-          // That is Baseline's own bar for "you can stop thinking about this".
-          !evergreen && tracked.every((state) => state.level === 'wide')
+        : // Everything it touches has been in every engine for thirty months —
+          // Baseline's own bar for "you can stop thinking about this". A
+          // component that touches nothing clears that bar vacuously, and
+          // should: needing no platform feature is the strongest version of
+          // not having to think about it, not a reason to withhold the mark.
+          tracked.every((state) => state.level === 'wide')
           ? 'gold'
           : 'complete'
 

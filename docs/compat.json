@@ -7,7 +7,7 @@
   "groups": {
     "dialog": {
       "title": "Dialog and AlertDialog",
-      "blurb": "The floor lives here. Without these two, a trigger is an inert button — everything below is degradation, this is absence."
+      "blurb": "The floor lives here. Without these two, a trigger is an inert button \u2014 everything below is degradation, this is absence."
     },
     "overlay": {
       "title": "Popover, Tooltip, HoverCard, Select and menus",
@@ -23,7 +23,7 @@
     },
     "foundations": {
       "title": "The parts that were already there",
-      "blurb": "None of these are news, which is the point: they carry half the library and they carried it a decade ago. They are in the table because the timeline needs them — a component whose only requirement shipped in 2011 was never waiting for anything."
+      "blurb": "None of these are news, which is the point: they carry half the library and they carried it a decade ago. They are in the table because the timeline needs them \u2014 a component whose only requirement shipped in 2011 was never waiting for anything."
     }
   },
   "rows": [
@@ -37,7 +37,7 @@
       "chrome": "37",
       "firefox": "98",
       "safari": "15.4",
-      "degrade": "Nothing renders as a dialog. No fallback — but this shipped everywhere in 2022, so in practice the invoker row below is what decides support.",
+      "degrade": "Nothing renders as a dialog. No fallback \u2014 but this shipped everywhere in 2022, so in practice the invoker row below is what decides support.",
       "support": {
         "chrome": {
           "version": "37",
@@ -180,7 +180,7 @@
       "chrome": "114",
       "firefox": "125",
       "safari": "17",
-      "degrade": "No top-layer promotion, so overlays are clipped by ancestor overflow and fight z-index — the exact class of bug this library exists to remove.",
+      "degrade": "No top-layer promotion, so overlays are clipped by ancestor overflow and fight z-index \u2014 the exact class of bug this library exists to remove.",
       "support": {
         "chrome": {
           "version": "114",
@@ -334,7 +334,7 @@
       "chrome": "128",
       "firefox": "147",
       "safari": "26",
-      "degrade": "No automatic flip near a viewport edge — an overlay can open partly offscreen instead of flipping to the other side.",
+      "degrade": "No automatic flip near a viewport edge \u2014 an overlay can open partly offscreen instead of flipping to the other side.",
       "support": {
         "chrome": {
           "version": "128",
@@ -449,7 +449,7 @@
       "chrome": "117",
       "firefox": "129",
       "safari": "17.5",
-      "degrade": "Enter transitions are skipped — things appear instantly. Exit transitions still play.",
+      "degrade": "Enter transitions are skipped \u2014 things appear instantly. Exit transitions still play.",
       "support": {
         "chrome": {
           "version": "117",
@@ -854,6 +854,74 @@
       "safari": "3.1"
     },
     {
+      "id": "checkbox-input",
+      "group": "foundations",
+      "name": "<code>&lt;input type=\"checkbox\"&gt;</code>",
+      "uses": "Checkbox, Switch",
+      "critical": true,
+      "bcd": "html.elements.input.type_checkbox",
+      "degrade": "Nothing to degrade to. Switch is this element with <code>role=\"switch\"</code>, which is what the ARIA pattern asks for.",
+      "support": {
+        "chrome": {
+          "version": "1",
+          "date": "2008-12-11"
+        },
+        "firefox": {
+          "version": "1",
+          "date": "2004-11-09"
+        },
+        "safari": {
+          "version": "1",
+          "date": "2003-06-23"
+        }
+      },
+      "everywhere": "2008-12-11",
+      "baseline": {
+        "feature": "input-checkbox",
+        "status": "high",
+        "newly": "2015-07-29",
+        "widely": "2018-01-29",
+        "projectedWidely": null
+      },
+      "chrome": "1",
+      "firefox": "1",
+      "safari": "1"
+    },
+    {
+      "id": "radio-input",
+      "group": "foundations",
+      "name": "<code>&lt;input type=\"radio\"&gt;</code>",
+      "uses": "RadioGroup",
+      "critical": true,
+      "bcd": "html.elements.input.type_radio",
+      "degrade": "Nothing to degrade to. Grouping, arrow-key roving and single selection are the browser\u2019s, from the shared <code>name</code>.",
+      "support": {
+        "chrome": {
+          "version": "1",
+          "date": "2008-12-11"
+        },
+        "firefox": {
+          "version": "1",
+          "date": "2004-11-09"
+        },
+        "safari": {
+          "version": "1",
+          "date": "2003-06-23"
+        }
+      },
+      "everywhere": "2008-12-11",
+      "baseline": {
+        "feature": "input-radio",
+        "status": "high",
+        "newly": "2015-07-29",
+        "widely": "2018-01-29",
+        "projectedWidely": null
+      },
+      "chrome": "1",
+      "firefox": "1",
+      "safari": "1"
+    },
+    {
       "id": "progress-el",
       "group": "foundations",
       "name": "<code>&lt;progress&gt;</code>",
@@ -1015,6 +1083,7 @@
     {
       "id": "dropdown-menu",
       "name": "DropdownMenu",
+      "short": "Menu",
       "span": 2,
       "blurb": "Roving focus and typeahead over a popover.",
       "requires": ["popover", "invokers"],
@@ -1031,9 +1100,10 @@
     {
       "id": "forms",
       "name": "Checkbox, Switch, Radio",
+      "short": "Form controls",
       "span": 2,
       "blurb": "Native inputs with a label and nothing else.",
-      "requires": [],
+      "requires": ["checkbox-input", "radio-input"],
       "enhances": []
     },
     {
@@ -1055,7 +1125,7 @@
     {
       "id": "toast",
       "name": "Toast",
-      "span": 1,
+      "span": 2,
       "blurb": "One manual popover holding the stack.",
       "requires": ["popover"],
       "enhances": ["starting-style", "allow-discrete", "overlay-prop"]
@@ -1063,6 +1133,7 @@
     {
       "id": "alert-dialog",
       "name": "AlertDialog",
+      "short": "Alert",
       "span": 1,
       "blurb": "A dialog you cannot dismiss by accident.",
       "requires": ["show-modal", "invokers"],
@@ -1071,6 +1142,7 @@
     {
       "id": "hover-card",
       "name": "HoverCard",
+      "short": "Hover",
       "span": 1,
       "blurb": "A preview on intent, anchored to a link.",
       "requires": ["popover"],
@@ -1086,6 +1158,7 @@
     {
       "id": "context-menu",
       "name": "ContextMenu",
+      "short": "Context",
       "span": 1,
       "blurb": "Anchored to a point rather than to an element.",
       "requires": ["popover"],
@@ -1094,7 +1167,8 @@
     {
       "id": "collapsible",
       "name": "Collapsible",
-      "span": 1,
+      "short": "Collapse",
+      "span": 2,
       "blurb": "Disclosure, animated to a height nobody measured.",
       "requires": ["details-el"],
       "enhances": ["details-content", "interpolate-size", "calc-size"]
@@ -1102,6 +1176,7 @@
     {
       "id": "display",
       "name": "Progress and AspectRatio",
+      "short": "Display",
       "span": 2,
       "blurb": "Markup with semantics, and one CSS property.",
       "requires": ["progress-el", "aspect-ratio"],
@@ -1114,49 +1189,49 @@
       {
         "id": "flat",
         "name": "Flat",
-        "years": "2013–2015",
+        "years": "2013\u20132015",
         "from": "2013-06-01",
         "tagline": "iOS 7 killed the gradient. Everything went sharp, saturated and borderless."
       },
       {
         "id": "material",
         "name": "Material",
-        "years": "2016–2017",
+        "years": "2016\u20132017",
         "from": "2016-01-01",
         "tagline": "Paper, ink and elevation. Every button shouted in uppercase and cast a shadow."
       },
       {
         "id": "gradient",
         "name": "Gradient",
-        "years": "2017–2019",
+        "years": "2017\u20132019",
         "from": "2017-07-01",
         "tagline": "Purple into pink, on everything. Rounded pills, blurred blobs, Instagram had just rebranded."
       },
       {
         "id": "neumorphic",
         "name": "Neumorphism",
-        "years": "2019–2020",
+        "years": "2019\u20132020",
         "from": "2019-04-01",
         "tagline": "Soft plastic extruded from the background. Beautiful on Dribbble, unreadable in daylight."
       },
       {
         "id": "glass",
         "name": "Glassmorphism",
-        "years": "2020–2022",
+        "years": "2020\u20132022",
         "from": "2020-07-01",
         "tagline": "Frosted panels floating over colour, straight out of Big Sur. backdrop-filter had just landed."
       },
       {
         "id": "brutal",
         "name": "Neo-brutalism",
-        "years": "2023–2024",
+        "years": "2023\u20132024",
         "from": "2023-01-01",
         "tagline": "Black borders, hard offset shadows, one aggressive yellow. A reaction to a decade of soft."
       },
       {
         "id": "bento",
         "name": "Bento",
-        "years": "2024–now",
+        "years": "2024\u2013now",
         "from": "2024-07-01",
         "tagline": "Rounded boxes on a dark grid, muted until something needs saying. The look of this page."
       }

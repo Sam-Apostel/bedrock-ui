@@ -258,6 +258,8 @@ const PROBES = {
   'details-el': `'HTMLDetailsElement' in window`,
   'select-el': `'HTMLSelectElement' in window`,
   'range-input': `(() => { const el = document.createElement('input'); el.type = 'range'; return el.type === 'range' })()`,
+  'checkbox-input': `(() => { const el = document.createElement('input'); el.type = 'checkbox'; return el.type === 'checkbox' })()`,
+  'radio-input': `(() => { const el = document.createElement('input'); el.type = 'radio'; return el.type === 'radio' })()`,
   'progress-el': `'HTMLProgressElement' in window`,
   'aspect-ratio': `prop('aspect-ratio', '16 / 9')`,
   'reduced-motion': `matchMedia('(prefers-reduced-motion)').media !== 'not all'`,

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 /**
  * Drives the built site rather than a fixture.
@@ -304,18 +304,27 @@ test.describe('site chrome', () => {
   })
 })
 
+/** Recursive rather than a loop, which the linter is right to object to. */
+async function stepRight(range: Locator, times: number): Promise<void> {
+  if (times <= 0) return
+  await range.press('ArrowRight')
+  await stepRight(range, times - 1)
+}
+
 /**
- * Moves the slider to one of its stops, through the input rather than around
- * it: the same event React is listening for, so the test drives the widget the
- * way an arrow key does.
+ * Moves the slider to one of its stops with the keyboard.
+ *
+ * The input counts in days, not in stops — that is what puts the playhead where
+ * the date is — so setting `value` to an index would land on whatever happened
+ * nearest that many days after 2013. Arrow keys are what a reader has, and what
+ * the widget intercepts to move by events.
  */
-const scrubTo = (page: Page, index: number) =>
-  page.locator('.tl-range').evaluate((node, value) => {
-    const input = node as HTMLInputElement
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
-    setter?.call(input, String(value))
-    input.dispatchEvent(new Event('change', { bubbles: true }))
-  }, index)
+async function scrubTo(page: Page, index: number): Promise<void> {
+  const range = page.locator('.tl-range')
+  await range.focus()
+  await range.press('Home')
+  await stepRight(range, index)
+}
 
 /**
  * The timeline is the compat page's headline, and every claim it makes is
@@ -356,6 +365,48 @@ test.describe('the compat timeline', () => {
     expect(focusable).toBe(false)
   })
 
+  test('a component with nothing to wait for is marked, not withheld', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+    await scrubTo(page, 0)
+
+    // Tabs needs no platform feature, which is the strongest form of "you will
+    // never have to check this" — so it carries the same mark as a feature that
+    // has been everywhere for thirty months, and says why instead of borrowing
+    // Baseline's words for it.
+    const tabs = page.locator('.tl-tile', { hasText: 'Tabs' }).first()
+    await expect(tabs).toHaveAttribute('data-status', 'gold')
+    await expect(tabs.locator('.tl-badge')).toHaveText('nothing to wait for')
+  })
+
+  test('the axis is drawn in time, not in stops', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    // Fifty-four moments spread evenly would give the quiet years the same room
+    // as the busy ones. The flat era is 2013-06 to 2016-01 of an axis that runs
+    // to 2028-11 — about a sixth of it, whatever share of the stops it holds.
+    const ribbon = (await page.locator('.tl-ribbon').boundingBox())?.width ?? 0
+    const flat = (await page.locator('.tl-band[data-era="flat"]').boundingBox())?.width ?? 0
+
+    expect(ribbon).toBeGreaterThan(0)
+    expect(flat / ribbon).toBeGreaterThan(0.13)
+    expect(flat / ribbon).toBeLessThan(0.21)
+  })
+
+  test('a narrow screen gets a map, and a cell opens where it sits', async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 900 })
+    await page.goto(`${SITE}/compat.html`)
+    await expect(page.locator('.tl-grid')).toBeVisible()
+
+    // Fifteen full cards stacked is four screens of scrolling; the zoomed-out
+    // layout keeps the whole pattern on one.
+    const dialog = page.locator('.tl-tile', { hasText: 'Dialog' }).first()
+    await expect(dialog.locator('.tl-stage')).toBeHidden()
+
+    await dialog.locator('.tl-peek').click()
+    await expect(dialog.locator('.tl-stage')).toBeVisible()
+    await expect(dialog.getByRole('button', { name: 'Rename project' })).toBeVisible()
+  })
+
   test('a component built on markup that already shipped never switches off', async ({ page }) => {
     await page.goto(`${SITE}/compat.html`)
 
@@ -374,7 +425,7 @@ test.describe('the compat timeline', () => {
       await statusAt(24),
       await statusAt(36),
       await statusAt(48),
-    ]).toEqual(['complete', 'complete', 'complete', 'complete', 'complete'])
+    ]).toEqual(['gold', 'gold', 'gold', 'gold', 'gold'])
   })
 
   test('the styling belongs to the era, and the markup does not change', async ({ page }) => {

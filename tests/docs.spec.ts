@@ -25,6 +25,7 @@ const PAGES = [
   ['slider.html', 'slider'],
   ['toast.html', 'toast'],
   ['display.html', 'display'],
+  ['shadcn-registry.html', 'registry'],
 ] as const
 
 test.describe('docs site', () => {
@@ -199,5 +200,36 @@ test.describe('site chrome', () => {
     // the hand-written compat.html, so none of this had ever been visible.
     await expect(page.getByText('The stance')).toBeVisible()
     await expect(page.getByRole('heading', { name: /degrades/ })).toBeVisible()
+  })
+})
+
+test.describe('shadcn registry gallery', () => {
+  test('renders the shipped registry components, not copies', async ({ page }) => {
+    await page.goto(`${SITE}/shadcn-registry.html`)
+
+    // shadcn's own markup contract: data-slot survives the swap to bedrock.
+    await expect(page.locator('[data-slot="tabs"]')).toBeVisible()
+    await expect(page.getByRole('tab', { name: 'Account' })).toBeVisible()
+
+    // And the component works, which a screenshot could not show.
+    await page.getByRole('button', { name: 'Delete account' }).click()
+    const modal = page.locator('dialog')
+    await expect(modal).toHaveJSProperty('open', true)
+    // Scoped to the dialog: the demo's own source is printed on the page below
+    // it, so an unscoped text match finds the string twice.
+    await expect(modal.getByText('Delete account?')).toBeVisible()
+  })
+
+  test('Tailwind does not reset the documentation around it', async ({ page }) => {
+    await page.goto(`${SITE}/shadcn-registry.html`)
+
+    // The gallery loads Tailwind's theme and utilities but deliberately not
+    // Preflight, which is a global reset. If it ever creeps back in, headings
+    // collapse to body text — cheap to assert, and invisible in a diff.
+    const size = await page
+      .locator('h1')
+      .evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize))
+
+    expect(size).toBeGreaterThan(24)
   })
 })

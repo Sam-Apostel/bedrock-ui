@@ -12,6 +12,21 @@ npx shadcn@latest add https://bedrock.sams.land/r/dropdown-menu.json
 Each one overwrites the matching file in `components/ui/`. Commit first; the CLI
 asks before overwriting, and the diff is the thing worth reading.
 
+## What you get
+
+Below are shadcn's `Dialog`, `Tabs`, `Checkbox`, `Switch` and `Label` from this
+registry, imported from `registry/bedrock/ui/` **unmodified** — the same files
+the command above installs, running on this page.
+
+The claim is that the swap is invisible. Open the dialog, walk the tabs with the
+arrow keys, and check that against a shadcn app you already have.
+
+<!-- demo: registry -->
+
+The dialog has no `Portal` and no `Overlay` doing anything — both are no-ops now,
+because a `<dialog>` is already in the top layer and its backdrop is a
+pseudo-element. The exports are still there, so your imports do not change.
+
 ## Coverage
 
 **24 registry items**, covering every shadcn/ui component that was backed by a

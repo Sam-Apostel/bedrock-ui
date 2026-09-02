@@ -11,7 +11,13 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/lib/utils": ["./demos/lib/utils.ts"],
+      "@apostel/bedrock": ["./src/index.ts"],
+      "@apostel/bedrock/controlled": ["./src/controlled.ts"]
+    }
   },
   "include": ["src", "demos"]
 }

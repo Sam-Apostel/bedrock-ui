@@ -1,5 +1,9 @@
+import { fileURLToPath } from 'node:url'
+import tailwind from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+
+const from = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
 /**
  * Bundles the docs demos into site/demo/.
@@ -16,7 +20,18 @@ import { defineConfig } from 'vite'
  * bundle is not worth a manifest to read.
  */
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwind()],
+  resolve: {
+    alias: {
+      // The registry gallery imports the registry files unmodified, so their
+      // specifiers have to resolve the way they would in a consumer's app.
+      // Aliasing is what makes the gallery show the shipped files rather than
+      // edited copies of them.
+      '@/lib/utils': from('./demos/lib/utils.ts'),
+      '@apostel/bedrock/controlled': from('./src/controlled.ts'),
+      '@apostel/bedrock': from('./src/index.ts'),
+    },
+  },
   build: {
     outDir: 'site/demo',
     // Only ever contains this bundle, and docs:build has already recreated the

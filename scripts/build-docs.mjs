@@ -9,6 +9,7 @@ import {
 } from 'node:fs'
 import { basename, join } from 'node:path'
 import { marked } from 'marked'
+import { checkAgainstBaseline, measure } from './texture.mjs'
 
 /**
  * Builds the static site served at bedrock.sams.land.
@@ -329,5 +330,14 @@ cpSync('skills', join(OUT, 'skills'), { recursive: true })
 writeFileSync(join(OUT, 'CNAME'), `${DOMAIN}\n`)
 // Pages would otherwise run Jekyll over this and drop anything underscored.
 writeFileSync(join(OUT, '.nojekyll'), '')
+
+// The site's one structural rule, measured rather than asserted. See
+// scripts/texture.mjs: adjacent blocks should not be the same kind of thing,
+// and no stylesheet can enforce that because it is a property of the content.
+const improved = checkAgainstBaseline(measure(OUT))
+
+for (const improvement of improved) {
+  console.log(`texture improved — ${improvement}. Lower it in docs/texture-baseline.json.`)
+}
 
 console.log(`built ${PAGES.length} pages and the registry into ${OUT}/`)

@@ -1,0 +1,32 @@
+{
+  "$comment": "Longest run of same-texture blocks per page. A ratchet: lower it when a page improves; the build fails when one gets worse. Written by scripts/texture.mjs, checked by scripts/build-docs.mjs.",
+  "target": 3,
+  "pages": {
+    "accordion.html": 5,
+    "agent-skill.html": 9,
+    "alert-dialog.html": 6,
+    "changelog.html": 2,
+    "collapsible.html": 4,
+    "compat.html": 4,
+    "contributing.html": 5,
+    "dialog.html": 8,
+    "display.html": 3,
+    "docs.html": 2,
+    "forms.html": 4,
+    "gaps.html": 13,
+    "getting-started.html": 2,
+    "index.html": 2,
+    "menus.html": 5,
+    "migration-from-radix.html": 9,
+    "popover.html": 5,
+    "radix-parity.html": 3,
+    "select.html": 8,
+    "shadcn-registry.html": 5,
+    "slider.html": 3,
+    "state.html": 3,
+    "styling.html": 3,
+    "tabs.html": 4,
+    "toast.html": 6,
+    "tooltip.html": 6
+  }
+}

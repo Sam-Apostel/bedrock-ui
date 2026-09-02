@@ -80,14 +80,25 @@ export function MenuContent({
   useEffect(() => {
     if (!open) return
 
-    // The popover opens synchronously on the invoker's click; this effect runs
-    // a frame or two later. Anything the user did in between — a key that
-    // already moved focus into the menu — wins, because re-focusing the first
-    // item here would silently undo it.
     const menu = nodeRef.current
-    if (!menu || menu.contains(document.activeElement)) return
+    if (!menu) return
 
-    menu.querySelector<HTMLElement>('[data-bedrock-roving-item]')?.focus()
+    // A frame, because `open` is set on `beforetoggle` — which fires while the
+    // popover is still `display: none`, and `focus()` on a hidden element does
+    // nothing at all. By the next frame `toggle` has fired and it is painted.
+    //
+    // This used to work by accident: the open state was briefly cleared and
+    // re-set, so the effect ran a second time, late enough to land. Fixing that
+    // churn is what exposed this.
+    const frame = requestAnimationFrame(() => {
+      // Anything the user did in between wins — a key that already moved focus
+      // into the menu must not be silently undone.
+      if (menu.contains(document.activeElement)) return
+
+      menu.querySelector<HTMLElement>('[data-bedrock-roving-item]')?.focus()
+    })
+
+    return () => cancelAnimationFrame(frame)
   }, [open])
 
   return (

@@ -1,12 +1,31 @@
 import { useCallback, useRef, useState } from 'react'
 
-/** `:open` covers dialog, popover, details and select alike. */
-function isOpen(node: HTMLElement): boolean {
+/**
+ * Separate calls, not `:open, :popover-open`. An unknown selector invalidates a
+ * whole selector list and makes `matches()` throw, so combining them would mean
+ * an engine missing either one reports every element as closed.
+ */
+function matchesSelector(node: HTMLElement, selector: string): boolean {
   try {
-    return node.matches(':open')
+    return node.matches(selector)
   } catch {
     return false
   }
+}
+
+/**
+ * Whether the element is open, by the DOM's own reckoning.
+ *
+ * `:open` covers `<dialog>`, `<details>` and `<select>`. It does **not** match
+ * an open popover in Chrome today — measured, not assumed — which is why
+ * `:popover-open` is asked separately rather than trusted to be covered.
+ *
+ * Getting this wrong is not subtle: `settle()` reads it a frame after opening,
+ * concludes a perfectly open popover is closed, and unmounts the children. The
+ * popover stays open and empty, collapsing to the width of nothing.
+ */
+function isOpen(node: HTMLElement): boolean {
+  return matchesSelector(node, ':popover-open') || matchesSelector(node, ':open')
 }
 
 /**

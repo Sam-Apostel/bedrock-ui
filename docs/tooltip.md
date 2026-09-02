@@ -75,6 +75,6 @@ put unique navigation in one.
 
 - **A shared provider with a global "skip delay" window.** Radix opens
   subsequent tooltips instantly once one has opened. Not implemented; each root
-  keeps its own timers. See [gaps](./gaps.md).
+  keeps its own timers. See [gaps](./should-you-switch.md).
 - **Touch support beyond the platform's.** There is no hover on a touch screen,
   and a tooltip that opens on tap is a popover with extra steps.

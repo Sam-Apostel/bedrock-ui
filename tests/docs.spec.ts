@@ -160,7 +160,7 @@ test.describe('site chrome', () => {
   // One test per page rather than a loop: these navigate the same tab, so they
   // cannot run in parallel, and a loop of awaits is the thing the linter is
   // right to object to.
-  for (const path of ['index.html', 'docs.html', 'compat.html']) {
+  for (const path of ['index.html', 'should-you-switch.html', 'compat.html']) {
     test(`${path} does not link to the site it is served from`, async ({ page }) => {
       await page.goto(`${SITE}/${path}`)
 

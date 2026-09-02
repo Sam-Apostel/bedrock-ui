@@ -1,8 +1,12 @@
 # Releasing
 
-Two things ship from this repo: the package `@apostel/bedrock` on npm, and the
-documentation at <https://bedrock.sams.land>. Both are automated; both need a
-one-time setup that only you can do, because both need credentials.
+Two things ship from this repo, both automated, both needing a one-time setup
+that only you can do because both need credentials.
+
+| Ships | Where | Driven by |
+| --- | --- | --- |
+| `@apostel/bedrock` | npm | changesets, on merge to `main` |
+| The documentation | <https://bedrock.sams.land> | GitHub Pages, on push to `main` |
 
 Everything marked **you** below is a manual step outside this repository.
 
@@ -10,8 +14,8 @@ Everything marked **you** below is a manual step outside this repository.
 
 ## Part 1 — npm
 
-Nothing is published yet, so this is the first release as well as the setup for
-every one after it. Four things to do, roughly ten minutes.
+The setup below is done and `0.1.0` is published; this is the record of how, and
+what to repeat. Roughly ten minutes from scratch.
 
 ### 1. Own the scope
 
@@ -23,10 +27,9 @@ npm org create apostel        # skip if @apostel is already your username
 npm whoami
 ```
 
-`@apostel/bedrock` is unclaimed as of writing. If the scope turns out to be
-taken by someone else, the name in `package.json` has to change — and it appears
-in the README, the docs, the agent skill and all 24 registry items, so change it
-before anyone installs one, not after.
+`@apostel/bedrock` is claimed and published. The name appears in the README, the
+docs, the agent skill and all 24 registry items, so changing it now would break
+everyone who has installed one — it is settled.
 
 ### 2. Give CI a token
 
@@ -46,9 +49,9 @@ repository secret*, named `NPM_TOKEN`.
 GitHub → *Settings* → *Actions* → *General* → *Workflow permissions* → tick
 **Allow GitHub Actions to create and approve pull requests**.
 
-Without it the release workflow runs, the tests pass, and opening the version PR
-fails at the last step — which reads like a broken workflow rather than a
-missing checkbox.
+> Without it the release workflow runs, the tests pass, and opening the version
+> PR fails at the last step — which reads like a broken workflow rather than a
+> missing checkbox. It cost three failed runs before anyone spotted it.
 
 ### 4. Push, then merge the PR it opens
 
@@ -64,7 +67,7 @@ a **Version packages** PR that bumps `0.0.0` → `0.1.0` and writes
 publishes.
 
 Watch it under the *Actions* tab; the publish step is the one that takes about
-two minutes, because it runs the 102 Playwright tests again through
+two minutes, because it runs the full Playwright suite again through
 `prepublishOnly` before npm sees anything.
 
 ### Every release after that
@@ -81,9 +84,13 @@ for someone *using* the package, not for someone reading the diff; it becomes
 the changelog entry verbatim. Tests, docs and internal refactors need no
 changeset.
 
-Then: merge to `main` → merge the version PR it opens → published. Nobody types
-a version number, and nothing ships without a note saying why.
+From there:
 
+1. Merge your PR to `main`.
+2. The workflow opens a **Version packages** PR with the bump and the changelog.
+3. Merge that. The workflow runs again, finds nothing queued, and publishes.
+
+Nobody types a version number, and nothing ships without a note saying why.
 `npx changeset status` shows what is queued without changing anything.
 
 ### Optional: drop the token later
@@ -121,7 +128,7 @@ which is why `CHANGELOG.md` here is one heading and a pointer.
 
 - **The scope name**, as above. It is the one thing that is expensive to change
   after the fact.
-- **`0.1.0`, not `1.0.0`.** Several things in `docs/gaps.md` are open questions
+- **`0.1.0`, not `1.0.0`.** Several things in [known gaps](./docs/known-gaps.md) are open questions
   whose answers change public API. Semver before 1.0 leaves room for them, and
   the queued changeset is a `minor`, which from `0.0.0` gives `0.1.0`.
 - **What ships.** `npm pack --dry-run` lists it: `dist/`, `skills/`,
@@ -177,8 +184,10 @@ Write markdown in `docs/`. It is picked up automatically and gets a page at
 `/<name>.html`. To put it in the sidebar, add a line to `NAV` in
 `scripts/build-docs.mjs`.
 
-`docs/compat.html` is copied verbatim rather than rendered — it feature-detects
-in the reader's browser, and a generator wrapping it would break that.
+The browser-support matrix is generated from `docs/compat.json`, which carries
+the minimum versions from MDN's compat data. `docs/compat.md` embeds it with a
+`<!-- support-matrix -->` comment; the live column is measured in the reader's
+own browser by an inline script.
 
 ---
 

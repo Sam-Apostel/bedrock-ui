@@ -100,7 +100,7 @@ Measured with esbuild, minified, gzipped, React external:
 
 The gap between the two entry points is the whole cost of controlled mode for a
 Dialog. It is much smaller for the menu family, where both roots pull in the
-same roving module — see [gaps](./gaps.md).
+same roving module — see [gaps](./should-you-switch.md).
 
 The two entry points are separate module graphs. If nothing in your app imports
 `/controlled`, none of the reconciliation code is in your bundle — that is a

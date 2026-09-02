@@ -25,7 +25,6 @@ const DEMOS = 'demos/cases'
 
 const PAGES = [
   { source: 'README.md', out: 'index.html', title: 'bedrock' },
-  { source: 'docs/README.md', out: 'docs.html', title: 'Docs' },
   ...readdirSync('docs')
     .filter((file) => file.endsWith('.md') && file !== 'README.md')
     .map((file) => ({
@@ -34,14 +33,22 @@ const PAGES = [
       title: null,
     })),
   { source: 'CONTRIBUTING.md', out: 'contributing.html', title: 'Contributing' },
+  { source: 'RELEASING.md', out: 'releasing.html', title: 'Releasing' },
   { source: 'CHANGELOG.md', out: 'changelog.html', title: 'Changelog' },
 ]
 
-/** A `null` href is a section heading rather than a link. */
+/**
+ * Grouped by the job a reader arrived to do, not by what kind of file it is.
+ *
+ * A `null` href is a section heading rather than a link.
+ */
 const NAV = [
+  [null, 'Start'],
   ['index.html', 'Home'],
   ['getting-started.html', 'Getting started'],
-  ['state.html', 'Two roots'],
+
+  [null, 'Concepts'],
+  ['state.html', 'The two roots'],
   ['styling.html', 'Styling'],
   ['compat.html', 'Browser support'],
 
@@ -60,12 +67,19 @@ const NAV = [
   ['toast.html', 'Toast'],
   ['display.html', 'Display'],
 
-  [null, 'Moving over'],
-  ['migration-from-radix.html', 'Migrating'],
+  [null, 'Switching'],
+  ['should-you-switch.html', 'Should you switch?'],
+  ['migration-from-radix.html', 'What changes'],
   ['radix-parity.html', 'Radix parity'],
-  ['shadcn-registry.html', 'shadcn registry'],
-  ['agent-skill.html', 'Agent skill'],
-  ['gaps.html', 'Gaps'],
+  ['known-gaps.html', 'Known gaps'],
+
+  [null, 'shadcn'],
+  ['shadcn-registry.html', 'Registry'],
+
+  [null, 'Project'],
+  ['contributing.html', 'Contributing'],
+  ['releasing.html', 'Releasing'],
+  ['changelog.html', 'Changelog'],
 ]
 
 /** Markdown links point at files in the repo; on the site they point at pages. */
@@ -75,14 +89,16 @@ function rewriteLinks(markdown) {
       // In the repository, pointing at the site is useful. On the site it is a
       // link to the page you are standing on, which is the first thing a reader
       // clicks and the first thing that disappoints them.
-      .replace(/<https:\/\/bedrock\.sams\.land\/?>/g, '[the docs](./docs.html)')
-      .replace(/\]\(https:\/\/bedrock\.sams\.land\/?\)/g, '](./docs.html)')
+      .replace(/<https:\/\/bedrock\.sams\.land\/?>/g, '[the docs](./index.html)')
+      .replace(/\]\(https:\/\/bedrock\.sams\.land\/?\)/g, '](./index.html)')
       // An absolute link to our own page leaves the site and comes back, which
       // costs a round trip and breaks any preview deploy that is not on this
       // domain. Relative links stay inside whatever host is serving them.
       .replace(/<https:\/\/bedrock\.sams\.land\/([\w-]+\.html)>/g, '[$1](./$1)')
       .replace(/https:\/\/bedrock\.sams\.land\//g, './')
-      .replace(/\]\(\.\/docs\/README\.md/g, '](./docs.html')
+      .replace(/\]\(\.\/(README|CONTRIBUTING|RELEASING|CHANGELOG)\.md/g, (_m, name) =>
+        name === 'README' ? '](./index.html' : `](./${name.toLowerCase()}.html`,
+      )
       .replace(/\]\(\.\/docs\/([\w-]+)\.md/g, '](./$1.html')
       .replace(/\]\(\.\/docs\/compat\.html/g, '](./compat.html')
       .replace(/\]\(\.\.\/([\w-]+)\.md/g, '](./$1.html')
@@ -330,6 +346,33 @@ cpSync('skills', join(OUT, 'skills'), { recursive: true })
 writeFileSync(join(OUT, 'CNAME'), `${DOMAIN}\n`)
 // Pages would otherwise run Jekyll over this and drop anything underscored.
 writeFileSync(join(OUT, '.nojekyll'), '')
+
+/**
+ * Every relative link must resolve to a page that exists.
+ *
+ * Restructuring is exactly when this breaks, and nothing else catches it: a
+ * dangling link renders fine, and a browser test that navigates to a missing
+ * page gets a 404 without failing. Renaming one page left twenty-six broken
+ * links behind, all of which "passed".
+ */
+function checkLinks() {
+  const pages = new Set(readdirSync(OUT).filter((name) => name.endsWith('.html')))
+  const broken = []
+
+  for (const file of pages) {
+    const html = readFileSync(join(OUT, file), 'utf8')
+
+    for (const match of html.matchAll(/href="\.\/([^"#]+\.html)/g)) {
+      if (!pages.has(match[1])) broken.push(`${file} → ${match[1]}`)
+    }
+  }
+
+  if (broken.length > 0) {
+    throw new Error(`${broken.length} dangling link(s):\n  ` + [...new Set(broken)].join('\n  '))
+  }
+}
+
+checkLinks()
 
 // The site's one structural rule, measured rather than asserted. See
 // scripts/texture.mjs: adjacent blocks should not be the same kind of thing,

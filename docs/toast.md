@@ -71,7 +71,7 @@ It removes itself when its duration elapses.
 | `Tab`    | Reaches the viewport, which is focusable, then the buttons.   |
 
 There is no `F6` hotkey to jump to the toast region. Radix has one; this does
-not. See [gaps](./gaps.md).
+not. See [gaps](./should-you-switch.md).
 
 ## What is not here
 
@@ -79,4 +79,4 @@ not. See [gaps](./gaps.md).
   array of toasts in your own state — the demo above is the whole pattern.
 - **Swipe to dismiss.** No pointer gesture handling.
 - **Pause on hover.** The timer does not stop when the pointer is over a toast,
-  which it should. See [gaps](./gaps.md).
+  which it should. See [gaps](./should-you-switch.md).

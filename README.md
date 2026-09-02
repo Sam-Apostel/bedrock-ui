@@ -58,7 +58,7 @@ Measured with esbuild, minified and gzipped, React external:
 
 The gap widens where the platform hands over a whole element and narrows where
 roving focus gets involved — menus save least, and
-[gaps](./docs/gaps.md#3-the-saving-is-uneven-and-menus-barely-save-anything)
+[should you switch?](./docs/should-you-switch.md#3-the-saving-is-uneven-and-menus-barely-save-anything)
 says so in detail. The larger win is behavioural: no z-index fights, no portal
 clipping, no repositioning on every scroll frame.
 
@@ -84,8 +84,8 @@ open it in.
 
 - **[Getting started](./docs/getting-started.md)** — install, first dialog, the
   two roots.
-- **[Gaps](./docs/gaps.md)** — the case against adopting this. Read it first if
-  you are evaluating.
+- **[Should you switch?](./docs/should-you-switch.md)** — the case against
+  adopting this. Read it first if you are evaluating.
 - **[Migrating from Radix](./docs/migration-from-radix.md)** — what changes,
   what breaks, and what to do about it.
 - **[shadcn registry](./docs/shadcn-registry.md)** — shadcn's own components with

@@ -72,7 +72,7 @@ reachable, still typeahead-searchable, still submits. See
 
 This is the one primitive where the visual gap between engines is large, and it
 is worth deciding deliberately whether that is acceptable for your product
-before adopting it. See [gaps](./gaps.md).
+before adopting it. See [gaps](./should-you-switch.md).
 
 ## What is not here
 

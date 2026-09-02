@@ -102,7 +102,7 @@ arrives still has a complete, working accordion.
 
 Arrow keys do **not** move between items. `<details>` has no such behaviour, and
 adding it would mean intercepting keys the browser already assigns. See
-[gaps](./gaps.md).
+[gaps](./should-you-switch.md).
 
 ## What is not here
 

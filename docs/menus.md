@@ -147,4 +147,4 @@ that calls `router.push`, which breaks all three.
 - **Typeahead configuration.** The reset delay is fixed at one second.
 - **Animated submenus following the pointer.** No "safe triangle". Moving
   diagonally onto a submenu can close it, which is the honest cost of not
-  running a pointer-tracking loop. See [gaps](./gaps.md).
+  running a pointer-tracking loop. See [gaps](./should-you-switch.md).

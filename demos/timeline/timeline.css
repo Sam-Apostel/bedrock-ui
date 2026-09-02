@@ -1,0 +1,408 @@
+/*
+ * The frame around the era grid: scrubber, tiles, status.
+ *
+ * Everything here is structure — where things sit and how big they are. What
+ * they look like is in eras.css, as custom properties this file consumes with
+ * fallbacks. That split is the whole point of the widget: if a colour or a
+ * radius appeared below, an era could not fully replace it.
+ */
+
+.tl {
+  --e-gap: 0.75rem;
+
+  container-type: inline-size;
+  width: 100%;
+  margin: 0;
+  padding: var(--u3, 24px);
+  background: var(--e-ground);
+  color: var(--e-ink);
+  font-family: var(--e-font);
+  transition:
+    background 400ms ease,
+    color 400ms ease;
+}
+
+/* ── The moment ────────────────────────────────────────────────────────── */
+
+.tl-head {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: var(--u2, 16px);
+}
+
+.tl-when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--e-muted);
+}
+
+.tl-when time {
+  font-variant-numeric: tabular-nums;
+  color: var(--e-accent);
+  font-weight: 700;
+}
+
+.tl-era i {
+  font-style: normal;
+  opacity: 0.7;
+}
+
+.tl-headline {
+  margin: 0;
+  font-family: var(--e-display, var(--e-font));
+  font-size: clamp(1.1rem, 2.6cqi, 1.6rem);
+  font-weight: var(--e-display-weight, 700);
+  letter-spacing: var(--e-display-tracking, 0);
+  text-transform: var(--e-display-case, none);
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.tl-headline em {
+  font-style: normal;
+  color: var(--e-muted);
+  font-weight: 400;
+}
+
+.tl-tagline {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 0.9rem;
+  color: var(--e-muted);
+}
+
+/* ── Scrubber ──────────────────────────────────────────────────────────── */
+
+.tl-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tl-scrub {
+  flex: 1;
+  min-width: 0;
+}
+
+/*
+ * A real range input. Arrow keys, Home, End, drag and touch all work because
+ * nobody reimplemented them — which is the same argument the library makes.
+ */
+.tl-range {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--e-accent);
+  cursor: grab;
+}
+
+.tl-range:active {
+  cursor: grabbing;
+}
+
+.tl-bands {
+  display: flex;
+  gap: 2px;
+  margin-top: 0.35rem;
+}
+
+.tl-band {
+  container-type: inline-size;
+  flex: var(--count);
+  min-width: 0;
+  height: 1.35rem;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--e-muted);
+  background: var(--e-band, rgb(128 128 128 / 0.16));
+  border-radius: 2px;
+  transition: background 300ms ease;
+}
+
+.tl-band[data-current='true'] {
+  background: var(--e-accent);
+  color: var(--e-accent-ink, #fff);
+}
+
+/*
+ * An era with two moments in it gets a sliver of track, and a name clipped
+ * mid-word reads as a bug. The band measures itself and drops the label; the
+ * header above already says which era you are standing in.
+ */
+@container (max-width: 5.5rem) {
+  .tl-band span {
+    display: none;
+  }
+}
+
+.tl-step,
+.tl-play {
+  flex: none;
+  padding: 0.3rem 0.7rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--e-ink);
+  background: var(--e-btn-bg, transparent);
+  border: 1px solid var(--e-btn-border, currentColor);
+  border-radius: var(--e-radius, 4px);
+  cursor: pointer;
+}
+
+.tl-step[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.tl-tally {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0 0 var(--u2, 16px);
+  font-size: 0.78rem;
+  color: var(--e-muted);
+}
+
+.tl-tally span::before {
+  content: '';
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.35rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.tl-tally .tl-events::before {
+  display: none;
+}
+
+.tl-tally [data-status='dead'] {
+  opacity: 0.65;
+}
+
+.tl-tally [data-status='degraded'] {
+  color: var(--e-accent);
+}
+
+.tl-tally [data-status='complete'] {
+  color: var(--e-good, var(--e-accent));
+}
+
+/* ── Grid ──────────────────────────────────────────────────────────────── */
+
+.tl-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: var(--e-gap);
+}
+
+.tl-tile {
+  grid-column: span var(--span);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  min-height: 8.5rem;
+  overflow: hidden;
+  padding: var(--e-tile-pad, 0.85rem);
+  background: var(--e-tile);
+  color: var(--e-tile-ink, var(--e-ink));
+  border: var(--e-tile-border, 1px solid rgb(128 128 128 / 0.25));
+  border-radius: var(--e-radius, 4px);
+  box-shadow: var(--e-shadow, none);
+  transition:
+    background 400ms ease,
+    box-shadow 400ms ease,
+    opacity 300ms ease,
+    filter 300ms ease;
+}
+
+@container (max-width: 52rem) {
+  .tl-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 30rem) {
+  .tl-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tl-tile {
+    grid-column: auto;
+  }
+}
+
+.tl-tile-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 0.5rem;
+}
+
+.tl-tile-head h4 {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--e-display, var(--e-font));
+  font-size: 0.92rem;
+  font-weight: var(--e-display-weight, 700);
+  letter-spacing: var(--e-display-tracking, 0);
+  text-transform: var(--e-display-case, none);
+}
+
+.tl-badge {
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--e-muted);
+}
+
+.tl-stage {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 0.5rem;
+}
+
+/*
+ * Switched off, and saying so twice: greyed for the eye, `inert` in the markup
+ * for everything else. A tile in this state is a component that could not have
+ * been built at this point in history at all.
+ */
+.tl-tile[data-status='dead'] {
+  opacity: 0.42;
+  filter: grayscale(1);
+  box-shadow: none;
+}
+
+.tl-tile[data-status='gold'] {
+  border-color: var(--e-good, var(--e-accent));
+  box-shadow: var(--e-glow, 0 0 0 1px var(--e-good, var(--e-accent)));
+}
+
+.tl-tile[data-status='gold'] .tl-badge {
+  color: var(--e-good, var(--e-accent));
+  font-weight: 700;
+}
+
+/* ── Per-tile detail ───────────────────────────────────────────────────── */
+
+.tl-detail {
+  font-size: 0.72rem;
+  color: var(--e-muted);
+}
+
+.tl-detail summary {
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.tl-detail ul {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tl-detail li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 0.5rem;
+  align-items: baseline;
+}
+
+.tl-detail li[data-level='absent'] {
+  opacity: 0.55;
+}
+
+.tl-feature {
+  font-family: var(--e-mono, ui-monospace, monospace);
+  color: var(--e-tile-ink, var(--e-ink));
+}
+
+.tl-why {
+  grid-column: 2;
+  line-height: 1.35;
+}
+
+.tl-none {
+  grid-column: 1 / -1;
+}
+
+.tl-chips {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.tl-chip {
+  width: 1.4rem;
+  text-align: center;
+  font-size: 0.6rem;
+  line-height: 1.5;
+  border-radius: 2px;
+  background: rgb(128 128 128 / 0.18);
+  color: var(--e-muted);
+}
+
+.tl-chip[data-state='yes'] {
+  background: var(--e-accent);
+  color: var(--e-accent-ink, #fff);
+}
+
+.tl-chip[data-state='preview'] {
+  outline: 1px dashed var(--e-accent);
+  color: var(--e-accent);
+}
+
+.tl-source {
+  margin: var(--u2, 16px) 0 0;
+  font-size: 0.72rem;
+  color: var(--e-muted);
+  max-width: 60ch;
+}
+
+/* demos.css hands its focus ring to ordinary demos only, so this is ours. */
+.tl :focus-visible {
+  outline: 2px solid var(--e-accent);
+  outline-offset: 2px;
+}
+
+/* `code` on this site carries the page's own surface colour, which is not the
+   era's. Inside the widget it is text. */
+.tl code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.tl-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl,
+  .tl-tile,
+  .tl-band {
+    transition: none;
+  }
+}

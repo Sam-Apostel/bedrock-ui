@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 /**
  * Drives the built site rather than a fixture.
@@ -26,6 +26,7 @@ const PAGES = [
   ['toast.html', 'toast'],
   ['display.html', 'display'],
   ['shadcn-registry.html', 'registry'],
+  ['compat.html', 'compat-timeline'],
 ] as const
 
 test.describe('docs site', () => {
@@ -200,6 +201,115 @@ test.describe('site chrome', () => {
     // the hand-written compat.html, so none of this had ever been visible.
     await expect(page.getByText('The stance')).toBeVisible()
     await expect(page.getByRole('heading', { name: /degrades/ })).toBeVisible()
+  })
+})
+
+/**
+ * Moves the slider to one of its stops, through the input rather than around
+ * it: the same event React is listening for, so the test drives the widget the
+ * way an arrow key does.
+ */
+const scrubTo = (page: Page, index: number) =>
+  page.locator('.tl-range').evaluate((node, value) => {
+    const input = node as HTMLInputElement
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
+    setter?.call(input, String(value))
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+  }, index)
+
+/**
+ * The timeline is the compat page's headline, and every claim it makes is
+ * checkable: that a component which could not have existed at the selected
+ * date is switched off rather than merely greyed, that one built on markup
+ * from 2011 never switches off at all, and that the styling belongs to the era
+ * rather than to the components.
+ */
+test.describe('the compat timeline', () => {
+  test('opens on the most recent moment that has actually happened', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    await expect(page.locator('.tl-tile')).toHaveCount(15)
+    // Past the end are projected dates, which must not be where it opens.
+    await expect(page.locator('.tl')).not.toHaveAttribute('data-ahead', 'true')
+
+    const when = await page.locator('.tl-when time').getAttribute('datetime')
+    expect(when && when <= new Date().toISOString().slice(0, 10)).toBe(true)
+  })
+
+  test('a component that could not exist yet is switched off, not just greyed', async ({
+    page,
+  }) => {
+    await page.goto(`${SITE}/compat.html`)
+    await scrubTo(page, 0)
+
+    const dialog = page.locator('.tl-tile', { hasText: 'Dialog' }).first()
+    await expect(dialog).toHaveAttribute('data-status', 'dead')
+    // 2013: no <dialog>, no invoker commands, so the trigger is inert — which
+    // means it cannot be focused, not merely that it looks disabled.
+    const focusable = await dialog
+      .getByRole('button', { name: 'Rename project' })
+      .evaluate((node) => {
+        node.focus()
+        return document.activeElement === node
+      })
+
+    expect(focusable).toBe(false)
+  })
+
+  test('a component built on markup that already shipped never switches off', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    const tabs = page.locator('.tl-tile', { hasText: 'Tabs' }).first()
+    const statusAt = async (index: number) => {
+      await scrubTo(page, index)
+      return tabs.getAttribute('data-status')
+    }
+
+    // Spread across the whole track, including the first moment on it. Tabs is
+    // roving tabindex and nothing else, so there has never been a date at
+    // which it did not work.
+    expect([
+      await statusAt(0),
+      await statusAt(12),
+      await statusAt(24),
+      await statusAt(36),
+      await statusAt(48),
+    ]).toEqual(['complete', 'complete', 'complete', 'complete', 'complete'])
+  })
+
+  test('the styling belongs to the era, and the markup does not change', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    const tile = page.locator('.tl-tile').first()
+    const look = () =>
+      tile.evaluate((node) => {
+        const style = getComputedStyle(node)
+        return `${style.backgroundColor} ${style.borderRadius} ${style.boxShadow}`
+      })
+
+    await scrubTo(page, 0)
+    const flat = await look()
+    const markup = await tile.locator('.tl-stage').innerHTML()
+
+    await scrubTo(page, 30)
+    expect(await page.locator('.tl').getAttribute('data-era')).not.toBe('flat')
+    expect(await look()).not.toBe(flat)
+    // Same components, restyled. If this ever differs, the grid is swapping
+    // implementations and the page is making a claim it cannot support.
+    expect(await tile.locator('.tl-stage').innerHTML()).toBe(markup)
+  })
+
+  test('the grid and the table are built from the same file', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+    await scrubTo(page, 0)
+
+    // The tile names the date the Popover API first shipped anywhere; the table
+    // names the version that shipped it. Chrome 114 was released on 30 May
+    // 2023, and both of those come out of docs/compat.json.
+    await expect(page.locator('.tl-tile', { hasText: 'Popover' }).first()).toContainText(
+      '30 May 2023',
+    )
+    await expect(page.locator('tr.floor', { hasText: 'Popover API' })).toContainText('114')
   })
 })
 

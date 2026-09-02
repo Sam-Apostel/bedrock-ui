@@ -249,6 +249,27 @@
   outline-offset: 2px;
 }
 
+/*
+ * A field's text floor, on touch pointers only.
+ *
+ * iOS Safari zooms the viewport when a field it focuses has text under 16px,
+ * and it does not zoom back out. The dialog demo's first act on a phone was
+ * therefore to focus a field and leave the reader looking at a scaled-up page —
+ * a browser behaviour, not a bedrock one, but on our page and so ours to fix.
+ *
+ * The default in every browser is a shade under 14px, which is why this catches
+ * fields nothing else styles. Scoped to `pointer: coarse` so the shadcn gallery
+ * keeps shadcn's own 14px on the desktop, where its whole argument is that the
+ * swap is invisible. Unlayered, so it also outranks the utility class there.
+ */
+@media (pointer: coarse) {
+  .demo input,
+  .demo select,
+  .demo textarea {
+    font-size: 16px;
+  }
+}
+
 .demo [data-bedrock-dialog]:not(.registry-demo *) {
   border: 1px solid var(--rule, #e3e4e8);
   border-radius: 12px;
@@ -258,8 +279,19 @@
   max-width: 24rem;
 }
 
+/*
+ * Dimmed and blurred: the dim alone left the page behind legible enough to read
+ * past, which reads as a dialog floating over a live page rather than as one
+ * that has taken over. The blur is what says there is a layer there.
+ *
+ * `--backdrop-blur` is the docs token, and it arrives here because `::backdrop`
+ * inherits from the element it belongs to. The literal is for a browser where
+ * it does not, and for a demo mounted somewhere with no docs tokens at all.
+ */
 .demo [data-bedrock-dialog]::backdrop {
   background: rgb(0 0 0 / 0.42);
+  -webkit-backdrop-filter: blur(var(--backdrop-blur, 3px));
+  backdrop-filter: blur(var(--backdrop-blur, 3px));
 }
 
 .demo [popover]:not(.registry-demo *) {

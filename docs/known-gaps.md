@@ -12,7 +12,7 @@ is a decision, and the reason is in the last column.
 
 | Gap | What you lose | Why |
 | --- | --- | --- |
-| **No scroll lock** | With a modal dialog open, the page behind it still scrolls on wheel. `showModal()` makes the background inert to *interaction*, not to scrolling. | `react-remove-scroll` is part of the 13.7 kB you deleted. `html:has(dialog:open) { overflow: hidden }` gets it back, along with the layout shift; doing it properly needs scrollbar-gutter compensation, which needs measurement. |
+| **No scroll lock** | With a modal dialog open, the page behind it still scrolls on wheel. `showModal()` makes the background inert to *interaction*, not to scrolling. | `react-remove-scroll` is part of the 13.7 kB you deleted. `html:has(dialog:modal) { overflow: hidden }` gets it back, and `scrollbar-gutter: stable` on the root pays for the layout shift with nothing measured — these docs do exactly that, in `styles/site.css`. It stays yours rather than ours because whether the page behind freezes is a decision about your layout, not about the dialog. |
 | **Slider takes one value** | No two-thumb range. | A range input has one thumb. Two thumbs is two inputs sharing a track — a different component, not a prop. |
 | **Toast has no swipe-to-dismiss** | Pointer-gesture dismissal. | No native equivalent. Left out rather than half-implemented. |
 | **Accordion cannot refuse to close** | Radix's `collapsible={false}`, where the open item stays open until another is chosen. | `type="single"` is `<details name>`, and a `<summary>` toggles. No native equivalent. |

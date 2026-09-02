@@ -55,12 +55,36 @@
   box-sizing: border-box;
 }
 
+html {
+  /*
+   * Reserved always, so that taking the page's scroll away below does not
+   * shift the layout sideways underneath the dialog. This is the
+   * scrollbar-gutter compensation known-gaps.md says a scroll lock needs —
+   * declarative, and with nothing to measure.
+   */
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
   font: 16px/1.6 var(--sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * `showModal()` makes the page behind inert, not unscrollable: wheel and touch
+ * still scroll it, which on a phone reads as the dialog having come loose.
+ *
+ * This is the gap listed in known-gaps.md, closed here rather than in the
+ * library — it is a judgement about this page's layout, and the two lines it
+ * costs are the argument for leaving it to the site. `body` as well as the root
+ * because iOS Safari keeps scrolling the document when only the root is hidden.
+ */
+html:has(dialog:modal),
+html:has(dialog:modal) body {
+  overflow: hidden;
 }
 
 /* ── Shell ─────────────────────────────────────────────────────────────── */
@@ -102,6 +126,20 @@ main {
   color: var(--accent);
 }
 
+/*
+ * The panel is a popover, and on a wide screen it is never opened: `contents`
+ * generates no box for it at all, so the links lay themselves out as the
+ * sidebar's own children exactly as they did before it existed. Author styles
+ * beat the UA's `display: none`, which is what makes this work at all.
+ */
+.nav-links {
+  display: contents;
+}
+
+.nav-toggle {
+  display: none;
+}
+
 nav {
   position: sticky;
   top: var(--u4);
@@ -110,12 +148,93 @@ nav {
   overflow-y: auto;
 }
 
+/*
+ * Narrow: thirty links are not a sidebar, they are a wall between the reader
+ * and the first paragraph. The nav becomes one bar with a button in it, and the
+ * links move into the top layer where they belong.
+ */
 @media (max-width: 62rem) {
+  /* Whatever is scrolled to lands below the bar rather than under it. */
+  html {
+    scroll-padding-top: calc(var(--u) * 9);
+  }
+
   nav {
-    position: static;
+    /* The bar stays reachable from anywhere in a long page. */
+    position: sticky;
+    top: 0;
+    /* What the panel below hangs from, where the browser can do that. */
+    anchor-name: --nav-bar;
     max-height: none;
+    overflow: visible;
+    /* Out into the shell's gutter, so nothing shows past it while it is stuck. */
+    margin: calc(var(--u2) * -1) calc(var(--u2) * -1) 0;
+    padding: var(--u) var(--u2);
+    background: var(--paper);
     border-bottom: 1px solid var(--rule);
-    padding-bottom: var(--u2);
+  }
+
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--u2);
+  }
+
+  .masthead {
+    margin-bottom: 0;
+  }
+
+  .nav-toggle {
+    display: block;
+    font: 600 0.68rem/1 var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    background: var(--sunk);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    /* 44px of target, which is the point of the exercise. */
+    padding: var(--u) var(--u2);
+    min-height: calc(var(--u) * 5.5);
+    cursor: pointer;
+  }
+
+  /*
+   * `revert`, not a value: it hands the display back to the UA, which hides a
+   * closed popover and shows an open one. A browser with no popover support
+   * therefore gets the links inline, the way it did before — the button stops
+   * doing anything, and nothing becomes unreachable.
+   */
+  .nav-links {
+    display: revert;
+  }
+
+  .nav-links:popover-open {
+    position: fixed;
+    inset: calc(var(--u) * 8) var(--u2) auto;
+    /* The bar's real bottom edge, where the browser can tell us where it is.
+       The line above is the same number rounded, for where it cannot. */
+    top: anchor(--nav-bar bottom);
+    width: auto;
+    max-height: calc(100dvh - calc(var(--u) * 10));
+    overflow-y: auto;
+    margin: 0;
+    padding: var(--u2) var(--u3);
+    border: 1px solid var(--rule);
+    border-radius: var(--u);
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 var(--u2) var(--u4) rgb(0 0 0 / 0.22);
+  }
+
+  .nav-links::backdrop {
+    background: rgb(0 0 0 / 0.3);
+  }
+
+  /* The first group heading is the top of the panel, not a gap below one. */
+  .nav-links .nav-group:first-child {
+    margin-top: 0;
   }
 }
 

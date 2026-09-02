@@ -254,6 +254,16 @@ ${probes}
 
 const STYLE = readFileSync('styles/site.css', 'utf8')
 
+/**
+ * The page shell.
+ *
+ * On a narrow screen the nav is thirty links standing between the reader and
+ * the first paragraph, so it collapses behind a button. The panel is a popover
+ * and the button is its invoker, which means the open state, `aria-expanded`,
+ * Escape and dismissing on an outside click are all the browser's — the same
+ * trade the library documents, made by the site that documents it. There is no
+ * script for it, and on a wide screen CSS gives the panel back to the sidebar.
+ */
 function page({ title, body, current, demos }) {
   const links = NAV.map(([href, label]) => {
     if (href === null) return `<span class="nav-group">${label}</span>`
@@ -276,8 +286,11 @@ function page({ title, body, current, demos }) {
   <body>
     <div class="shell">
       <nav>
-        <a class="masthead" href="./index.html">bedrock<span class="dot">.</span></a>
-        ${links}
+        <div class="nav-bar">
+          <a class="masthead" href="./index.html">bedrock<span class="dot">.</span></a>
+          <button class="nav-toggle" type="button" popovertarget="nav-links">Menu</button>
+        </div>
+        <div class="nav-links" id="nav-links" popover>${links}</div>
       </nav>
       <main>${body}</main>
     </div>${script}

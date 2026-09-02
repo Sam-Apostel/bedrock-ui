@@ -100,6 +100,34 @@ test.describe('docs demos are interactive', () => {
     await expect(dialog.getByPlaceholder('New name')).toHaveValue('')
   })
 
+  test('the page behind an open dialog does not scroll', async ({ page }) => {
+    await page.goto(`${SITE}/dialog.html`)
+
+    await page.getByRole('button', { name: 'Rename project' }).click()
+    await expect(page.locator('dialog')).toHaveJSProperty('open', true)
+
+    // A wheel over the backdrop, not `scrollBy`: `overflow: hidden` still
+    // permits programmatic scrolling, and the gesture is what was getting
+    // through. Chrome animates a wheel, so settling is time rather than a frame.
+    const wheelMoves = async () => {
+      const before = await page.evaluate(() => window.scrollY)
+      await page.mouse.wheel(0, 600)
+      await page.waitForTimeout(300)
+
+      return (await page.evaluate(() => window.scrollY)) !== before
+    }
+
+    // `showModal()` makes the background inert to interaction and nothing else.
+    expect(await wheelMoves()).toBe(false)
+
+    // And the second half is what makes the first half mean anything: the same
+    // gesture, after the dialog closes, on a page that is not locked.
+    await page.getByRole('button', { name: 'Cancel' }).click()
+    await expect(page.locator('dialog')).toHaveJSProperty('open', false)
+
+    expect(await wheelMoves()).toBe(true)
+  })
+
   test('the popover demo opens into the top layer and dismisses', async ({ page }) => {
     await page.goto(`${SITE}/popover.html`)
 
@@ -169,6 +197,15 @@ test.describe('site chrome', () => {
       await expect(page.locator('a[href^="https://bedrock.sams.land"]')).toHaveCount(0)
     })
   }
+
+  test('a wide screen gets the sidebar itself, not a button to open it', async ({ page }) => {
+    await page.goto(`${SITE}/dialog.html`)
+
+    // The links are inside a popover that is never opened here. If the rule
+    // that hands its box back to the sidebar ever breaks, they all disappear.
+    await expect(page.locator('nav a[href="./popover.html"]')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Menu' })).toBeHidden()
+  })
 
   test('the compat page has the site navigation', async ({ page }) => {
     await page.goto(`${SITE}/compat.html`)
@@ -271,5 +308,48 @@ test.describe('registry gallery matches shadcn', () => {
       .evaluate((node) => getComputedStyle(node).backgroundColor)
 
     expect(background).toContain('0.97')
+  })
+})
+
+/**
+ * A phone, which is where both of these were found.
+ *
+ * `hasTouch` is what makes `pointer: coarse` match, and `isMobile` is what
+ * makes the viewport a phone's rather than a small window's — the two media
+ * conditions the fixes below are written against.
+ */
+test.describe('on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
+
+  test('the navigation is collapsed until it is asked for', async ({ page }) => {
+    await page.goto(`${SITE}/dialog.html`)
+
+    // Thirty links ahead of the first paragraph is the whole reason for this.
+    const links = page.locator('.nav-links')
+    await expect(links).toBeHidden()
+
+    await page.getByRole('button', { name: 'Menu' }).click()
+    await expect(links).toBeVisible()
+    expect(await links.evaluate((node) => node.matches(':popover-open'))).toBe(true)
+    await expect(links.locator('a[href="./popover.html"]')).toBeVisible()
+
+    // Escape closes it, and the button carries an expanded state in the
+    // accessibility tree, because the invoker wiring is what produces both.
+    // The site ships no script for either.
+    await page.keyboard.press('Escape')
+    await expect(links).toBeHidden()
+  })
+
+  test('a field is large enough that focusing it does not zoom the page', async ({ page }) => {
+    await page.goto(`${SITE}/dialog.html`)
+    await page.getByRole('button', { name: 'Rename project' }).click()
+
+    const size = await page
+      .getByPlaceholder('New name')
+      .evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize))
+
+    // Under 16px, iOS Safari zooms the viewport when the field takes focus and
+    // never zooms back out. The UA default for a field is a shade under 14px.
+    expect(size).toBeGreaterThanOrEqual(16)
   })
 })

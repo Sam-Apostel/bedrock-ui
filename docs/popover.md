@@ -28,8 +28,7 @@ regardless of where it sits in the tree or what its ancestors set `overflow` to.
 
 ## `Popover.Root`
 
-Renders no element. The trigger's `commandfor` does the opening, so there is
-nothing here to hold state in the common case.
+Renders no element.
 
 | prop           | type                             | notes                    |
 | -------------- | -------------------------------- | ------------------------ |

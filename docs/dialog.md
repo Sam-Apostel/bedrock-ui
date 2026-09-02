@@ -30,8 +30,7 @@ sits in the tree, and its backdrop is a pseudo-element rather than a node.
 
 ## `Dialog.Root`
 
-Renders no element. The trigger's `commandfor` does the opening, so there is
-nothing here to hold state in the common case.
+Renders no element.
 
 | prop           | type                      | notes                    |
 | -------------- | ------------------------- | ------------------------ |

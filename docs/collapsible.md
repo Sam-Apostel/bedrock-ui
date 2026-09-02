@@ -18,12 +18,6 @@ import { Collapsible } from '@apostel/bedrock'
 </Collapsible.Root>
 ```
 
-**The root is the element.** `<summary>` is only valid as a child of
-`<details>`, so the two parts are bound by nesting: nothing is wired by id and
-no invoker is involved. That is also why `defaultOpen` is a plain attribute
-rather than a call on mount — the disclosure is open in the HTML before any
-script runs.
-
 ## `Collapsible.Root`
 
 Renders `<details data-bedrock-collapsible>`.

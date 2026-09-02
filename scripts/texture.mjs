@@ -30,6 +30,8 @@ const GENERATED = new Set(['changelog.html'])
 
 const TEXTURE = [
   [/^<pre/, 'code'],
+  // A demo's source block is a <pre> in a wrapper, and reads as one.
+  [/^<div class="demo-code"/, 'code'],
   [/^<div class="demo"/, 'demo'],
   [/^<div class="table-wrap"|^<table/, 'table'],
   [/^<h[1-6]/, 'heading'],

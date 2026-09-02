@@ -18,12 +18,6 @@ import { Collapsible } from '@apostel/bedrock'
 </Collapsible.Root>
 ```
 
-Unlike [Dialog](./dialog.md), **the root is the element**. `<summary>` only
-works as a child of `<details>`, so there is nothing to wire by id and no
-invoker involved — which is also why `defaultOpen` is a plain attribute rather
-than an imperative call on mount. The disclosure is open in the HTML before any
-script runs.
-
 ## `Collapsible.Root`
 
 Renders `<details data-bedrock-collapsible>`.
@@ -33,6 +27,9 @@ Renders `<details data-bedrock-collapsible>`.
 | `defaultOpen`  | `boolean`                 | Read once; the attribute does the rest. |
 | `onOpenChange` | `(open: boolean) => void` | Reports; cannot refuse.                 |
 | `asChild`      | `boolean`                 | The child must render a `<details>`.    |
+
+For an `open` prop React can refuse with, import from
+`@apostel/bedrock/controlled` — see [controlled state](./state.md).
 
 > `open` is read on the first render only. React writes a DOM property when the
 > value it renders changes, so reading it once means the user's own toggling is

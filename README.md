@@ -82,8 +82,8 @@ open it in.
 
 ## Where to start
 
-- **[Getting started](./docs/getting-started.md)** — install, first dialog, the
-  two roots.
+- **[Getting started](./docs/getting-started.md)** — install, a first component,
+  and the one rule that applies to every trigger.
 - **[Should you switch?](./docs/should-you-switch.md)** — the case against
   adopting this. Read it first if you are evaluating.
 - **[Migrating from Radix](./docs/migration-from-radix.md)** — what changes,

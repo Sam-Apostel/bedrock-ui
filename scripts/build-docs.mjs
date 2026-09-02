@@ -49,8 +49,8 @@ const NAV = [
   ['getting-started.html', 'Getting started'],
 
   [null, 'Concepts'],
-  ['state.html', 'The two roots'],
   ['styling.html', 'Styling'],
+  ['state.html', 'Controlled state'],
   ['compat.html', 'Browser support'],
 
   [null, 'Primitives'],

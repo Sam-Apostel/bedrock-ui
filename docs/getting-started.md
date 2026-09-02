@@ -86,6 +86,9 @@ short version, `:open` and `::backdrop`, not `data-state`.
 
 ## Next
 
-- [Two roots](./state.md) — when you need `open` to be a prop
-- [Dialog API](./dialog.md)
 - [Browser support](./compat.md) — read this before shipping to the public web
+- [Styling](./styling.md) — the state selectors, in full
+- [Controlled state](./state.md) — only if React has to refuse an open or a close
+
+Every primitive has its own page, listed under **Primitives**; each one is
+self-contained.

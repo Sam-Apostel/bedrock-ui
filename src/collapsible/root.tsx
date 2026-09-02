@@ -19,8 +19,8 @@ export interface CollapsibleRootProps extends ComponentPropsWithRef<'details'>, 
 }
 
 /**
- * Unlike Dialog, the root *is* the element: `<summary>` only works as a child
- * of `<details>`, so there is nothing to wire by id and no invoker involved.
+ * `<summary>` only works as a child of `<details>`, so the parts are bound by
+ * nesting: nothing to wire by id, no invoker involved.
  *
  * Which means `defaultOpen` is a plain attribute rather than an imperative call
  * on mount — the disclosure is open in the HTML before any script runs.

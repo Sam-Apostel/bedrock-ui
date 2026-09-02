@@ -32,8 +32,12 @@ export interface Row {
   group: string
   name: string
   uses: string
+  /** What the feature is for. The table says what breaks without it. */
+  does: string
   critical: boolean
   degrade: string
+  /** MDN's page for it, or the nearest one MDN has. Generated, never typed. */
+  mdn: string | null
   support: Record<Engine, Support>
   everywhere: string | null
   baseline: {
@@ -48,8 +52,6 @@ export interface Row {
 export interface Component {
   id: string
   name: string
-  /** For the zoomed-out layout, where a cell is a hundred pixels wide. */
-  short?: string
   span: number
   blurb: string
   requires: string[]
@@ -57,12 +59,17 @@ export interface Component {
   replaces?: string[]
 }
 
+/**
+ * A look, and the date it starts.
+ *
+ * Deliberately not captioned anywhere in the widget: the grid restyling itself
+ * as you scrub is the demonstration, and a label reading "Neumorphism, 2019"
+ * turns it into a quiz about design history instead.
+ */
 export interface Era {
   id: string
   name: string
-  years: string
   from: string
-  tagline: string
 }
 
 interface Compat {
@@ -278,21 +285,6 @@ export const moments: Moment[] = dated.map(([date, found]) => {
 /** Where today sits on the axis. Everything to its right is arithmetic. */
 export const TODAY_AT = Math.min(100, Math.max(0, positionOf(TODAY)))
 
-/**
- * The era ribbon, in time rather than in stops.
- *
- * Each era runs until the next one starts; the last runs to today, because a
- * band drawn across the projected tail would claim to know what 2028 looks
- * like.
- */
-export const bands = eras.map((era, index) => {
-  const next = eras[index + 1]
-  const start = positionOf(era.from)
-  const end = next ? positionOf(next.from) : TODAY_AT
-
-  return { era, at: start, width: Math.max(0, end - start) }
-})
-
 /** Every January on the axis, for the gridlines under it. */
 export const years = (() => {
   const first = Number(AXIS.from.slice(0, 4)) + 1
@@ -305,6 +297,20 @@ export const years = (() => {
 
   return found
 })()
+
+/** The features a moment touched, loudest first, each named once. */
+export function featuresOf(moment: Moment): Row[] {
+  const seen = new Set<string>()
+  const found: Row[] = []
+
+  for (const event of moment.events) {
+    if (seen.has(event.row.id)) continue
+    seen.add(event.row.id)
+    found.push(event.row)
+  }
+
+  return found
+}
 
 /** The stop nearest a point on the axis, which is what dragging lands on. */
 export function nearest(days: number): number {

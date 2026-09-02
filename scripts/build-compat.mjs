@@ -159,6 +159,26 @@ function baseline(row, everywhere) {
   }
 }
 
+/**
+ * MDN's own URL for a feature, or the nearest page it does have.
+ *
+ * Linking to a guessed slug is how a documentation page acquires dead links,
+ * so the URL comes from the data. Attributes often carry none of their own —
+ * `commandfor` and `closedby` are documented on `<button>` and `<dialog>` —
+ * and the parent's page is the right place to land in that case anyway.
+ */
+function mdnUrl(path) {
+  const parts = path.split('.')
+
+  while (parts.length > 1) {
+    const url = node(`${parts.join('.')}.__compat`)?.mdn_url
+    if (url) return url
+    parts.pop()
+  }
+
+  return null
+}
+
 /* ── Rewrite ─────────────────────────────────────────────────────────────── */
 
 const missing = []
@@ -168,6 +188,8 @@ for (const row of compat.rows) {
     missing.push(`${row.id} → ${row.bcd}`)
     continue
   }
+
+  row.mdn = mdnUrl(row.bcd)
 
   row.support = Object.fromEntries(ENGINES.map((engine) => [engine, support(row.bcd, engine)]))
 

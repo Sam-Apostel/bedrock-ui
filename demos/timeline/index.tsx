@@ -1,13 +1,13 @@
-import { useEffect, useId, useMemo, useState, type CSSProperties, type KeyboardEvent } from 'react'
+import { useId, useMemo, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import {
   AXIS,
   ENGINES,
   ENGINE_NAMES,
   TODAY_AT,
-  bands,
   components,
   componentStateAt,
   daysInto,
+  featuresOf,
   formatDate,
   generated,
   moments,
@@ -44,8 +44,6 @@ import './eras.css'
  *   3. None of it has a look. The same fifteen components are restyled every
  *      time the era changes, and not one line of the components changes.
  */
-
-const AUTOPLAY_MS = 1600
 
 const STATUS_LABEL = {
   dead: 'cannot work yet',
@@ -116,15 +114,7 @@ function Chips({ state }: { state: RowState }) {
   )
 }
 
-function Tile({
-  state,
-  expanded,
-  onPeek,
-}: {
-  state: ComponentState
-  expanded: boolean
-  onPeek(): void
-}) {
+function Tile({ state }: { state: ComponentState }) {
   const { component } = state
   const Live = TILES[component.id]
   const dead = state.status === 'dead'
@@ -134,27 +124,11 @@ function Tile({
     <article
       className="tl-tile"
       data-status={state.status}
-      data-expanded={expanded || undefined}
       style={{ '--span': component.span } as CSSProperties}
     >
       <header className="tl-tile-head">
-        <span className="tl-dot" aria-hidden="true" />
-        <h4>
-          <span className="tl-name-long">{component.name}</span>
-          <span className="tl-name-short">{component.short ?? component.name}</span>
-        </h4>
+        <h4>{component.name}</h4>
         <span className="tl-badge">{badge(state)}</span>
-        {/*
-          The zoomed-out layout's whole tile is this button, stretched over the
-          cell by CSS and invisible; on a wide screen it is display: none and
-          every tile is open. Expanding one moves it back to the header so it
-          stops covering the component it just revealed.
-        */}
-        <button type="button" className="tl-peek" aria-expanded={expanded} onClick={onPeek}>
-          <span className="tl-visually-hidden">
-            {expanded ? 'Collapse' : 'Expand'} {component.name}
-          </span>
-        </button>
       </header>
 
       {/*
@@ -246,27 +220,13 @@ function Scrubber({
         ))}
       </div>
 
-      <div className="tl-ribbon" aria-hidden="true">
-        {bands.map((band) => (
-          <span
-            key={band.era.id}
-            className="tl-band"
-            data-era={band.era.id}
-            data-current={band.era.id === moment.era.id}
-            title={`${band.era.name}, ${band.era.years}`}
-            style={{ '--at': `${band.at}%`, '--width': `${band.width}%` } as CSSProperties}
-          >
-            <i>{band.era.name}</i>
-          </span>
-        ))}
-        {/* Past the last release date there is nothing but arithmetic. */}
-        <span
-          className="tl-ahead"
-          style={{ '--at': `${TODAY_AT}%`, '--width': `${100 - TODAY_AT}%` } as CSSProperties}
-        >
-          <i>projected</i>
-        </span>
-      </div>
+      {/* Past today the stops are arithmetic rather than news. */}
+      <span
+        className="tl-ahead"
+        aria-hidden="true"
+        title="Projected: thirty months in every engine is Baseline's bar for widely available"
+        style={{ '--at': `${TODAY_AT}%` } as CSSProperties}
+      />
 
       <div className="tl-ticks" aria-hidden="true">
         {moments.map((stop, position) => (
@@ -309,9 +269,6 @@ function Scrubber({
 
 export default function CompatTimeline() {
   const [index, setIndex] = useState(nowIndex)
-  const [playing, setPlaying] = useState(false)
-  /** Which tile is open in the zoomed-out layout. Ignored on a wide screen. */
-  const [peeked, setPeeked] = useState<string | null>(null)
 
   const moment = moments[index] as Moment
   const states = useMemo(
@@ -319,48 +276,54 @@ export default function CompatTimeline() {
     [moment.date],
   )
 
-  useEffect(() => {
-    if (!playing) return
+  /*
+   * One bar rather than three counts.
+   *
+   * Which components are which is what the grid underneath is for; the number
+   * worth having at the top is how much of the library you could have used on
+   * that date at all. The darker part of the fill is the share that worked
+   * with nothing missing, because "works" and "works properly" are not the
+   * same promise.
+   */
+  const working = states.filter((state) => state.status !== 'dead')
+  const whole = states.filter((state) => state.status === 'complete' || state.status === 'gold')
+  const ready = Math.round((working.length / states.length) * 100)
 
-    const timer = setInterval(() => {
-      setIndex((current) => {
-        if (current >= moments.length - 1) {
-          setPlaying(false)
-          return current
-        }
-        return current + 1
-      })
-    }, AUTOPLAY_MS)
-
-    return () => clearInterval(timer)
-  }, [playing])
-
-  const tally = {
-    dead: states.filter((state) => state.status === 'dead').length,
-    degraded: states.filter((state) => state.status === 'degraded').length,
-    done: states.filter((state) => state.status === 'complete' || state.status === 'gold').length,
-  }
-
-  const move = (delta: number) => {
-    setPlaying(false)
+  const move = (delta: number) =>
     setIndex((current) => Math.min(moments.length - 1, Math.max(0, current + delta)))
-  }
 
   return (
     <div className="tl" data-era={moment.era.id} data-ahead={moment.ahead || undefined}>
       <div className="tl-head">
-        <div className="tl-when">
-          <time dateTime={moment.date}>{formatDate(moment.date)}</time>
-          <span className="tl-era">
-            {moment.era.name} <i>{moment.era.years}</i>
-          </span>
-        </div>
+        <time className="tl-when" dateTime={moment.date}>
+          {formatDate(moment.date)}
+        </time>
 
         <p className="tl-headline" aria-live="polite">
           {moment.headline}
           {moment.ahead ? <em> — projected, not yet</em> : null}
         </p>
-        <p className="tl-tagline">{moment.era.tagline}</p>
+
+        {/*
+          What the features in that headline actually do. The table below the
+          widget says what breaks without them; this says what they are for,
+          and every link is MDN's own URL out of the compat data rather than a
+          slug someone typed.
+        */}
+        <ul className="tl-features">
+          {featuresOf(moment).map((row) => (
+            <li key={row.id}>
+              {row.mdn ? (
+                <a className="tl-feature-name" href={row.mdn} target="_blank" rel="noreferrer">
+                  {plain(row.name)}
+                </a>
+              ) : (
+                <span className="tl-feature-name">{plain(row.name)}</span>
+              )}
+              <span className="tl-does">{row.does}</span>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="tl-controls">
@@ -369,14 +332,7 @@ export default function CompatTimeline() {
           <span className="tl-visually-hidden">Previous moment</span>
         </button>
 
-        <Scrubber
-          index={index}
-          moment={moment}
-          onChange={(next) => {
-            setPlaying(false)
-            setIndex(next)
-          }}
-        />
+        <Scrubber index={index} moment={moment} onChange={setIndex} />
 
         <button
           type="button"
@@ -387,36 +343,30 @@ export default function CompatTimeline() {
           <span aria-hidden="true">→</span>
           <span className="tl-visually-hidden">Next moment</span>
         </button>
-
-        <button
-          type="button"
-          className="tl-play"
-          onClick={() => setPlaying((current) => !current)}
-          aria-pressed={playing}
-        >
-          {playing ? 'Pause' : 'Play'}
-        </button>
       </div>
 
-      <p className="tl-tally">
-        <span data-status="dead">{tally.dead} cannot work</span>
-        <span data-status="degraded">{tally.degraded} with gaps</span>
-        <span data-status="complete">{tally.done} everywhere</span>
-        <span className="tl-events">
-          {moment.events.length} change{moment.events.length === 1 ? '' : 's'} on this date
-        </span>
-      </p>
+      <div
+        className="tl-ready"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={ready}
+        aria-valuetext={`${working.length} of ${states.length} components usable, ${whole.length} of them with nothing missing`}
+        aria-label="How much of the library works on this date"
+      >
+        <span
+          className="tl-ready-fill"
+          style={{ '--at': `${(working.length / states.length) * 100}%` } as CSSProperties}
+        />
+        <span
+          className="tl-ready-whole"
+          style={{ '--at': `${(whole.length / states.length) * 100}%` } as CSSProperties}
+        />
+      </div>
 
       <div className="tl-grid">
         {states.map((state) => (
-          <Tile
-            key={state.component.id}
-            state={state}
-            expanded={peeked === state.component.id}
-            onPeek={() =>
-              setPeeked((current) => (current === state.component.id ? null : state.component.id))
-            }
-          />
+          <Tile key={state.component.id} state={state} />
         ))}
       </div>
 

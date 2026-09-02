@@ -32,6 +32,7 @@
       "group": "dialog",
       "name": "<code>&lt;dialog&gt;.showModal()</code>",
       "uses": "Dialog, AlertDialog",
+      "does": "Opens a dialog as a modal: it moves to the top layer, the page behind it goes inert, and focus is trapped inside without a focus loop in JavaScript.",
       "critical": true,
       "bcd": "api.HTMLDialogElement.showModal",
       "chrome": "37",
@@ -59,13 +60,15 @@
         "newly": "2022-03-14",
         "widely": "2024-09-14",
         "projectedWidely": null
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/API/HTMLDialogElement/showModal"
     },
     {
       "id": "invokers",
       "group": "dialog",
       "name": "Invoker commands (<code>commandfor</code>)",
       "uses": "every trigger in the library",
+      "does": "Lets a button say which element it controls and what to do to it, so the browser opens the dialog or popover with no click handler in between.",
       "critical": true,
       "bcd": "html.elements.button.commandfor",
       "chrome": "135",
@@ -93,13 +96,15 @@
         "newly": "2025-12-12",
         "widely": null,
         "projectedWidely": "2028-06-12"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/button"
     },
     {
       "id": "backdrop",
       "group": "dialog",
       "name": "<code>::backdrop</code>",
       "uses": "Dialog, AlertDialog",
+      "does": "Styles the sheet the browser paints behind a modal, which is a real box you can colour and animate rather than a div you position.",
       "critical": false,
       "bcd": "css.selectors.backdrop",
       "chrome": "37",
@@ -133,13 +138,15 @@
         "newly": "2022-03-14",
         "widely": "2024-09-14",
         "projectedWidely": null
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Selectors/::backdrop"
     },
     {
       "id": "closedby",
       "group": "dialog",
       "name": "<code>&lt;dialog closedby&gt;</code>",
       "uses": "Dialog (opt-in light dismiss)",
+      "does": "Says which dismissals a dialog accepts \u2014 Escape only, or clicking outside it as well.",
       "critical": false,
       "bcd": "html.elements.dialog.closedby",
       "chrome": "134",
@@ -168,13 +175,15 @@
         "newly": null,
         "widely": null,
         "projectedWidely": null
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/dialog"
     },
     {
       "id": "popover",
       "group": "overlay",
       "name": "Popover API",
       "uses": "Popover, Tooltip, HoverCard, menus, Toast",
+      "does": "Promotes an element to the top layer on demand, with light dismiss and Escape handled by the browser, so an overlay is never clipped by an ancestor.",
       "critical": true,
       "bcd": "api.HTMLElement.showPopover",
       "chrome": "114",
@@ -202,13 +211,15 @@
         "newly": "2025-01-27",
         "widely": null,
         "projectedWidely": "2026-10-16"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/API/HTMLElement/showPopover"
     },
     {
       "id": "popover-hint",
       "group": "overlay",
       "name": "<code>popover=hint</code>",
       "uses": "Tooltip",
+      "does": "A second, lighter popover stack for things like tooltips, so opening one does not close the menu underneath it.",
       "critical": false,
       "bcd": "html.global_attributes.popover.hint",
       "chrome": "151",
@@ -248,13 +259,15 @@
         "newly": null,
         "widely": null,
         "projectedWidely": null
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Global_attributes/popover"
     },
     {
       "id": "anchor-name",
       "group": "overlay",
       "name": "Anchor positioning (<code>anchor-name</code>)",
       "uses": "Popover, Tooltip, HoverCard, menus",
+      "does": "Ties one element to another as its anchor, so the overlay follows its trigger on scroll with no measuring and no listener.",
       "critical": false,
       "bcd": "css.properties.anchor-name",
       "chrome": "125",
@@ -282,13 +295,15 @@
         "newly": null,
         "widely": null,
         "projectedWidely": "2028-07-13"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/anchor-name"
     },
     {
       "id": "position-area",
       "group": "overlay",
       "name": "<code>position-area</code>",
       "uses": "the <code>side</code> and <code>align</code> props",
+      "does": "Places an anchored element in plain terms \u2014 above, below, start, end \u2014 instead of in computed offsets.",
       "critical": false,
       "bcd": "css.properties.position-area",
       "chrome": "129",
@@ -322,13 +337,15 @@
         "newly": null,
         "widely": null,
         "projectedWidely": "2028-07-13"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/position-area"
     },
     {
       "id": "position-try",
       "group": "overlay",
       "name": "Position fallbacks (<code>position-try</code>)",
       "uses": "Popover, Tooltip, menus",
+      "does": "Gives the browser fallback placements to try when the first one would run off the screen, which is what flips a menu near an edge.",
       "critical": false,
       "bcd": "css.properties.position-try-fallbacks",
       "chrome": "128",
@@ -362,13 +379,15 @@
         "newly": null,
         "widely": null,
         "projectedWidely": "2028-07-13"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/position-try-fallbacks"
     },
     {
       "id": "interestfor",
       "group": "overlay",
       "name": "<code>interestfor</code>",
       "uses": "Tooltip, HoverCard",
+      "does": "Expresses hover-and-focus intent declaratively, with the delays in CSS, so a tooltip needs no timers in JavaScript.",
       "critical": false,
       "bcd": "html.elements.button.interestfor",
       "chrome": "142",
@@ -396,13 +415,15 @@
         "newly": null,
         "widely": null,
         "projectedWidely": null
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/button"
     },
     {
       "id": "base-select",
       "group": "overlay",
       "name": "<code>appearance: base-select</code>",
       "uses": "Select",
+      "does": "Opts a select out of the operating system dropdown and into one you can style, keeping the element and everything it knows how to do.",
       "critical": false,
       "bcd": "css.properties.appearance.base-select",
       "chrome": "135",
@@ -437,13 +458,15 @@
         "newly": null,
         "widely": null,
         "projectedWidely": null
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/appearance"
     },
     {
       "id": "starting-style",
       "group": "motion",
       "name": "<code>@starting-style</code>",
       "uses": "every open/close transition",
+      "does": "Says what a style was before the element existed, which is what gives something an entry animation on first paint.",
       "critical": false,
       "bcd": "css.at-rules.starting-style",
       "chrome": "117",
@@ -471,13 +494,15 @@
         "newly": "2024-08-06",
         "widely": null,
         "projectedWidely": "2027-02-06"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/At-rules/@starting-style"
     },
     {
       "id": "allow-discrete",
       "group": "motion",
       "name": "<code>transition-behavior: allow-discrete</code>",
       "uses": "every open/close transition",
+      "does": "Lets properties that normally snap \u2014 display among them \u2014 take part in a transition, so an element can animate on its way out.",
       "critical": false,
       "bcd": "css.properties.transition-behavior",
       "chrome": "117",
@@ -505,13 +530,15 @@
         "newly": "2024-08-06",
         "widely": null,
         "projectedWidely": "2027-02-06"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/transition-behavior"
     },
     {
       "id": "overlay-prop",
       "group": "motion",
       "name": "<code>transition: overlay</code>",
       "uses": "Dialog, Popover exit transitions",
+      "does": "Keeps a closing element in the top layer until its exit transition finishes, instead of dropping it behind the page halfway through.",
       "critical": false,
       "bcd": "css.properties.overlay",
       "chrome": "117",
@@ -539,13 +566,15 @@
         "newly": null,
         "widely": null,
         "projectedWidely": null
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/overlay"
     },
     {
       "id": "interpolate-size",
       "group": "motion",
       "name": "<code>interpolate-size</code>",
       "uses": "Collapsible, Accordion",
+      "does": "Allows a transition to a keyword size, which is what makes animating something open to its natural height possible.",
       "critical": false,
       "bcd": "css.properties.interpolate-size",
       "chrome": "129",
@@ -573,13 +602,15 @@
         "newly": null,
         "widely": null,
         "projectedWidely": null
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/interpolate-size"
     },
     {
       "id": "calc-size",
       "group": "motion",
       "name": "<code>calc-size()</code>",
       "uses": "Collapsible, Accordion",
+      "does": "Does arithmetic on those keyword sizes, for the cases where the target is the intrinsic height plus something.",
       "critical": false,
       "bcd": "css.types.calc-size",
       "chrome": "129",
@@ -607,13 +638,15 @@
         "newly": null,
         "widely": null,
         "projectedWidely": null
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Values/calc-size"
     },
     {
       "id": "open-selector",
       "group": "state",
       "name": "<code>:open</code> selector",
       "uses": "styling dialog, details and select",
+      "does": "Matches a dialog, details or select while it is open, so open-state styling is a selector rather than an attribute you maintain.",
       "critical": false,
       "bcd": "css.selectors.open",
       "chrome": "133",
@@ -647,13 +680,15 @@
         "newly": "2026-05-11",
         "widely": null,
         "projectedWidely": "2028-11-11"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Selectors/:open"
     },
     {
       "id": "popover-open",
       "group": "state",
       "name": "<code>:popover-open</code> selector",
       "uses": "styling every popover-backed part",
+      "does": "Matches a popover while it is open. A separate selector from :open, which does not match popovers at all.",
       "critical": false,
       "bcd": "css.selectors.popover-open",
       "chrome": "114",
@@ -681,13 +716,15 @@
         "newly": "2025-01-27",
         "widely": null,
         "projectedWidely": "2026-10-16"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Selectors/:popover-open"
     },
     {
       "id": "details-name",
       "group": "state",
       "name": "<code>&lt;details name&gt;</code>",
       "uses": "Accordion",
+      "does": "Groups disclosures by name so the browser closes the others when one opens \u2014 an accordion with no state anywhere.",
       "critical": false,
       "bcd": "html.elements.details.name",
       "chrome": "120",
@@ -715,13 +752,15 @@
         "newly": "2024-09-03",
         "widely": null,
         "projectedWidely": "2027-03-03"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/details"
     },
     {
       "id": "details-content",
       "group": "state",
       "name": "<code>::details-content</code>",
       "uses": "Collapsible, Accordion",
+      "does": "Exposes the part of a details element that expands, so it can be styled and animated as one box.",
       "critical": false,
       "bcd": "css.selectors.details-content",
       "chrome": "131",
@@ -749,13 +788,15 @@
         "newly": "2025-09-16",
         "widely": null,
         "projectedWidely": "2028-03-16"
-      }
+      },
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Selectors/::details-content"
     },
     {
       "id": "details-el",
       "group": "foundations",
       "name": "<code>&lt;details&gt;</code> and <code>&lt;summary&gt;</code>",
       "uses": "Collapsible, Accordion",
+      "does": "The disclosure widget itself: a summary that toggles its own content, keyboard behaviour and announcement included.",
       "critical": true,
       "bcd": "html.elements.details",
       "degrade": "Nothing to degrade to: this is the disclosure widget itself, keyboard behaviour and all, and it has been in every engine since 2016.",
@@ -783,13 +824,15 @@
       },
       "chrome": "12",
       "firefox": "49",
-      "safari": "6"
+      "safari": "6",
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/details"
     },
     {
       "id": "select-el",
       "group": "foundations",
       "name": "<code>&lt;select&gt;</code>",
       "uses": "Select",
+      "does": "The listbox every platform already knows how to render, including the one your phone shows as a wheel.",
       "critical": true,
       "bcd": "html.elements.select",
       "degrade": "Older than CSS. Select is the one overlay in the library that has never had a moment when it did not work.",
@@ -817,13 +860,15 @@
       },
       "chrome": "1",
       "firefox": "1",
-      "safari": "1"
+      "safari": "1",
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/select"
     },
     {
       "id": "range-input",
       "group": "foundations",
       "name": "<code>&lt;input type=\"range\"&gt;</code>",
       "uses": "Slider",
+      "does": "A slider the operating system draws and drives, with arrow keys, Home, End and drag already in it.",
       "critical": true,
       "bcd": "html.elements.input.type_range",
       "degrade": "The input falls back to a text field. Ancient everywhere that matters; listed because Slider rests on it entirely.",
@@ -851,13 +896,15 @@
       },
       "chrome": "4",
       "firefox": "23",
-      "safari": "3.1"
+      "safari": "3.1",
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/input/range"
     },
     {
       "id": "checkbox-input",
       "group": "foundations",
       "name": "<code>&lt;input type=\"checkbox\"&gt;</code>",
       "uses": "Checkbox, Switch",
+      "does": "A checkbox, with its own label association, form participation and announcement.",
       "critical": true,
       "bcd": "html.elements.input.type_checkbox",
       "degrade": "Nothing to degrade to. Switch is this element with <code>role=\"switch\"</code>, which is what the ARIA pattern asks for.",
@@ -885,13 +932,15 @@
       },
       "chrome": "1",
       "firefox": "1",
-      "safari": "1"
+      "safari": "1",
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/input/checkbox"
     },
     {
       "id": "radio-input",
       "group": "foundations",
       "name": "<code>&lt;input type=\"radio\"&gt;</code>",
       "uses": "RadioGroup",
+      "does": "Radio buttons that group themselves by name, and roam between each other on the arrow keys.",
       "critical": true,
       "bcd": "html.elements.input.type_radio",
       "degrade": "Nothing to degrade to. Grouping, arrow-key roving and single selection are the browser\u2019s, from the shared <code>name</code>.",
@@ -919,13 +968,15 @@
       },
       "chrome": "1",
       "firefox": "1",
-      "safari": "1"
+      "safari": "1",
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/input/radio"
     },
     {
       "id": "progress-el",
       "group": "foundations",
       "name": "<code>&lt;progress&gt;</code>",
       "uses": "Progress",
+      "does": "A progress bar that is announced as one, whether or not it is styled.",
       "critical": true,
       "bcd": "html.elements.progress",
       "degrade": "The element renders as an inline box with no bar. Announced as a progress bar regardless, because the role is the element.",
@@ -953,13 +1004,15 @@
       },
       "chrome": "6",
       "firefox": "6",
-      "safari": "6"
+      "safari": "6",
+      "mdn": "https://developer.mozilla.org/docs/Web/HTML/Reference/Elements/progress"
     },
     {
       "id": "aspect-ratio",
       "group": "foundations",
       "name": "<code>aspect-ratio</code>",
       "uses": "AspectRatio",
+      "does": "Holds a box to a ratio in one declaration, replacing the padding-bottom wrapper that stood in for it for a decade.",
       "critical": true,
       "bcd": "css.properties.aspect-ratio",
       "degrade": "The box takes its content height. Radix ships a padding-bottom wrapper for exactly this case; bedrock does not, because the property has been everywhere since 2021.",
@@ -987,13 +1040,15 @@
       },
       "chrome": "88",
       "firefox": "89",
-      "safari": "15"
+      "safari": "15",
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/aspect-ratio"
     },
     {
       "id": "reduced-motion",
       "group": "foundations",
       "name": "<code>prefers-reduced-motion</code>",
       "uses": "every transition in the optional stylesheet",
+      "does": "Reports that the reader asked their system for less movement, which is the signal every transition here checks.",
       "critical": false,
       "bcd": "css.at-rules.media.prefers-reduced-motion",
       "degrade": "Animations play for readers who asked the OS for stillness. The only row here whose absence is an accessibility problem rather than a cosmetic one.",
@@ -1021,7 +1076,8 @@
       },
       "chrome": "74",
       "firefox": "63",
-      "safari": "10.1"
+      "safari": "10.1",
+      "mdn": "https://developer.mozilla.org/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion"
     }
   ],
   "components": [
@@ -1083,7 +1139,6 @@
     {
       "id": "dropdown-menu",
       "name": "DropdownMenu",
-      "short": "Menu",
       "span": 2,
       "blurb": "Roving focus and typeahead over a popover.",
       "requires": ["popover", "invokers"],
@@ -1100,7 +1155,6 @@
     {
       "id": "forms",
       "name": "Checkbox, Switch, Radio",
-      "short": "Form controls",
       "span": 2,
       "blurb": "Native inputs with a label and nothing else.",
       "requires": ["checkbox-input", "radio-input"],
@@ -1133,7 +1187,6 @@
     {
       "id": "alert-dialog",
       "name": "AlertDialog",
-      "short": "Alert",
       "span": 1,
       "blurb": "A dialog you cannot dismiss by accident.",
       "requires": ["show-modal", "invokers"],
@@ -1142,7 +1195,6 @@
     {
       "id": "hover-card",
       "name": "HoverCard",
-      "short": "Hover",
       "span": 1,
       "blurb": "A preview on intent, anchored to a link.",
       "requires": ["popover"],
@@ -1158,7 +1210,6 @@
     {
       "id": "context-menu",
       "name": "ContextMenu",
-      "short": "Context",
       "span": 1,
       "blurb": "Anchored to a point rather than to an element.",
       "requires": ["popover"],
@@ -1167,7 +1218,6 @@
     {
       "id": "collapsible",
       "name": "Collapsible",
-      "short": "Collapse",
       "span": 2,
       "blurb": "Disclosure, animated to a height nobody measured.",
       "requires": ["details-el"],
@@ -1176,7 +1226,6 @@
     {
       "id": "display",
       "name": "Progress and AspectRatio",
-      "short": "Display",
       "span": 2,
       "blurb": "Markup with semantics, and one CSS property.",
       "requires": ["progress-el", "aspect-ratio"],
@@ -1189,51 +1238,37 @@
       {
         "id": "flat",
         "name": "Flat",
-        "years": "2013\u20132015",
-        "from": "2013-06-01",
-        "tagline": "iOS 7 killed the gradient. Everything went sharp, saturated and borderless."
+        "from": "2013-06-01"
       },
       {
         "id": "material",
         "name": "Material",
-        "years": "2016\u20132017",
-        "from": "2016-01-01",
-        "tagline": "Paper, ink and elevation. Every button shouted in uppercase and cast a shadow."
+        "from": "2016-01-01"
       },
       {
         "id": "gradient",
         "name": "Gradient",
-        "years": "2017\u20132019",
-        "from": "2017-07-01",
-        "tagline": "Purple into pink, on everything. Rounded pills, blurred blobs, Instagram had just rebranded."
+        "from": "2017-07-01"
       },
       {
         "id": "neumorphic",
         "name": "Neumorphism",
-        "years": "2019\u20132020",
-        "from": "2019-04-01",
-        "tagline": "Soft plastic extruded from the background. Beautiful on Dribbble, unreadable in daylight."
+        "from": "2019-04-01"
       },
       {
         "id": "glass",
         "name": "Glassmorphism",
-        "years": "2020\u20132022",
-        "from": "2020-07-01",
-        "tagline": "Frosted panels floating over colour, straight out of Big Sur. backdrop-filter had just landed."
+        "from": "2020-07-01"
       },
       {
         "id": "brutal",
         "name": "Neo-brutalism",
-        "years": "2023\u20132024",
-        "from": "2023-01-01",
-        "tagline": "Black borders, hard offset shadows, one aggressive yellow. A reaction to a decade of soft."
+        "from": "2023-01-01"
       },
       {
         "id": "bento",
         "name": "Bento",
-        "years": "2024\u2013now",
-        "from": "2024-07-01",
-        "tagline": "Rounded boxes on a dark grid, muted until something needs saying. The look of this page."
+        "from": "2024-07-01"
       }
     ]
   },

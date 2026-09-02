@@ -341,7 +341,7 @@ test.describe('the compat timeline', () => {
     // Past the end are projected dates, which must not be where it opens.
     await expect(page.locator('.tl')).not.toHaveAttribute('data-ahead', 'true')
 
-    const when = await page.locator('.tl-when time').getAttribute('datetime')
+    const when = await page.locator('time.tl-when').getAttribute('datetime')
     expect(when && when <= new Date().toISOString().slice(0, 10)).toBe(true)
   })
 
@@ -381,30 +381,49 @@ test.describe('the compat timeline', () => {
   test('the axis is drawn in time, not in stops', async ({ page }) => {
     await page.goto(`${SITE}/compat.html`)
 
-    // Fifty-four moments spread evenly would give the quiet years the same room
-    // as the busy ones. The flat era is 2013-06 to 2016-01 of an axis that runs
-    // to 2028-11 — about a sixth of it, whatever share of the stops it holds.
-    const ribbon = (await page.locator('.tl-ribbon').boundingBox())?.width ?? 0
-    const flat = (await page.locator('.tl-band[data-era="flat"]').boundingBox())?.width ?? 0
+    const axis = (await page.locator('.tl-ticks').boundingBox()) ?? { x: 0, width: 1 }
+    const ticks = await page
+      .locator('.tl-tick')
+      .evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().x))
 
-    expect(ribbon).toBeGreaterThan(0)
-    expect(flat / ribbon).toBeGreaterThan(0.13)
-    expect(flat / ribbon).toBeLessThan(0.21)
+    // Spread evenly, 40% of the stops would sit in the last 40% of the track.
+    // Placed by date, most of them do: almost everything here happened after
+    // 2023, and that pile-up is the point of drawing it this way.
+    const late = ticks.filter((x) => (x - axis.x) / axis.width > 0.6)
+
+    expect(ticks.length).toBeGreaterThan(40)
+    expect(late.length / ticks.length).toBeGreaterThan(0.5)
   })
 
-  test('a narrow screen gets a map, and a cell opens where it sits', async ({ page }) => {
+  test('the header says what the features in the event do, and links MDN', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+    await scrubTo(page, 2)
+
+    // 26 Aug 2014: Chrome 37 shipped showModal() and ::backdrop on one day.
+    const features = page.locator('.tl-features li')
+    await expect(features).toHaveCount(2)
+    await expect(features.first()).toContainText('top layer')
+
+    // The link is MDN's own URL for the feature, out of the compat data.
+    const href = await features.first().locator('a').getAttribute('href')
+    expect(href).toBe('https://developer.mozilla.org/docs/Web/API/HTMLDialogElement/showModal')
+  })
+
+  test('a narrow screen gets the whole grid, scaled down', async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 900 })
     await page.goto(`${SITE}/compat.html`)
     await expect(page.locator('.tl-grid')).toBeVisible()
 
-    // Fifteen full cards stacked is four screens of scrolling; the zoomed-out
-    // layout keeps the whole pattern on one.
-    const dialog = page.locator('.tl-tile', { hasText: 'Dialog' }).first()
-    await expect(dialog.locator('.tl-stage')).toBeHidden()
+    const layout = await page.locator('.tl-grid').evaluate((node) => {
+      const style = getComputedStyle(node)
+      return { zoom: style.zoom, columns: style.gridTemplateColumns.split(' ').length }
+    })
 
-    await dialog.locator('.tl-peek').click()
-    await expect(dialog.locator('.tl-stage')).toBeVisible()
-    await expect(dialog.getByRole('button', { name: 'Rename project' })).toBeVisible()
+    // Zoomed, not rebuilt: four columns of real components at whatever size
+    // fits, rather than a simplified layout that throws the styling away.
+    expect(Number(layout.zoom)).toBeLessThan(1)
+    expect(layout.columns).toBe(4)
+    await expect(page.locator('.tl-tile').first().locator('.tl-stage')).toBeVisible()
   })
 
   test('a component built on markup that already shipped never switches off', async ({ page }) => {

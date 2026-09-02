@@ -52,8 +52,8 @@
 }
 
 /* Controls. Deliberately generic: every part below is one element. */
-.demo button,
-.demo .btn {
+.demo button:not(.registry-demo *),
+.demo .btn:not(.registry-demo *) {
   font: inherit;
   font-size: 0.9rem;
   padding: 0.4rem 0.8rem;
@@ -64,16 +64,16 @@
   cursor: pointer;
 }
 
-.demo button:hover {
+.demo button:not(.registry-demo *):hover {
   border-color: var(--muted, #5c5f6b);
 }
 
-.demo :focus-visible {
+.demo :focus-visible:not(.registry-demo *) {
   outline: 2px solid var(--accent, #0a58c2);
   outline-offset: 2px;
 }
 
-.demo [data-bedrock-dialog] {
+.demo [data-bedrock-dialog]:not(.registry-demo *) {
   border: 1px solid var(--rule, #e3e4e8);
   border-radius: 12px;
   background: var(--paper, #fff);
@@ -86,7 +86,7 @@
   background: rgb(0 0 0 / 0.42);
 }
 
-.demo [popover] {
+.demo [popover]:not(.registry-demo *) {
   border: 1px solid var(--rule, #e3e4e8);
   border-radius: 10px;
   background: var(--paper, #fff);
@@ -132,8 +132,8 @@
   color: var(--muted, #5c5f6b);
 }
 
-.demo [data-bedrock-tabs-list],
-.demo [data-bedrock-toolbar] {
+.demo [data-bedrock-tabs-list]:not(.registry-demo *),
+.demo [data-bedrock-toolbar]:not(.registry-demo *) {
   display: flex;
   gap: 0.3rem;
   border-bottom: 1px solid var(--rule, #e3e4e8);
@@ -141,7 +141,7 @@
   margin-bottom: 0.9rem;
 }
 
-.demo [data-bedrock-tabs-trigger][aria-selected='true'] {
+.demo [data-bedrock-tabs-trigger][aria-selected='true']:not(.registry-demo *) {
   border-color: var(--accent, #0a58c2);
   color: var(--accent, #0a58c2);
 }
@@ -151,7 +151,7 @@
   border-bottom: 1px solid var(--rule, #e3e4e8);
 }
 
-.demo summary {
+.demo summary:not(.registry-demo *) {
   cursor: pointer;
   padding: 0.55rem 0;
 }

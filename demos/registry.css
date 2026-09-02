@@ -4,6 +4,14 @@
  * is loaded into a documentation page that already has its own base styles; it
  * would strip the headings, lists and tables of every page carrying a demo.
  */
+/*
+ * Layer order, declared before anything uses them. Layers rank by first
+ * appearance, so without this line `base` is declared last and therefore wins
+ * over `utilities` — the reset would beat the utility classes it exists to
+ * enable, and every shadcn component would render with no padding.
+ */
+@layer theme, base, utilities;
+
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
 
@@ -50,7 +58,7 @@
  * shadcn's default.
  */
 @media (prefers-color-scheme: dark) {
-  @theme {
+  :root {
     --color-background: oklch(0.145 0 0);
     --color-foreground: oklch(0.985 0 0);
     --color-card: oklch(0.205 0 0);
@@ -75,4 +83,55 @@
 /* The registry components are the gallery's subject; keep the docs shell out. */
 .registry-demo {
   color: var(--color-foreground);
+}
+
+@layer base {
+  /*
+   * A scoped subset of Tailwind's Preflight.
+   *
+   * shadcn's components assume Preflight has run: they style buttons entirely
+   * with utilities and rely on the reset to remove the UA's border, background
+   * and font. This stylesheet omits Preflight on purpose — it is loaded into
+   * documentation pages that have their own base styles — so without these rules
+   * the gallery renders shadcn components wearing browser-default button chrome,
+   * which is the opposite of the point it is making.
+   *
+   * Scoped to .registry-demo so it resets the gallery and nothing around it, and
+   * more specific than the generic control styles in demos.css so those lose.
+   */
+  .registry-demo *,
+  .registry-demo *::before,
+  .registry-demo *::after {
+    border: 0 solid var(--color-border);
+  }
+
+  .registry-demo button,
+  .registry-demo input,
+  .registry-demo select,
+  .registry-demo textarea {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    background-image: none;
+    border-radius: 0;
+  }
+
+  .registry-demo button {
+    cursor: pointer;
+    text-align: inherit;
+  }
+
+  .registry-demo :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  .registry-demo [popover],
+  .registry-demo dialog {
+    background: var(--color-popover);
+    color: var(--color-popover-foreground);
+  }
 }

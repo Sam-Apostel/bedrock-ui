@@ -28,7 +28,7 @@ export default function DisplayDemo() {
         <span>Right</span>
       </div>
 
-      <AspectRatio.Root ratio={16 / 9} style={{ background: 'var(--card)', maxWidth: '18rem' }}>
+      <AspectRatio.Root ratio={16 / 9} style={{ background: 'var(--sunk)', maxWidth: '18rem' }}>
         <div style={{ padding: '.5rem' }}>16 / 9</div>
       </AspectRatio.Root>
 

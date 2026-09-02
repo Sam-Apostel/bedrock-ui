@@ -169,7 +169,7 @@ h1 {
   max-width: var(--measure);
 }
 
-h2 {
+main > h2 {
   font-size: 1.3rem;
   letter-spacing: -0.02em;
   margin: var(--u8) 0 var(--u2);
@@ -179,7 +179,7 @@ h2 {
 }
 
 /* Figures and punctuation as ornament, in fixed proportion to the words. */
-h2::before {
+main > h2::before {
   counter-increment: section;
   content: counter(section, decimal-leading-zero) ' — ';
   font: 500 0.8rem var(--mono);

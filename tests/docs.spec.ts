@@ -233,3 +233,43 @@ test.describe('shadcn registry gallery', () => {
     expect(size).toBeGreaterThan(24)
   })
 })
+
+/**
+ * The gallery's whole argument is that the swap is invisible, so "it rendered"
+ * is not enough — it has to render *as shadcn*. These assert the computed
+ * result, because every way this broke while it was being built was a cascade
+ * problem that looked fine in the source: an unlayered reset beating the
+ * utilities it exists to enable, a layer order that put `base` above
+ * `utilities`, and a dark `@theme` that Tailwind hoists out of its media query
+ * and applies unconditionally.
+ */
+test.describe('registry gallery matches shadcn', () => {
+  test('the tab list and trigger compute to shadcn values', async ({ page }) => {
+    await page.goto(`${SITE}/shadcn-registry.html`)
+
+    const list = await page.locator('[data-slot="tabs-list"]').evaluate((node) => {
+      const style = getComputedStyle(node)
+      return { radius: style.borderRadius, padding: style.padding }
+    })
+    expect(list).toEqual({ radius: '8px', padding: '3px' })
+
+    // px-2 py-1 rounded-md text-sm. Zero padding here means the reset won.
+    const trigger = await page.getByRole('tab', { name: 'Account' }).evaluate((node) => {
+      const style = getComputedStyle(node)
+      return { padding: style.padding, radius: style.borderRadius, size: style.fontSize }
+    })
+    expect(trigger).toEqual({ padding: '4px 8px', radius: '6px', size: '14px' })
+  })
+
+  test('light mode uses the light theme tokens', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' })
+    await page.goto(`${SITE}/shadcn-registry.html`)
+
+    // oklch(0.97) is the light muted; the dark one is oklch(0.269).
+    const background = await page
+      .locator('[data-slot="tabs-list"]')
+      .evaluate((node) => getComputedStyle(node).backgroundColor)
+
+    expect(background).toContain('0.97')
+  })
+})

@@ -1,5 +1,5 @@
 {
-  "$comment": "Longest run of same-texture blocks per page. A ratchet: lower it when a page improves; the build fails when one gets worse. Written by scripts/texture.mjs, checked by scripts/build-docs.mjs.",
+  "$comment": "Longest run of same-texture blocks per page. A ratchet: lower it when a page improves; the build fails when one gets worse. Regenerate with `npm run docs:baseline`, which builds first.",
   "target": 3,
   "pages": {
     "accordion.html": 5,

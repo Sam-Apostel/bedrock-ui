@@ -31,40 +31,72 @@ function classify(block) {
   return 'prose'
 }
 
-/** The top-level blocks of a rendered page, in order, headings excluded. */
-export function textures(html) {
+function blocksOf(html) {
   const start = html.indexOf('<main>')
   const end = html.lastIndexOf('</main>')
   if (start === -1 || end === -1) return []
 
   const main = html.slice(start + '<main>'.length, end)
-  const blocks = main.match(/<(p|pre|h[1-6]|ul|ol|div|blockquote|table)[\s>][\s\S]*?<\/\1>/g) ?? []
-
-  // Headings are punctuation between sections rather than a texture of their
-  // own; counting them would mask a wall of prose broken only by subheadings.
-  return blocks.map(classify).filter((name) => name !== 'heading')
+  return main.match(/<(p|pre|h[1-6]|ul|ol|div|blockquote|table)[\s>][\s\S]*?<\/\1>/g) ?? []
 }
 
-export function longestRun(list) {
-  let longest = 0
+/**
+ * The top-level blocks of a rendered page, in order, headings excluded.
+ *
+ * Headings are punctuation between sections rather than a texture of their own;
+ * counting them would mask a wall of prose broken only by subheadings.
+ */
+export function textures(html) {
+  return blocksOf(html)
+    .map(classify)
+    .filter((name) => name !== 'heading')
+}
+
+/**
+ * The longest run, and the headings it sits between.
+ *
+ * Reported by the failing build, because "break the run" without saying where
+ * sends you hunting. It reads the same blocks the check does — a second,
+ * slightly different implementation is how you end up trusting a number that
+ * disagrees with CI.
+ */
+export function longestRun(html) {
   let run = 0
   let previous = null
+  let heading = '(top of page)'
+  let from = heading
+  let worst = { length: 0, kind: null, from: heading, to: heading }
 
-  for (const item of list) {
-    run = item === previous ? run + 1 : 1
-    previous = item
-    if (run > longest) longest = run
+  for (const block of blocksOf(html)) {
+    const kind = classify(block)
+
+    // A heading is not a texture, and it does not interrupt one either: a wall
+    // of prose broken only by subheadings is still a wall.
+    if (kind === 'heading') {
+      heading = block.replace(/<[^>]+>/g, '').trim()
+      continue
+    }
+
+    if (kind === previous) {
+      run += 1
+    } else {
+      run = 1
+      from = heading
+      previous = kind
+    }
+
+    if (run > worst.length) worst = { length: run, kind, from, to: heading }
   }
 
-  return longest
+  return worst
 }
 
 export function measure(directory) {
   const report = {}
 
   for (const file of readdirSync(directory).filter((name) => name.endsWith('.html'))) {
-    const list = textures(readFileSync(join(directory, file), 'utf8'))
-    if (list.length > 0) report[file] = longestRun(list)
+    const html = readFileSync(join(directory, file), 'utf8')
+    if (textures(html).length > 0) report[file] = longestRun(html)
   }
 
   return report
@@ -79,17 +111,19 @@ export function checkAgainstBaseline(report) {
   for (const [file, run] of Object.entries(report)) {
     const allowed = baseline.pages[file]
 
+    const where = `${run.length} × ${run.kind}, between "${run.from}" and "${run.to}"`
+
     if (allowed === undefined) {
       // A new page starts at the target rather than at whatever it happens to
       // be, so the debt cannot grow by adding pages.
-      if (run > baseline.target) {
-        worse.push(`${file}: ${run} consecutive blocks (new pages must be <= ${baseline.target})`)
+      if (run.length > baseline.target) {
+        worse.push(`${file}: ${where} (new pages must be <= ${baseline.target})`)
       }
       continue
     }
 
-    if (run > allowed) worse.push(`${file}: ${run}, was ${allowed}`)
-    else if (run < allowed) better.push(`${file}: ${run}, was ${allowed}`)
+    if (run.length > allowed) worse.push(`${file}: ${where} — was ${allowed}`)
+    else if (run.length < allowed) better.push(`${file}: ${run.length}, was ${allowed}`)
   }
 
   if (worse.length > 0) {

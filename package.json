@@ -57,7 +57,8 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "changeset publish",
-    "demos:build": "vite build --config vite.demos.config.ts"
+    "demos:build": "vite build --config vite.demos.config.ts",
+    "docs:baseline": "node scripts/build-baseline.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

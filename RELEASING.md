@@ -185,9 +185,10 @@ Write markdown in `docs/`. It is picked up automatically and gets a page at
 `scripts/build-docs.mjs`.
 
 The browser-support matrix is generated from `docs/compat.json`, which carries
-the minimum versions from MDN's compat data. `docs/compat.md` embeds it with a
-`<!-- support-matrix -->` comment; the live column is measured in the reader's
-own browser by an inline script.
+the minimum versions from MDN's compat data. `docs/compat.md` embeds it with an
+HTML comment naming `support-matrix` — written out here would expand into the
+matrix itself, which is how it first got embedded in this page by accident. The
+live column is measured in the reader's own browser by an inline script.
 
 ---
 

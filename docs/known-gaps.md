@@ -61,6 +61,3 @@ asserted to mount and to work. What is left:
   [browser support](./compat.md), but not demonstrated.
 - **No visual regression testing.** A demo can mount, pass its interaction test,
   and still look broken. Nothing catches that.
-- **Seventeen pages read as walls.** Measured: the longest run of same-texture
-  blocks per page is recorded in `docs/texture-baseline.json` and the build
-  fails when one gets worse. Recording it is not fixing it.

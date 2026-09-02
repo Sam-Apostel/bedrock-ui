@@ -43,26 +43,28 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node scripts/postbuild.mjs",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "lint": "oxlint",
-    "lint:graph": "depcruise src --config .dependency-cruiser.cjs",
+    "changeset": "changeset",
+    "compat:build": "node scripts/build-compat.mjs",
+    "demos:build": "vite build --config vite.demos.config.ts",
+    "docs:baseline": "node scripts/build-baseline.mjs",
+    "docs:build": "node scripts/build-docs.mjs && npm run demos:build",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:graph": "depcruise src --config .dependency-cruiser.cjs",
+    "prepublishOnly": "npm run verify",
     "registry:build": "node scripts/build-registry.mjs",
+    "release": "changeset publish",
     "test": "playwright test",
     "test:install": "playwright install chromium",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm run lint:graph && npm run build && npm run test",
-    "prepublishOnly": "npm run verify",
-    "docs:build": "node scripts/build-docs.mjs && npm run demos:build",
-    "changeset": "changeset",
-    "version": "changeset version",
-    "release": "changeset publish",
-    "demos:build": "vite build --config vite.demos.config.ts",
-    "docs:baseline": "node scripts/build-baseline.mjs"
+    "version": "changeset version"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
     "@changesets/cli": "^3.0.1",
+    "@mdn/browser-compat-data": "^8.0.13",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.0.0",
@@ -77,7 +79,8 @@
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.6.0",
-    "vite": "^8.2.0"
+    "vite": "^8.2.0",
+    "web-features": "^3.36.0"
   },
   "peerDependencies": {
     "react": ">=19",

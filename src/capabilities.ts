@@ -11,9 +11,10 @@ const hasDom = typeof window !== 'undefined'
 const noopSubscribe = () => () => {}
 
 /**
- * `interestfor` — hover and focus intent without timers. Not standardised, and
- * not in Chrome stable as of 141, which is why Tooltip and HoverCard ship the
- * JavaScript path as their normal one rather than as a contingency.
+ * `interestfor` — hover and focus intent without timers. In Chrome since 142
+ * and in no other engine, and still not on a standards track, which is why
+ * Tooltip and HoverCard ship the JavaScript path as their normal one rather
+ * than as a contingency.
  */
 export function supportsInterestInvokers(): boolean {
   return hasDom && 'interestForElement' in HTMLButtonElement.prototype

@@ -64,9 +64,9 @@ thing: style it, and the summary is not focusable.
 
 Renders `<summary>`.
 
-Radix renders `<h3><button aria-expanded>`. The platform's disclosure pattern is
-a summary, which carries the expanded state itself. If you want the heading
-semantics the APG asks for, put a heading *inside* this:
+> Radix renders `<h3><button aria-expanded>`. The platform's disclosure pattern
+> is a summary, which carries the expanded state itself. For the heading
+> semantics the APG asks for, put a heading *inside* this:
 
 ```tsx
 <Accordion.Header>
@@ -81,17 +81,17 @@ That is valid HTML and keeps the summary's behaviour.
 Renders a `<span>`, and is **not** itself interactive. The summary already is,
 and nesting a button inside it would produce two tab stops for one control.
 
-It exists so Radix-shaped markup keeps its styling hook. If you are writing new
-markup, you can leave it out and style `Accordion.Header` directly.
+> It exists so Radix-shaped markup keeps its styling hook. Writing new markup,
+> you can leave it out and style `Accordion.Header` directly.
 
 ## `Accordion.Content`
 
 Renders a `<div>`. **Children mount only while the item is open**, so a form
 inside a closed panel resets itself.
 
-Server-rendered markup is the exception: content renders on the server and on
-the hydrating render that must match it, so a page whose JavaScript never
-arrives still has a complete, working accordion.
+> Server-rendered markup is the exception: content renders on the server and on
+> the hydrating render that must match it, so a page whose JavaScript never
+> arrives still has a complete, working accordion.
 
 ## Keyboard
 
@@ -102,7 +102,7 @@ arrives still has a complete, working accordion.
 
 Arrow keys do **not** move between items. `<details>` has no such behaviour, and
 adding it would mean intercepting keys the browser already assigns. See
-[gaps](./gaps.md).
+[gaps](./should-you-switch.md).
 
 ## What is not here
 

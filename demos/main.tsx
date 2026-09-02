@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 // Through the module graph rather than a <link>, so the bundle carries it.
 import '../src/bedrock.css'
 import './demos.css'
+// Theme and utilities for the shadcn registry gallery. Scoped by what it omits
+// rather than by a wrapper class: no Preflight, so it cannot reset the page.
+import './registry.css'
 
 /**
  * Mounts every demo referenced by a docs page.

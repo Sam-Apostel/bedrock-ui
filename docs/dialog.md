@@ -40,20 +40,19 @@ Renders `<button type="button" commandfor command="show-modal">`.
 | --------- | --------- | ---------------------------------------------------- |
 | `asChild` | `boolean` | The child must render a `<button>`. Enforced at mount.|
 
-Everything else is forwarded to the button.
+Everything else is forwarded to the button. `aria-expanded`, and `aria-controls`
+while open, are written by hand.
 
-The `commandfor` wiring is applied after your props, so it cannot be overridden
-— an unwired trigger is a broken trigger, not a customisation. `type="button"`
-is set for the same reason.
-
-`aria-expanded` and, while open, `aria-controls` are written by hand.
-
-That was not the original plan — the reasoning was that a hand-written attribute
-goes stale as soon as something else closes the dialog. Two things changed it:
-Chrome gives a *popover* invoker implicit `aria-expanded` and gives a *dialog*
-invoker nothing, and the root now tracks the DOM's open state anyway for content
-mounting. Both attributes come from that same state, so they cannot disagree
-with the element they describe.
+> The `commandfor` wiring is applied after your props, so it cannot be
+> overridden — an unwired trigger is a broken trigger, not a customisation.
+> `type="button"` is set for the same reason.
+>
+> Writing `aria-expanded` by hand was not the original plan; a hand-written
+> attribute goes stale as soon as something else closes the dialog. Two things
+> changed it: Chrome gives a *popover* invoker that attribute implicitly and
+> gives a *dialog* invoker nothing, and the root already tracks the DOM's open
+> state for content mounting. Both attributes come from that same state, so they
+> cannot disagree with the element they describe.
 
 ## `Dialog.Content`
 
@@ -71,10 +70,10 @@ Takes every `<dialog>` prop except the ones that would break the wiring:
 The `<dialog>` element is always rendered — the trigger's `commandfor` must
 resolve to something — but **its children are mounted only while it is open**.
 
-That is what makes the uncontrolled root genuinely uncontrolled: a half-typed
-form inside a dialog is gone when it closes, because the form is gone, not
-because anything reset it. No `onOpenChange` handler, no key bumping, no
-`useEffect`.
+> That is what makes the uncontrolled root genuinely uncontrolled: a half-typed
+> form inside a dialog is gone when it closes because the form is gone, not
+> because anything reset it. No `onOpenChange` handler, no key bumping, no
+> `useEffect`.
 
 The timing is deliberate in three places, each tested:
 
@@ -84,36 +83,34 @@ The timing is deliberate in three places, each tested:
 | a refused open (controlled) | the flag is put straight back; nothing mounts |
 | after `toggle` closed | children stay until the exit animation finishes, then unmount. Reopen inside that window and the subtree is reused rather than rebuilt |
 
-Server-rendered markup is the exception: content is rendered on the server and
-on the hydrating render that has to match it, so a page whose JavaScript never
-arrives still has a complete, working dialog. It is only after hydration that a
-closed dialog drops its children.
+> Server-rendered markup is the exception: content is rendered on the server and
+> on the hydrating render that has to match it, so a page whose JavaScript never
+> arrives still has a complete, working dialog. Only after hydration does a
+> closed dialog drop its children.
 
 There is no `forceMount`. If you need the subtree alive while closed — an
 animation library driving presence, a video you do not want to reload — hoist
 that state above the dialog.
 
-## `Dialog.Title` / `Dialog.Description`
+## `Dialog.Title` / `Dialog.Description` / `Dialog.Close`
 
-Render `<h2>` and `<p>`, with ids derived from the root's id and wired to the
-dialog. Both take `asChild`.
+| part          | renders                                          | wired to |
+| ------------- | ------------------------------------------------ | -------- |
+| `Title`       | `<h2>`                                           | `aria-labelledby`, by an id derived from the root's |
+| `Description` | `<p>`                                            | `aria-describedby`, the same way |
+| `Close`       | `<button commandfor command="request-close">`    | the dialog, under the same button rule as `Trigger` |
 
-Each registers its presence with the root, so `aria-labelledby` and
-`aria-describedby` appear only when there is something for them to point at —
-a reference to a missing element would leave the dialog with no accessible
-name at all.
+All three take `asChild`.
 
-Both are optional and both are strongly recommended. bedrock does not yet warn
-when `Title` is missing, which Radix does; see
-[gaps](./gaps.md#no-missing-title-warning).
-
-## `Dialog.Close`
-
-Renders `<button type="button" commandfor command="request-close">`, and takes
-`asChild` under the same button rule as `Trigger`.
-
-`request-close` rather than `close` so the `cancel` event fires and stays
-vetoable.
+> `Title` and `Description` each register their presence with the root, so the
+> `aria-` attributes appear only when there is something to point at — a
+> reference to a missing element leaves the dialog with no accessible name at
+> all. Both are optional and both are strongly recommended; bedrock does not yet
+> warn when `Title` is absent, which Radix does. See
+> [known gaps](./known-gaps.md#missing-behaviour).
+>
+> `Close` uses `request-close` rather than `close` so the `cancel` event fires
+> and stays vetoable.
 
 ## `useDialogTrigger()`
 
@@ -146,4 +143,4 @@ are UA behaviour for `showModal()`, and both are why Dialog needs no focus code.
 - **`modal={false}`.** A non-modal dialog is a different element and a different
   set of guarantees; it will be `Popover`, not a prop on this.
 - **Scroll locking.** `showModal()` makes the background inert but does not lock
-  scroll. See [gaps](./gaps.md#no-scroll-lock).
+  scroll. See [gaps](./known-gaps.md#missing-behaviour).

@@ -1,7 +1,7 @@
 # Migrating from Radix
 
 Every Radix primitive has a bedrock equivalent, so a complete migration is
-possible. Whether it is a good idea is [gaps](./gaps.md), and that page is worth
+possible. Whether it is a good idea is [gaps](./should-you-switch.md), and that page is worth
 reading first: what changes is your test suite and your CSS conventions, not
 your component tree.
 
@@ -41,7 +41,7 @@ These are safe to codemod.
 | `open` + `onOpenChange` on `Dialog.Root` | same props, import from `@apostel/bedrock/controlled` | Two roots, one import line. |
 | `[data-state="open"]` | `:open` | Native state, no JS mirror. |
 | `[data-state="closed"]` | `:not(:open)` | Same. |
-| `forceMount` | delete it, and check what depended on it | Closed content unmounts, as in Radix, but there is no way to opt out. See [gaps](./gaps.md#8-no-forcemount). |
+| `forceMount` | delete it, and check what depended on it | Closed content unmounts, as in Radix, but there is no way to opt out. See [gaps](./should-you-switch.md#710-the-smaller-ones). |
 | `<AlertDialog.Action>` | `<Dialog.Close>` plus your `onClick` | No separate part; a close plus a handler. |
 
 A rough sed for the state selectors, which is the bulk of a real diff:
@@ -75,9 +75,9 @@ inside a `<form>`:
 +<Dialog.Trigger asChild><button type="button">Delete</button></Dialog.Trigger>
 ```
 
-A `<button>` inside a form defaults to `type="submit"`, and the browser ignores
-`commandfor` on a submit button. Radix papered over this; bedrock cannot, so it
-tells you at mount instead.
+> A `<button>` inside a form defaults to `type="submit"`, and the browser
+> ignores `commandfor` on a submit button. Radix papered over this; bedrock
+> cannot, so it tells you at mount instead.
 
 If you genuinely cannot change the element — a third-party component that
 renders a `div` — `useDialogTrigger()` hands you the props and the
@@ -90,53 +90,23 @@ your `Close` button are the ways out. Nothing about focus or dismissal is broken
 — it is one fewer way to close.
 
 `<dialog closedby="any">` restores it and will be an opt-in prop once the naming
-question in [gaps](./gaps.md#7-no-light-dismiss-unless-you-ask-for-it) is settled. If
+question in [gaps](./should-you-switch.md#710-the-smaller-ones) is settled. If
 you need it today, put it on the element yourself:
 
 ```tsx
 <Dialog.Content {...{ closedby: 'any' }} />
 ```
 
-### `onOpenChange` is read-only on the default root
+### The four smaller decisions
 
-In Radix, `onOpenChange` is how you take control. Here it is a `toggle`
-listener: it tells you what happened, it cannot refuse. If your handler only
-resets a form or fires analytics, nothing changes and you keep the smaller
-bundle. If it can *decline* — an unsaved-changes guard — move that root's import
-to `@apostel/bedrock/controlled`.
+Each is a real difference, and none of them needs a page of its own.
 
-Grep for handlers that conditionally avoid calling `setOpen`; those are the ones
-that need the controlled import.
-
-### The controlled model is a veto, not ownership
-
-Radix: your state is the truth, Radix renders it.
-bedrock: the DOM acts, then React can refuse.
-
-For `Dialog` both directions are genuinely cancelable in Chrome, so a refusal is
-invisible. What changes is ordering — `onOpenChange` fires *before* your state
-updates, and the DOM may already have moved for primitives whose events are not
-cancelable. Code that assumed `open` and the DOM were in lockstep at every
-instant needs a second look; code that just calls `setOpen` does not.
-
-### Escape and `onEscapeKeyDown` / `onPointerDownOutside`
-
-Radix's `Dialog.Content` takes `onEscapeKeyDown`, `onPointerDownOutside`,
-`onInteractOutside` and `onOpenAutoFocus`. None exist here. Escape is `cancel`,
-which you refuse through `onOpenChange` under the controlled root; there is no
-outside-pointer event because there is no light dismiss; and focus on open is
-the UA's `showModal()` behaviour rather than something you can intercept.
-
-`onOpenAutoFocus`'s common use — focus a specific field rather than the first
-tabbable — is `autofocus` on that element, which `showModal()` honours.
-
-### Nested dialogs
-
-Radix stacks portals and manages `z-index`. The top layer stacks by open order,
-so nesting works with no configuration — but a nested modal `<dialog>` makes the
-outer one inert, exactly as the platform defines it. That is usually what you
-wanted; if you were relying on interacting with the outer dialog underneath,
-that is now impossible rather than merely discouraged.
+| Change | Radix | bedrock | What to do |
+| --- | --- | --- | --- |
+| **`onOpenChange` is read-only on the default root** | How you take control. | A `toggle` listener: it reports, it cannot refuse. | Nothing, if your handler resets a form or fires analytics. Grep for handlers that conditionally avoid calling `setOpen` — those roots move to `@apostel/bedrock/controlled`. |
+| **The controlled model is a veto, not ownership** | Your state is the truth; Radix renders it. | The DOM acts, then React can refuse. | Usually nothing: for `Dialog` both directions are cancelable in Chrome, so a refusal is invisible. What changes is ordering — `onOpenChange` fires *before* your state updates. Code that assumed `open` and the DOM were in lockstep needs a second look. |
+| **`onEscapeKeyDown`, `onPointerDownOutside`, `onInteractOutside`, `onOpenAutoFocus`** | Props on `Dialog.Content`. | None exist. Escape is `cancel`, refusable through `onOpenChange` under the controlled root. There is no outside-pointer event because there is no light dismiss. | For the common `onOpenAutoFocus` case — focus a specific field rather than the first tabbable — put `autofocus` on that element; `showModal()` honours it. |
+| **Nested dialogs** | Stacked portals and managed `z-index`. | The top layer stacks by open order, so nesting needs no configuration — but a nested modal `<dialog>` makes the outer one inert, as the platform defines it. | Usually nothing. If you relied on interacting with the outer dialog underneath, that is now impossible rather than discouraged. |
 
 ## Does it behave the same?
 
@@ -144,6 +114,53 @@ Radix's own Dialog suite — all 42 cases — is ported in
 `tests/radix-parity.spec.ts` and runs in CI. **30 pass, none fail**, and 13 test
 machinery this library exists to delete.
 [The scorecard names every one](./radix-parity.md).
+
+## Doing it with an agent
+
+The mechanical half of this page is exactly the work an agent should do, so it
+ships as one: `skills/migrate-to-bedrock/SKILL.md` is a [Claude Code
+skill](https://code.claude.com/docs) that walks an agent through migrating a
+Radix codebase. It is written for the agent, not for you — but it is worth
+reading, because it is the shortest honest description of what a migration
+actually involves.
+
+### Installing it
+
+Into a project you are migrating:
+
+```bash
+mkdir -p .claude/skills/migrate-to-bedrock
+curl -o .claude/skills/migrate-to-bedrock/SKILL.md \
+  https://bedrock.sams.land/skills/migrate-to-bedrock/SKILL.md
+```
+
+Then: *"migrate this app off Radix"*. The description is written so the skill
+triggers on that, and on the questions people ask afterwards — why a trigger
+throws, why the dialog no longer closes on a backdrop click, why `data-state`
+selectors stopped matching.
+
+It also ships inside the package, at
+`node_modules/@apostel/bedrock/skills/migrate-to-bedrock/SKILL.md`, so an agent
+already working in the project can be pointed at it with no download.
+
+### What it makes the agent do
+
+The order is the point: it refuses to start a refactor that ends badly.
+
+| Step | What happens |
+| --- | --- |
+| **1. Establish viability** | Before any code, it checks four things and reports them: jsdom tests that click triggers, triggers that are not buttons, `data-state` in shared CSS, and overlays with content in them. A project with hundreds of jsdom component tests and no Playwright setup gets told so, and the skill stops. |
+| **2. The mechanical work** | Imports, deleting `Portal` and `Overlay`, `data-state` → `:open`, the animation classes. |
+| **3. Four judgement calls, surfaced not resolved** | The button rule, light dismiss, which roots need `/controlled`, and what depended on content staying mounted. Each changes behaviour a user notices, so the skill is explicit that the agent must not decide them quietly. |
+| **4. Verification that fits the failure mode** | A bad trigger only throws when its component mounts, so type-checking is not enough. The app has to be opened in a browser. |
+
+### Why a skill rather than a codemod
+
+Most of the diff is mechanical and a codemod could do it. The parts that matter
+are not: whether a trigger can become a button depends on what that element is
+*for*, and whether light dismiss should be restored depends on whether the
+dialog is a confirmation or a form. A codemod would either refuse those or guess
+— and guessing quietly is the worst of the three.
 
 ## Per-primitive notes
 

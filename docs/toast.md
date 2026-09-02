@@ -34,18 +34,17 @@ under it.
 
 Renders `<ol popover="manual" role="region" aria-live="polite">`.
 
-`popover="manual"` rather than `auto`: an auto popover light-dismisses, and a
-toast region that vanishes when you click the page is not a toast region.
+| choice | why |
+| --- | --- |
+| `popover="manual"`, not `auto` | An auto popover light-dismisses, and a toast region that vanishes when you click the page is not a toast region. |
+| `aria-live="polite"` | New toasts are announced without interrupting. |
+| `<ol>` | Toasts are an ordered list, so a screen-reader user can navigate them as one. |
 
-This is **the one imperative call in the library**. There is no attribute that
-opens a popover on parse, and the region has to exist in the top layer before
-the first toast arrives, so the ref calls `showPopover()`. It is written down
-here rather than hidden, because it is the exception to the rule this library
-is built on.
-
-`aria-live="polite"` means new toasts are announced without interrupting. The
-`<ol>` is deliberate: toasts are an ordered list, and screen-reader users can
-navigate them as one.
+> This is **the one imperative call in the library**. No attribute opens a
+> popover on parse, and the region has to exist in the top layer before the
+> first toast arrives, so the ref calls `showPopover()`. Written down here
+> rather than hidden, because it is the exception to the rule the library is
+> built on.
 
 ## `Toast.Root`
 
@@ -71,7 +70,7 @@ It removes itself when its duration elapses.
 | `Tab`    | Reaches the viewport, which is focusable, then the buttons.   |
 
 There is no `F6` hotkey to jump to the toast region. Radix has one; this does
-not. See [gaps](./gaps.md).
+not. See [gaps](./should-you-switch.md).
 
 ## What is not here
 
@@ -79,4 +78,4 @@ not. See [gaps](./gaps.md).
   array of toasts in your own state — the demo above is the whole pattern.
 - **Swipe to dismiss.** No pointer gesture handling.
 - **Pause on hover.** The timer does not stop when the pointer is over a toast,
-  which it should. See [gaps](./gaps.md).
+  which it should. See [gaps](./should-you-switch.md).

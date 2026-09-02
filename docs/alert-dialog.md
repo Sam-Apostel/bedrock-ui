@@ -24,9 +24,10 @@ import { AlertDialog } from '@apostel/bedrock'
 </AlertDialog.Root>
 ```
 
-`Root`, `Trigger`, `Title` and `Description` are Dialog's parts — the same
-components, re-exported, because they behave identically. Only `Content`,
-`Cancel` and `Action` differ.
+| part | source |
+| --- | --- |
+| `Root`, `Trigger`, `Title`, `Description` | Dialog's, re-exported — they behave identically |
+| `Content`, `Cancel`, `Action` | the three that differ, below |
 
 ## `AlertDialog.Content`
 
@@ -35,9 +36,9 @@ Renders `<dialog role="alertdialog">`. Otherwise identical to
 `aria-labelledby` and `aria-describedby` are wired to the title and description,
 and `id` is not forwarded.
 
-`role="alertdialog"` tells a screen reader to announce the whole dialog
-immediately rather than just move focus into it, which is the behaviour a
-destructive confirmation wants.
+> `role="alertdialog"` tells a screen reader to announce the whole dialog
+> immediately rather than just moving focus into it, which is what a destructive
+> confirmation wants.
 
 ## `AlertDialog.Cancel` / `AlertDialog.Action`
 

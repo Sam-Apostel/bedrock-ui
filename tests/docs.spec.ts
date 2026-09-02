@@ -25,6 +25,7 @@ const PAGES = [
   ['slider.html', 'slider'],
   ['toast.html', 'toast'],
   ['display.html', 'display'],
+  ['shadcn-registry.html', 'registry'],
 ] as const
 
 test.describe('docs site', () => {
@@ -138,5 +139,137 @@ test.describe('docs demos are interactive', () => {
 
     await page.keyboard.press('Escape')
     await expect(content).toBeHidden()
+  })
+})
+
+/**
+ * The four faults found by a reader in the first minute of browsing, each now
+ * a test rather than a memory.
+ */
+test.describe('site chrome', () => {
+  test('the current page is a marker in the nav, not a link to itself', async ({ page }) => {
+    await page.goto(`${SITE}/dialog.html`)
+
+    const here = page.locator('nav .here')
+    await expect(here).toHaveText('Dialog')
+    await expect(here).toHaveAttribute('aria-current', 'page')
+    // The whole point: it is not clickable.
+    await expect(page.locator('nav a', { hasText: /^Dialog$/ })).toHaveCount(0)
+  })
+
+  // One test per page rather than a loop: these navigate the same tab, so they
+  // cannot run in parallel, and a loop of awaits is the thing the linter is
+  // right to object to.
+  for (const path of ['index.html', 'should-you-switch.html', 'compat.html']) {
+    test(`${path} does not link to the site it is served from`, async ({ page }) => {
+      await page.goto(`${SITE}/${path}`)
+
+      // An absolute self-link leaves the site and comes back, and breaks on any
+      // host that is not the production domain — a preview deploy, or this test.
+      await expect(page.locator('a[href^="https://bedrock.sams.land"]')).toHaveCount(0)
+    })
+  }
+
+  test('the compat page has the site navigation', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    // It used to be copied in verbatim as a standalone document, so there was
+    // no way back to the rest of the docs.
+    await expect(page.locator('nav .masthead')).toBeVisible()
+    await expect(page.locator('nav a[href="./dialog.html"]')).toBeVisible()
+  })
+
+  test('the support matrix carries real versions and a live column', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    const invokers = page.locator('tr.floor', { hasText: 'commandfor' })
+    await expect(invokers).toBeVisible()
+    // The floor, from MDN data rather than from memory.
+    await expect(invokers).toContainText('135')
+    await expect(invokers).toContainText('144')
+
+    // The probe is filled in by the inline script, in this browser.
+    const probe = invokers.locator('.probe')
+    await expect(probe).toHaveAttribute('data-state', /yes|no/)
+    await expect(probe).not.toHaveText('·')
+  })
+
+  test('the prose that was previously overwritten is on the page', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+    // compat.md rendered to compat.html and was then clobbered by the copy of
+    // the hand-written compat.html, so none of this had ever been visible.
+    await expect(page.getByText('The stance')).toBeVisible()
+    await expect(page.getByRole('heading', { name: /degrades/ })).toBeVisible()
+  })
+})
+
+test.describe('shadcn registry gallery', () => {
+  test('renders the shipped registry components, not copies', async ({ page }) => {
+    await page.goto(`${SITE}/shadcn-registry.html`)
+
+    // shadcn's own markup contract: data-slot survives the swap to bedrock.
+    await expect(page.locator('[data-slot="tabs"]')).toBeVisible()
+    await expect(page.getByRole('tab', { name: 'Account' })).toBeVisible()
+
+    // And the component works, which a screenshot could not show.
+    await page.getByRole('button', { name: 'Delete account' }).click()
+    const modal = page.locator('dialog')
+    await expect(modal).toHaveJSProperty('open', true)
+    // Scoped to the dialog: the demo's own source is printed on the page below
+    // it, so an unscoped text match finds the string twice.
+    await expect(modal.getByText('Delete account?')).toBeVisible()
+  })
+
+  test('Tailwind does not reset the documentation around it', async ({ page }) => {
+    await page.goto(`${SITE}/shadcn-registry.html`)
+
+    // The gallery loads Tailwind's theme and utilities but deliberately not
+    // Preflight, which is a global reset. If it ever creeps back in, headings
+    // collapse to body text — cheap to assert, and invisible in a diff.
+    const size = await page
+      .locator('h1')
+      .evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize))
+
+    expect(size).toBeGreaterThan(24)
+  })
+})
+
+/**
+ * The gallery's whole argument is that the swap is invisible, so "it rendered"
+ * is not enough — it has to render *as shadcn*. These assert the computed
+ * result, because every way this broke while it was being built was a cascade
+ * problem that looked fine in the source: an unlayered reset beating the
+ * utilities it exists to enable, a layer order that put `base` above
+ * `utilities`, and a dark `@theme` that Tailwind hoists out of its media query
+ * and applies unconditionally.
+ */
+test.describe('registry gallery matches shadcn', () => {
+  test('the tab list and trigger compute to shadcn values', async ({ page }) => {
+    await page.goto(`${SITE}/shadcn-registry.html`)
+
+    const list = await page.locator('[data-slot="tabs-list"]').evaluate((node) => {
+      const style = getComputedStyle(node)
+      return { radius: style.borderRadius, padding: style.padding }
+    })
+    expect(list).toEqual({ radius: '8px', padding: '3px' })
+
+    // px-2 py-1 rounded-md text-sm. Zero padding here means the reset won.
+    const trigger = await page.getByRole('tab', { name: 'Account' }).evaluate((node) => {
+      const style = getComputedStyle(node)
+      return { padding: style.padding, radius: style.borderRadius, size: style.fontSize }
+    })
+    expect(trigger).toEqual({ padding: '4px 8px', radius: '6px', size: '14px' })
+  })
+
+  test('light mode uses the light theme tokens', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' })
+    await page.goto(`${SITE}/shadcn-registry.html`)
+
+    // oklch(0.97) is the light muted; the dark one is oklch(0.269).
+    const background = await page
+      .locator('[data-slot="tabs-list"]')
+      .evaluate((node) => getComputedStyle(node).backgroundColor)
+
+    expect(background).toContain('0.97')
   })
 })

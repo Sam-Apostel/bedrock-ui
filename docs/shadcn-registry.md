@@ -12,6 +12,21 @@ npx shadcn@latest add https://bedrock.sams.land/r/dropdown-menu.json
 Each one overwrites the matching file in `components/ui/`. Commit first; the CLI
 asks before overwriting, and the diff is the thing worth reading.
 
+## What you get
+
+Below are shadcn's `Dialog`, `Tabs`, `Checkbox`, `Switch` and `Label` from this
+registry, imported from `registry/bedrock/ui/` **unmodified** — the same files
+the command above installs, running on this page.
+
+The claim is that the swap is invisible. Open the dialog, walk the tabs with the
+arrow keys, and check that against a shadcn app you already have.
+
+<!-- demo: registry -->
+
+The dialog has no `Portal` and no `Overlay` doing anything — both are no-ops now,
+because a `<dialog>` is already in the top layer and its backdrop is a
+pseudo-element. The exports are still there, so your imports do not change.
+
 ## Coverage
 
 **24 registry items**, covering every shadcn/ui component that was backed by a
@@ -32,9 +47,10 @@ Radix primitive.
 | `combobox`, `command` | stays on Radix | Built on `cmdk`, not on a Radix primitive. |
 | `button`, `card`, `input`, `table`, `badge`, and the other unstyled-div components | unaffected | They never used Radix primitives. |
 
-Mixing is safe: Radix and bedrock are separate packages with no shared globals
-and no CSS collisions. It does mean both are in your bundle until the migration
-finishes — see [gaps](./gaps.md#3-the-saving-is-uneven-and-menus-barely-save-anything).
+> Mixing is safe: Radix and bedrock are separate packages with no shared globals
+> and no CSS collisions. It does mean both are in your bundle until the
+> migration finishes — see
+> [should you switch?](./should-you-switch.md#3-the-saving-is-uneven-and-menus-barely-save-anything).
 
 ## What changed inside the component
 
@@ -44,9 +60,9 @@ finishes — see [gaps](./gaps.md#3-the-saving-is-uneven-and-menus-barely-save-a
 everything regardless of where it sits in the tree. There is nothing to portal
 past. The export is kept because shadcn blocks import it.
 
-Consequence: the `container` prop is accepted and ignored. If you were
-portalling into a specific subtree to inherit a theme context, that now happens
-naturally, because the element never moves.
+> Consequence: the `container` prop is accepted and ignored. If you were
+> portalling into a specific subtree to inherit a theme context, that now
+> happens naturally, because the element never moves.
 
 ### `DialogOverlay` renders nothing
 
@@ -56,7 +72,7 @@ one console warning pointing at the `backdrop:` variant on `DialogContent`,
 where those styles now live.
 
 If your overlay had children (a spinner, a close affordance), that is a redesign
-rather than a migration. See [gaps](./gaps.md#6-several-parts-render-nothing-and-that-is-a-redesign-not-a-rename).
+rather than a migration. See [gaps](./should-you-switch.md#6-several-parts-render-nothing-and-that-is-a-redesign-not-a-rename).
 
 ### Animation keys off `:open`
 
@@ -70,8 +86,8 @@ rather than a migration. See [gaps](./gaps.md#6-several-parts-render-nothing-and
 no `forceMount` and no presence wrapper; the element is always in the DOM and
 the browser sequences the exit.
 
-Tailwind 3 needs arbitrary variants (`[&:open]:`, `[&::backdrop]:`) and has no
-`starting:`, so entry transitions need a hand-written `@starting-style` block.
+> Tailwind 3 needs arbitrary variants (`[&:open]:`, `[&::backdrop]:`) and has no
+> `starting:`, so entry transitions need a hand-written `@starting-style` block.
 
 ### `Dialog` has no `open` prop in the default item
 
@@ -80,9 +96,9 @@ That is the two-root split reaching user land. `dialog.tsx` imports
 `open` throws in development with the command to install the controlled build
 instead.
 
-`onOpenChange` still exists on the uncontrolled build and still fires — it just
-cannot refuse. Most shadcn usage (`onOpenChange={() => form.reset()}`) is served
-by it.
+> `onOpenChange` still exists on the uncontrolled build and still fires — it
+> just cannot refuse. Most shadcn usage (`onOpenChange={() => form.reset()}`) is
+> served by it.
 
 ### `AlertDialogAction` and `AlertDialogCancel`
 

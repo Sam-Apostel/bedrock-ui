@@ -58,19 +58,19 @@ rather than hidden, because it is the part that would be a lie to call native.
 Each takes `onOpenChange`, which reports and cannot refuse. Import from
 `@apostel/bedrock/controlled` for a veto.
 
-`ContextMenu` opens on `contextmenu`, which means it must `preventDefault()` the
-browser's own menu — the one deliberate interception in the library. Opening is
-deferred by a task, because showing a popover inside the same gesture that
-opened it means the gesture immediately light-dismisses it.
+> `ContextMenu` opens on `contextmenu`, so it must `preventDefault()` the
+> browser's own menu — the one deliberate interception in the library. Opening
+> is deferred by a task, because showing a popover inside the same gesture that
+> opened it means the gesture immediately light-dismisses it.
 
 ## `Trigger`
 
 Renders `<button type="button" commandfor command="toggle-popover">`, plus an
 `anchor-name` so the panel can be positioned against it.
 
-`asChild` is supported and the child must render a `<button>`, enforced at
-mount. `ContextMenu` is the exception: its trigger is the region you right-click
-and is not required to be a button.
+> `asChild` is supported and the child must render a `<button>`, enforced at
+> mount. `ContextMenu` is the exception: its trigger is the region you
+> right-click, and is not required to be a button.
 
 ## `Content`
 
@@ -103,17 +103,17 @@ therefore starts from your state every time, not from whatever it was left in.
 `closeOnSelect` is off for checkbox and radio items, because ticking three
 boxes in a row is the point of having them.
 
-Every item takes `asChild`. Items are `<button>` rather than `<div role>` so
-that activation, disabled handling and focus are the element's own.
+> Every item takes `asChild`. Items are `<button>` rather than `<div role>` so
+> that activation, disabled handling and focus are the element's own.
 
 ## Submenus
 
 `Sub`, `SubTrigger` and `SubContent`. The submenu is its own popover, opened by
 its trigger and nested inside the parent's panel.
 
-Nested roving containers do not double-step: a key handled by the submenu marks
-the event handled, and the parent stands down. That was a real bug, and there is
-a test for it.
+> Nested roving containers do not double-step: a key handled by the submenu
+> marks the event handled, and the parent stands down. That was a real bug, and
+> there is a test for it.
 
 ## `NavigationMenu`
 
@@ -147,4 +147,4 @@ that calls `router.push`, which breaks all three.
 - **Typeahead configuration.** The reset delay is fixed at one second.
 - **Animated submenus following the pointer.** No "safe triangle". Moving
   diagonally onto a submenu can close it, which is the honest cost of not
-  running a pointer-tracking loop. See [gaps](./gaps.md).
+  running a pointer-tracking loop. See [gaps](./should-you-switch.md).

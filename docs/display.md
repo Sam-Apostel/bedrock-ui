@@ -78,7 +78,7 @@ reader's own "always show scrollbars" preference all work. Style the bar with
 
 Radix renders custom scrollbars in JavaScript, which is how it can guarantee
 identical bars everywhere; the cost is momentum, accessibility settings and
-about 12 kB. This is the trade named plainly in [gaps](./gaps.md).
+about 12 kB. This is the trade named plainly in [gaps](./should-you-switch.md).
 
 ## `AccessibleIcon`
 

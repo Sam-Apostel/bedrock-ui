@@ -53,16 +53,16 @@ Draw it with a pseudo-element.
 | `onValueChange` | `(value: string) => void`  | `Root`          |
 | `value`         | `string`                   | `Item` (required) |
 
-Arrow-key roving between radios in a group is **the browser's**, not ours — a
-shared `name` is all it takes. `RadioGroup.Indicator` renders nothing.
+> Arrow-key roving between radios in a group is **the browser's**, not ours — a
+> shared `name` is all it takes. `RadioGroup.Indicator` renders nothing.
 
 ## `Label`
 
 Renders `<label data-bedrock-label>`. Takes `htmlFor`.
 
-Double-clicking a label selects text in some engines, which is never what a
-label is for; that is suppressed. Everything else — click-to-focus,
-click-to-toggle, the accessible name — is the element's.
+> Double-clicking a label selects text in some engines, which is never what a
+> label is for; that is suppressed. Everything else — click-to-focus,
+> click-to-toggle, the accessible name — is the element's.
 
 ## `Toggle` and `ToggleGroup`
 

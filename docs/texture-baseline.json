@@ -1,0 +1,32 @@
+{
+  "$comment": "Longest run of same-texture blocks per page. A ratchet: lower it when a page improves; the build fails when one gets worse. Regenerate with `npm run docs:baseline`, which builds first.",
+  "target": 3,
+  "pages": {
+    "accordion.html": 3,
+    "alert-dialog.html": 3,
+    "changelog.html": 2,
+    "collapsible.html": 2,
+    "compat.html": 3,
+    "contributing.html": 3,
+    "dialog.html": 3,
+    "display.html": 3,
+    "forms.html": 3,
+    "getting-started.html": 2,
+    "index.html": 2,
+    "known-gaps.html": 3,
+    "menus.html": 2,
+    "migration-from-radix.html": 3,
+    "popover.html": 3,
+    "radix-parity.html": 3,
+    "releasing.html": 3,
+    "select.html": 3,
+    "shadcn-registry.html": 3,
+    "should-you-switch.html": 3,
+    "slider.html": 3,
+    "state.html": 3,
+    "styling.html": 3,
+    "tabs.html": 2,
+    "toast.html": 2,
+    "tooltip.html": 3
+  }
+}

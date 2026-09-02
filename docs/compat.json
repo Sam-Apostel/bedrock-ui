@@ -1,0 +1,267 @@
+{
+  "$comment": "Generated from @mdn/browser-compat-data. Edit the prose here; re-run scripts/build-compat.mjs to refresh versions.",
+  "source": "@mdn/browser-compat-data",
+  "sourceVersion": "8.0.13",
+  "generated": "2026-09-02",
+  "note": "Edge tracks Chrome for every feature listed; it is omitted rather than duplicated.",
+  "groups": {
+    "dialog": {
+      "title": "Dialog and AlertDialog",
+      "blurb": "The floor lives here. Without these two, a trigger is an inert button — everything below is degradation, this is absence."
+    },
+    "overlay": {
+      "title": "Popover, Tooltip, HoverCard, Select and menus",
+      "blurb": "Everything that opens next to the thing that opened it. Missing anchor positioning costs placement, not behaviour."
+    },
+    "motion": {
+      "title": "Transitions and animation",
+      "blurb": "Entry and exit only. Every row here fails to a jump cut; none of them fails to a broken component."
+    },
+    "state": {
+      "title": "State selectors and disclosure",
+      "blurb": "How your CSS asks whether something is open, and how an accordion keeps one panel at a time."
+    }
+  },
+  "rows": [
+    {
+      "id": "show-modal",
+      "group": "dialog",
+      "name": "<code>&lt;dialog&gt;.showModal()</code>",
+      "uses": "Dialog, AlertDialog",
+      "critical": true,
+      "bcd": "api.HTMLDialogElement.showModal",
+      "chrome": "37",
+      "firefox": "98",
+      "safari": "15.4",
+      "degrade": "Nothing renders as a dialog. No fallback — but this shipped everywhere in 2022, so in practice the invoker row below is what decides support."
+    },
+    {
+      "id": "invokers",
+      "group": "dialog",
+      "name": "Invoker commands (<code>commandfor</code>)",
+      "uses": "every trigger in the library",
+      "critical": true,
+      "bcd": "html.elements.button.commandfor",
+      "chrome": "135",
+      "firefox": "144",
+      "safari": "26.2",
+      "degrade": "Triggers do nothing at all. bedrock ships no click handler to stand in for them, by design, so this row is the real support floor."
+    },
+    {
+      "id": "backdrop",
+      "group": "dialog",
+      "name": "<code>::backdrop</code>",
+      "uses": "Dialog, AlertDialog",
+      "critical": false,
+      "bcd": "css.selectors.backdrop",
+      "chrome": "37",
+      "firefox": "47",
+      "safari": "15.4",
+      "degrade": "No dimmed overlay. The dialog still opens, traps focus and closes."
+    },
+    {
+      "id": "closedby",
+      "group": "dialog",
+      "name": "<code>&lt;dialog closedby&gt;</code>",
+      "uses": "Dialog (opt-in light dismiss)",
+      "critical": false,
+      "bcd": "html.elements.dialog.closedby",
+      "chrome": "134",
+      "firefox": "141",
+      "safari": "preview",
+      "degrade": "Clicking the backdrop will not close the dialog even if you ask for it. Escape and the Close button are unaffected."
+    },
+    {
+      "id": "popover",
+      "group": "overlay",
+      "name": "Popover API",
+      "uses": "Popover, Tooltip, HoverCard, menus, Toast",
+      "critical": true,
+      "bcd": "api.HTMLElement.showPopover",
+      "chrome": "114",
+      "firefox": "125",
+      "safari": "17",
+      "degrade": "No top-layer promotion, so overlays are clipped by ancestor overflow and fight z-index — the exact class of bug this library exists to remove."
+    },
+    {
+      "id": "popover-hint",
+      "group": "overlay",
+      "name": "<code>popover=hint</code>",
+      "uses": "Tooltip",
+      "critical": false,
+      "bcd": "html.global_attributes.popover.hint",
+      "chrome": "151",
+      "firefox": "153",
+      "safari": null,
+      "degrade": "Tooltips use the ordinary popover stack, so opening a tooltip closes an open menu instead of layering above it."
+    },
+    {
+      "id": "anchor-name",
+      "group": "overlay",
+      "name": "Anchor positioning (<code>anchor-name</code>)",
+      "uses": "Popover, Tooltip, HoverCard, menus",
+      "critical": false,
+      "bcd": "css.properties.anchor-name",
+      "chrome": "125",
+      "firefox": "147",
+      "safari": "26",
+      "degrade": "Overlays render centred in the viewport instead of beside their trigger. Readable, usable, wrong-looking."
+    },
+    {
+      "id": "position-area",
+      "group": "overlay",
+      "name": "<code>position-area</code>",
+      "uses": "the <code>side</code> and <code>align</code> props",
+      "critical": false,
+      "bcd": "css.properties.position-area",
+      "chrome": "129",
+      "firefox": "147",
+      "safari": "26",
+      "degrade": "<code>side</code> and <code>align</code> are ignored; default placement applies."
+    },
+    {
+      "id": "position-try",
+      "group": "overlay",
+      "name": "Position fallbacks (<code>position-try</code>)",
+      "uses": "Popover, Tooltip, menus",
+      "critical": false,
+      "bcd": "css.properties.position-try-fallbacks",
+      "chrome": "128",
+      "firefox": "147",
+      "safari": "26",
+      "degrade": "No automatic flip near a viewport edge — an overlay can open partly offscreen instead of flipping to the other side."
+    },
+    {
+      "id": "interestfor",
+      "group": "overlay",
+      "name": "<code>interestfor</code>",
+      "uses": "Tooltip, HoverCard",
+      "critical": false,
+      "bcd": "html.global_attributes.interestfor",
+      "chrome": null,
+      "firefox": null,
+      "safari": null,
+      "degrade": "Hover and focus intent falls back to JavaScript timers. Behaviour is equivalent; the bundle is bigger and the delay is not tunable from CSS."
+    },
+    {
+      "id": "base-select",
+      "group": "overlay",
+      "name": "<code>appearance: base-select</code>",
+      "uses": "Select",
+      "critical": false,
+      "bcd": "css.properties.appearance.base-select",
+      "chrome": "135",
+      "firefox": "149",
+      "safari": "27",
+      "degrade": "Select renders as a native OS dropdown: fully accessible, entirely unstyleable. Options with icons or two-line labels will not render as designed."
+    },
+    {
+      "id": "starting-style",
+      "group": "motion",
+      "name": "<code>@starting-style</code>",
+      "uses": "every open/close transition",
+      "critical": false,
+      "bcd": "css.at-rules.starting-style",
+      "chrome": "117",
+      "firefox": "129",
+      "safari": "17.5",
+      "degrade": "Enter transitions are skipped — things appear instantly. Exit transitions still play."
+    },
+    {
+      "id": "allow-discrete",
+      "group": "motion",
+      "name": "<code>transition-behavior: allow-discrete</code>",
+      "uses": "every open/close transition",
+      "critical": false,
+      "bcd": "css.properties.transition-behavior",
+      "chrome": "117",
+      "firefox": "129",
+      "safari": "17.4",
+      "degrade": "Exit transitions are skipped: the element is removed from display immediately, so a fade-out never plays."
+    },
+    {
+      "id": "overlay-prop",
+      "group": "motion",
+      "name": "<code>transition: overlay</code>",
+      "uses": "Dialog, Popover exit transitions",
+      "critical": false,
+      "bcd": "css.properties.overlay",
+      "chrome": "117",
+      "firefox": null,
+      "safari": null,
+      "degrade": "The element leaves the top layer the moment it closes, so its exit transition plays underneath other content instead of above it."
+    },
+    {
+      "id": "interpolate-size",
+      "group": "motion",
+      "name": "<code>interpolate-size</code>",
+      "uses": "Collapsible, Accordion",
+      "critical": false,
+      "bcd": "css.properties.interpolate-size",
+      "chrome": "129",
+      "firefox": null,
+      "safari": null,
+      "degrade": "Height cannot animate to <code>auto</code>, so open/close is an instant jump instead of a slide. No measuring effect is added to compensate."
+    },
+    {
+      "id": "calc-size",
+      "group": "motion",
+      "name": "<code>calc-size()</code>",
+      "uses": "Collapsible, Accordion",
+      "critical": false,
+      "bcd": "css.types.calc-size",
+      "chrome": "129",
+      "firefox": null,
+      "safari": null,
+      "degrade": "Same as above, for sizes derived from the intrinsic one."
+    },
+    {
+      "id": "open-selector",
+      "group": "state",
+      "name": "<code>:open</code> selector",
+      "uses": "styling dialog, details and select",
+      "critical": false,
+      "bcd": "css.selectors.open",
+      "chrome": "133",
+      "firefox": "136",
+      "safari": "26.5",
+      "degrade": "Open-state styling on dialog, details and select silently does nothing. bedrock emits no <code>data-state</code>, so there is no fallback selector."
+    },
+    {
+      "id": "popover-open",
+      "group": "state",
+      "name": "<code>:popover-open</code> selector",
+      "uses": "styling every popover-backed part",
+      "critical": false,
+      "bcd": "css.selectors.popover-open",
+      "chrome": "114",
+      "firefox": "125",
+      "safari": "17",
+      "degrade": "Open-state styling on popovers silently does nothing. Note this is a separate selector from <code>:open</code>, which does not match popovers."
+    },
+    {
+      "id": "details-name",
+      "group": "state",
+      "name": "<code>&lt;details name&gt;</code>",
+      "uses": "Accordion",
+      "critical": false,
+      "bcd": "html.elements.details.name",
+      "chrome": "120",
+      "firefox": "130",
+      "safari": "17.2",
+      "degrade": "Accordion loses single-open exclusivity: every item can be open at once, and <code>type=\"single\"</code> is not honoured."
+    },
+    {
+      "id": "details-content",
+      "group": "state",
+      "name": "<code>::details-content</code>",
+      "uses": "Collapsible, Accordion",
+      "critical": false,
+      "bcd": "css.selectors.details-content",
+      "chrome": "131",
+      "firefox": "143",
+      "safari": "18.4",
+      "degrade": "The content wrapper cannot be styled or animated as one box."
+    }
+  ]
+}

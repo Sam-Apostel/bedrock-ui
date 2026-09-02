@@ -22,7 +22,7 @@ export default function TooltipDemo() {
 
       <HoverCard.Root openDelay={150} closeDelay={200}>
         <HoverCard.Trigger asChild>
-          <a href="https://bedrock.sams.land">bedrock</a>
+          <a href="./docs.html">bedrock</a>
         </HoverCard.Trigger>
         <HoverCard.Content side="bottom" align="start" sideOffset={8}>
           <strong>@apostel/bedrock</strong>

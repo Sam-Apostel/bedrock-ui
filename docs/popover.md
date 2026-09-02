@@ -28,12 +28,15 @@ regardless of where it sits in the tree or what its ancestors set `overflow` to.
 
 ## `Popover.Root`
 
-Renders no element. See [two roots](./state.md).
+Renders no element.
 
-| prop           | type                             | notes                                     |
-| -------------- | -------------------------------- | ----------------------------------------- |
-| `kind`         | `'auto' \| 'manual' \| 'hint'`   | Defaults to `auto`.                       |
-| `onOpenChange` | `(open: boolean) => void`        | Reports. Cannot refuse — use `/controlled`. |
+| prop           | type                             | notes                    |
+| -------------- | -------------------------------- | ------------------------ |
+| `kind`         | `'auto' \| 'manual' \| 'hint'`   | Defaults to `auto`.      |
+| `onOpenChange` | `(open: boolean) => void`        | Reports; cannot refuse.  |
+
+For an `open` prop React can refuse with, import from
+`@apostel/bedrock/controlled` — see [controlled state](./state.md).
 
 `kind` is named for behaviour, not for the `popover` attribute it currently maps
 onto one-for-one:
@@ -56,9 +59,9 @@ Renders `<button type="button" commandfor command="toggle-popover">`.
 | --------- | --------- | ------------------------------------------------------ |
 | `asChild` | `boolean` | The child must render a `<button>`. Enforced at mount.  |
 
-Unlike `Dialog.Trigger`, `aria-expanded` is **not** written by hand — Chrome
-gives a popover invoker that attribute implicitly. Writing it too would mean two
-sources for one piece of state.
+`aria-expanded` is **not** written by hand. Chrome gives a popover invoker that
+attribute implicitly, and writing it too would mean two sources for one piece of
+state.
 
 ## `Popover.Anchor`
 
@@ -111,9 +114,10 @@ Renders `<button type="button" commandfor command="hide-popover">`, and takes
 
 ## `usePopoverTrigger()`
 
-Returns `{ commandfor, command }` to spread onto an element bedrock will not
-render for you. Must be called inside a `Popover.Root`. No validation and no
-accessibility guarantees — the same deal as `useDialogTrigger()`.
+The escape hatch. Returns `{ commandfor, command }` to spread onto an element
+bedrock will not render for you. Must be called inside a `Popover.Root`. No
+validation and no accessibility guarantees — that is the deal, and it is why it
+has a name you have to type.
 
 ## Keyboard
 
@@ -129,9 +133,9 @@ panel that sits beside the control that opened it.
 
 ## What is not here
 
-- **A focus trap.** Use `Dialog` if you need one — that is the difference
-  between the two.
-- **`modal`.** A modal popover is a dialog. See [Dialog](./dialog.md).
+- **A focus trap, and `modal`.** A popover is non-modal by definition: focus
+  stays where it was and the rest of the page stays live. When you need the
+  page held back instead, that is [Dialog](./dialog.md).
 - **`collisionBoundary`, `sticky`, `hideWhenDetached`.** These are Radix's
   JavaScript positioner leaking into its API. CSS anchor positioning has its own
   vocabulary; see [migration](./migration-from-radix.md).

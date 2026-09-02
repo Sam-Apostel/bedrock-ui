@@ -4,11 +4,10 @@
   "pages": {
     "accordion.html": 3,
     "alert-dialog.html": 3,
-    "changelog.html": 2,
     "collapsible.html": 2,
     "compat.html": 3,
     "contributing.html": 3,
-    "dialog.html": 3,
+    "dialog.html": 2,
     "display.html": 3,
     "forms.html": 3,
     "getting-started.html": 2,

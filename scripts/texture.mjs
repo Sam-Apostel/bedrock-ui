@@ -17,8 +17,21 @@ import { join } from 'node:path'
  */
 const BASELINE = 'docs/texture-baseline.json'
 
+/**
+ * Pages nobody writes, and so nobody can fix.
+ *
+ * The changelog is assembled by changesets from the notes in `.changeset/`, so
+ * its shape is whatever happened to be queued for a release. It failed the
+ * ratchet on the version PR — three `Patch Changes` lists in a row — which
+ * blocks a release for a reason no contributor caused and no edit can address
+ * without editing a generated file that the next release overwrites.
+ */
+const GENERATED = new Set(['changelog.html'])
+
 const TEXTURE = [
   [/^<pre/, 'code'],
+  // A demo's source block is a <pre> in a wrapper, and reads as one.
+  [/^<div class="demo-code"/, 'code'],
   [/^<div class="demo"/, 'demo'],
   [/^<div class="table-wrap"|^<table/, 'table'],
   [/^<h[1-6]/, 'heading'],
@@ -94,7 +107,11 @@ export function longestRun(html) {
 export function measure(directory) {
   const report = {}
 
-  for (const file of readdirSync(directory).filter((name) => name.endsWith('.html'))) {
+  const pages = readdirSync(directory)
+    .filter((name) => name.endsWith('.html'))
+    .filter((name) => !GENERATED.has(name))
+
+  for (const file of pages) {
     const html = readFileSync(join(directory, file), 'utf8')
     if (textures(html).length > 0) report[file] = longestRun(html)
   }

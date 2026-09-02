@@ -103,8 +103,19 @@
   max-width: 24rem;
 }
 
+/*
+ * Dimmed and blurred: the dim alone left the page behind legible enough to read
+ * past, which reads as a dialog floating over a live page rather than as one
+ * that has taken over. The blur is what says there is a layer there.
+ *
+ * `--backdrop-blur` is the docs token, and it arrives here because `::backdrop`
+ * inherits from the element it belongs to. The literal is for a browser where
+ * it does not, and for a demo mounted somewhere with no docs tokens at all.
+ */
 .demo [data-bedrock-dialog]::backdrop {
   background: rgb(0 0 0 / 0.42);
+  -webkit-backdrop-filter: blur(var(--backdrop-blur, 3px));
+  backdrop-filter: blur(var(--backdrop-blur, 3px));
 }
 
 .demo [popover]:not(.registry-demo *) {

@@ -128,6 +128,30 @@ test.describe('docs demos are interactive', () => {
     expect(await wheelMoves()).toBe(true)
   })
 
+  test('the backdrop dims and blurs the page behind it', async ({ page }) => {
+    await page.goto(`${SITE}/dialog.html`)
+
+    await page.getByRole('button', { name: 'Rename project' }).click()
+    const backdrop = page.locator('dialog')
+
+    expect(
+      await backdrop.evaluate((node) => {
+        const style = getComputedStyle(node, '::backdrop')
+        return { background: style.backgroundColor, blur: style.backdropFilter }
+      }),
+    ).toEqual({ background: 'rgba(0, 0, 0, 0.42)', blur: 'blur(3px)' })
+
+    // The blur is a docs token, and it reaches a pseudo-element at all only
+    // because ::backdrop inherits from the element it belongs to. The literal
+    // fallback would satisfy the assertion above on its own, so read the
+    // property: this is the assertion that the inheritance is what happened.
+    expect(
+      await backdrop.evaluate((node) =>
+        getComputedStyle(node, '::backdrop').getPropertyValue('--backdrop-blur'),
+      ),
+    ).toBe('3px')
+  })
+
   test('the popover demo opens into the top layer and dismisses', async ({ page }) => {
     await page.goto(`${SITE}/popover.html`)
 

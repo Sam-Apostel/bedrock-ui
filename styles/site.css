@@ -37,6 +37,21 @@
 
   /* Prose stays narrow however wide the window is. Measure beats width. */
   --measure: 42rem;
+
+  /*
+   * How far the page behind a dialog or the nav panel is pushed out of focus.
+   * A token because `::backdrop` inherits from the element it belongs to, so
+   * this reaches a pseudo-element no stylesheet can otherwise address per
+   * instance — which is also the answer to "how do I style one overlay".
+   */
+  --backdrop-blur: 3px;
+}
+
+/* Blur is the part of a backdrop some people cannot use. The dimming stays. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --backdrop-blur: 0px;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -230,6 +245,8 @@ nav {
 
   .nav-links::backdrop {
     background: rgb(0 0 0 / 0.3);
+    -webkit-backdrop-filter: blur(var(--backdrop-blur, 3px));
+    backdrop-filter: blur(var(--backdrop-blur, 3px));
   }
 
   /* The first group heading is the top of the panel, not a gap below one. */

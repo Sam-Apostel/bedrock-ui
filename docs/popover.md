@@ -95,9 +95,9 @@ follows its anchor on scroll and resize with no listener, no measuring and no
 re-render. `avoidCollisions` becomes `position-try-fallbacks`, which flips it
 when it would overflow the viewport.
 
-Where a browser has no anchor positioning, the panel still opens and still
-dismisses — it lands where the UA puts a popover, centred, rather than beside
-the trigger. See [browser support](./compat.html) for what degrades and how.
+> Where a browser has no anchor positioning the panel still opens and still
+> dismisses — it lands where the UA puts a popover, centred, rather than beside
+> the trigger. See [browser support](./compat.md) for what degrades and how.
 
 **Children mount only while it is open**, on `beforetoggle`. Closing discards
 whatever the panel was holding, which is what makes the uncontrolled root
@@ -106,7 +106,7 @@ something reset it.
 
 ## `Popover.Close`
 
-Renders `<button type="button" commandfor command="hide-popover">`. Takes
+Renders `<button type="button" commandfor command="hide-popover">`, and takes
 `asChild` under the same button rule as `Trigger`.
 
 ## `usePopoverTrigger()`

@@ -189,7 +189,7 @@ function version(value) {
 }
 
 function matrixTable() {
-  const sections = Object.entries(COMPAT.groups).map(([key, title]) => {
+  const sections = Object.entries(COMPAT.groups).map(([key, { title, blurb }]) => {
     const rows = COMPAT.rows
       .filter((row) => row.group === key)
       .map(
@@ -205,8 +205,11 @@ function matrixTable() {
       )
       .join('')
 
+    // The blurb is not decoration: four tables in a row is a wall, and each
+    // group answers a different question about what breaks.
     return (
       `<h3>${title}</h3>` +
+      `<p>${blurb}</p>` +
       `<div class="table-wrap"><table class="support">` +
       `<thead><tr><th>Feature</th><th>Here</th><th>Chrome</th><th>Firefox</th><th>Safari</th><th>If missing</th></tr></thead>` +
       `<tbody>${rows}</tbody></table></div>`

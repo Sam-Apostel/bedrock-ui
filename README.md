@@ -95,7 +95,7 @@ open it in.
 
 ## Status
 
-`0.1.0` on npm. All 29 primitives, 136 Playwright tests against real Chrome.
+`0.1.0` on npm. All 29 primitives, 141 Playwright tests against real Chrome.
 What is missing is soak time and other engines — not components.
 
 [Contributing](./CONTRIBUTING.md) · [Releasing](./RELEASING.md) ·

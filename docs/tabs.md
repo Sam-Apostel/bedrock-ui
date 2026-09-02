@@ -29,11 +29,11 @@ For a controlled `value`, import from `@apostel/bedrock/controlled`.
 
 ## `Tabs.List` / `Tabs.Trigger` / `Tabs.Content`
 
-`List` renders `<div role="tablist">`, `Trigger` renders
-`<button role="tab" aria-selected>`, `Content` renders
-`<div role="tabpanel">`.
-
-`Trigger` and `Content` each take a required `value`, and are matched by it.
+| part      | renders                              | notes |
+| --------- | ------------------------------------ | ----- |
+| `List`    | `<div role="tablist">`               | — |
+| `Trigger` | `<button role="tab" aria-selected>`  | Required `value`. |
+| `Content` | `<div role="tabpanel">`              | Required `value`; matched to the trigger by it. |
 
 Panel children mount only while their tab is selected, which is what makes an
 unselected panel's form reset.

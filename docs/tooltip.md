@@ -43,9 +43,9 @@ it to reach.
 Renders `<button>`, or whatever you pass with `asChild` — a HoverCard trigger is
 usually an `<a>`, which is the point of link previews.
 
-`aria-describedby` points at the content: a tooltip **describes** its trigger
-and must not replace its name. A button labelled only by its tooltip is a button
-with no name when the tooltip is closed.
+> `aria-describedby` points at the content: a tooltip **describes** its trigger
+> and must not replace its name. A button labelled only by its tooltip is a
+> button with no name when the tooltip is closed.
 
 ## `Content`
 

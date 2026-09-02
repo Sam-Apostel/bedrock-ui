@@ -71,15 +71,15 @@ because most of the work is already in one of them:
 | `capabilities.ts` | Every non-Baseline feature test, in one file. |
 | `validate-trigger.ts` / `validate-element.ts` | The dev-throw checks. |
 
-If you find yourself writing a second copy of any of these, stop and ask.
+> If you find yourself writing a second copy of any of these, stop and ask.
 
 ## Tests
 
 Playwright against real Chrome, never jsdom. jsdom implements neither the top
 layer, nor invoker commands, nor anchor positioning — so a green suite there
 would say nothing about whether the library works. That is not a preference;
-it is the reason `docs/gaps.md` lists "your component tests stop working" as the
-first cost of adopting this.
+it is the reason `docs/should-you-switch.md` lists "your component tests stop
+working" as the first cost of adopting this.
 
 Fixtures live in `tests/fixtures/`, keyed by a `?case=` value, and are grouped
 by area (`primitives.tsx`, `overlays.tsx`, `menus.tsx`, `rest.tsx`,
@@ -98,10 +98,10 @@ work before hydration.
 
 ### Radix's suite
 
-`tests/radix-parity.spec.ts` is Radix's own Dialog tests, ported verbatim with
-their titles kept so the two files can be diffed by eye. It is the most useful
-review tool in the repo — four rounds of fixes came out of it, and every one
-started with a Radix assertion rather than an idea of ours.
+> `tests/radix-parity.spec.ts` is Radix's own Dialog tests, ported verbatim with
+> their titles kept so the two files can be diffed by eye. It is the most useful
+> review tool in the repo — four rounds of fixes came out of it, and every one
+> started with a Radix assertion rather than an idea of ours.
 
 If you change Dialog, run it first. A `test.skip` there is a claim that
 something is impossible or belongs to a different design; if you make one
@@ -109,8 +109,8 @@ possible, turn it into a real test and say so in `docs/radix-parity.md`.
 
 ## Adding a primitive
 
-The order in `AGENTS.md` §6 is deliberate: each entry is placed to surface a
-specific unknown before the primitives that depend on the answer.
+> The order in `AGENTS.md` §6 is deliberate: each entry is placed to surface a
+> specific unknown before the primitives that depend on the answer.
 
 Definition of done, from §8:
 
@@ -137,9 +137,8 @@ what moved, what they have to do about it — not for someone reading the diff.
 That text becomes the changelog entry verbatim.
 
 Changes that need no changeset: tests, docs, internal refactors that leave the
-public surface identical. CI does not enforce this, so use judgement.
-
-Releasing is automated from there; see [`RELEASING.md`](./RELEASING.md).
+public surface identical. CI does not enforce this, so use judgement. Releasing
+is automated from there; see [`RELEASING.md`](./RELEASING.md).
 
 ## When to stop and ask
 
@@ -158,15 +157,20 @@ internals, and anything else you could reverse in an afternoon.
 ## Documentation
 
 Docs live in `docs/` as markdown and become pages on the site automatically.
-`docs/gaps.md` is the one to keep honest — it is written to be used *against*
-the library, and it is the page an evaluator should read first. If you close a
-gap, delete it from that file; if you open one, add it there in the same commit
-rather than in a follow-up.
+Two of them are written to be used *against* the library and are the ones to
+keep honest:
 
-`docs/compat.html` is hand-written and copied verbatim, because it
-feature-detects in the reader's browser. Add a row when a primitive starts
-depending on a new platform feature, with the degradation spelled out — "what
-happens when this is missing" is the column that makes the page worth having.
+| file | what belongs in it |
+| --- | --- |
+| `docs/should-you-switch.md` | the costs of adopting bedrock at all — the page an evaluator should read first. |
+| `docs/known-gaps.md` | specific missing behaviour. Close a gap and delete it here; open one and add it here in the same commit, not in a follow-up. |
+
+The browser-support matrix on `docs/compat.md` is generated from
+`docs/compat.json`, whose minimum versions come from MDN's compat data. Add a
+row when a primitive starts depending on a new platform feature, and fill in
+`degrade` — "what happens when this is missing" is the column that makes the
+page worth having. The **Here** column is feature-detected in the reader's own
+browser by an inline script.
 
 ### Live demos
 
@@ -179,10 +183,11 @@ A reference page without a demo is a claim without evidence. To add one:
 That is the whole workflow — the registry is built from the filesystem by a glob
 in `demos/main.tsx`, so there is nothing to register by hand.
 
-A comment rather than a fence, so the markdown still reads as markdown in the
-repository, where there is no bundle to run. The source of the file is rendered
-under the demo automatically, which is why the demo file is the only copy: do
-not paste the same code into the page as well, or the two will disagree.
+> A comment rather than a fence, so the markdown still reads as markdown in the
+> repository, where there is no bundle to run. The source of the file is
+> rendered under the demo automatically, which is why the demo file is the only
+> copy: do not paste the same code into the page as well, or the two will
+> disagree.
 
 The build fails if a page names a demo with no file, **and** if a demo file no
 page names. Both are the same failure — something that looks finished and does

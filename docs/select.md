@@ -40,26 +40,20 @@ Renders `<select data-bedrock-select>`. Takes every `<select>` prop.
 | `onValueChange` | `(value: string) => void` | Alongside `onChange`.              |
 | `asChild`       | `boolean`                 | Supported.                         |
 
-Because it is a `<select>`, `name`, `required`, `disabled` and `form` do what
-they say, and the control submits with the form without a hidden input.
+> Because it is a `<select>`, `name`, `required`, `disabled` and `form` do what
+> they say, and the control submits with the form without a hidden input.
 
-## `Select.Trigger` / `Select.Value`
+## The other parts
 
-`Trigger` renders `<button>`; `Value` renders `<selectedcontent>`. Both are the
-parts of the stylable-select markup that Chrome added — not bedrock inventions.
-
-## `Select.Item`
-
-Renders `<option>`. Takes a required `value`.
-
-`Select.ItemText` renders a `<span>` inside it. `Select.ItemIndicator` renders
-**nothing** — style `option::checkmark` instead, and it warns in development if
-you give it a `className`.
-
-## `Select.Group` / `Select.Separator`
-
-`<optgroup>` and `<hr>`. Both are valid inside a `<select>` in the stylable
-form.
+| part            | renders             | notes |
+| --------------- | ------------------- | ----- |
+| `Trigger`       | `<button>`          | Part of the stylable-select markup Chrome added, not a bedrock invention. |
+| `Value`         | `<selectedcontent>` | The same. |
+| `Item`          | `<option>`          | Takes a required `value`. |
+| `ItemText`      | `<span>`            | Inside the option. |
+| `ItemIndicator` | **nothing**         | Style `option::checkmark` instead. Warns in development if given a `className`. |
+| `Group`         | `<optgroup>`        | Valid inside a `<select>` in the stylable form. |
+| `Separator`     | `<hr>`              | The same. |
 
 ## Degrading
 

@@ -5,10 +5,22 @@
   "generated": "2026-09-02",
   "note": "Edge tracks Chrome for every feature listed; it is omitted rather than duplicated.",
   "groups": {
-    "dialog": "Dialog and AlertDialog",
-    "overlay": "Popover, Tooltip, HoverCard, Select and menus",
-    "motion": "Transitions and animation",
-    "state": "State selectors and disclosure"
+    "dialog": {
+      "title": "Dialog and AlertDialog",
+      "blurb": "The floor lives here. Without these two, a trigger is an inert button — everything below is degradation, this is absence."
+    },
+    "overlay": {
+      "title": "Popover, Tooltip, HoverCard, Select and menus",
+      "blurb": "Everything that opens next to the thing that opened it. Missing anchor positioning costs placement, not behaviour."
+    },
+    "motion": {
+      "title": "Transitions and animation",
+      "blurb": "Entry and exit only. Every row here fails to a jump cut; none of them fails to a broken component."
+    },
+    "state": {
+      "title": "State selectors and disclosure",
+      "blurb": "How your CSS asks whether something is open, and how an accordion keeps one panel at a time."
+    }
   },
   "rows": [
     {

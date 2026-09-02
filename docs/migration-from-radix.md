@@ -75,9 +75,9 @@ inside a `<form>`:
 +<Dialog.Trigger asChild><button type="button">Delete</button></Dialog.Trigger>
 ```
 
-A `<button>` inside a form defaults to `type="submit"`, and the browser ignores
-`commandfor` on a submit button. Radix papered over this; bedrock cannot, so it
-tells you at mount instead.
+> A `<button>` inside a form defaults to `type="submit"`, and the browser
+> ignores `commandfor` on a submit button. Radix papered over this; bedrock
+> cannot, so it tells you at mount instead.
 
 If you genuinely cannot change the element — a third-party component that
 renders a `div` — `useDialogTrigger()` hands you the props and the
@@ -117,10 +117,8 @@ machinery this library exists to delete.
 
 ## Doing it with an agent
 
-The mechanical half of this page is exactly the work an agent should do, so
-it ships as one.
-
-`skills/migrate-to-bedrock/SKILL.md` is a [Claude Code
+The mechanical half of this page is exactly the work an agent should do, so it
+ships as one: `skills/migrate-to-bedrock/SKILL.md` is a [Claude Code
 skill](https://code.claude.com/docs) that walks an agent through migrating a
 Radix codebase. It is written for the agent, not for you — but it is worth
 reading, because it is the shortest honest description of what a migration

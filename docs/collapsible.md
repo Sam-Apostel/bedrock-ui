@@ -34,9 +34,9 @@ Renders `<details data-bedrock-collapsible>`.
 | `onOpenChange` | `(open: boolean) => void` | Reports; cannot refuse.                 |
 | `asChild`      | `boolean`                 | The child must render a `<details>`.    |
 
-`open` is read on the first render only. React writes a DOM property when the
-value it renders changes, so reading it once means the user's own toggling is
-never undone by an unrelated re-render.
+> `open` is read on the first render only. React writes a DOM property when the
+> value it renders changes, so reading it once means the user's own toggling is
+> never undone by an unrelated re-render.
 
 ## `Collapsible.Trigger`
 
@@ -48,10 +48,10 @@ Renders `<summary>`. It carries the expanded state itself, so there is no
 Renders a `<div>`. **Children mount only while open**, so a form inside a closed
 panel resets itself when it closes.
 
-Server-rendered markup is the exception: content renders on the server and on
-the hydrating render that must match it. A page whose JavaScript never arrives
-still has a complete, working disclosure — there is a test that loads the page
-with scripting disabled and toggles it.
+> Server-rendered markup is the exception: content renders on the server and on
+> the hydrating render that must match it. A page whose JavaScript never arrives
+> still has a complete, working disclosure — there is a test that loads it with
+> scripting disabled and toggles it.
 
 ## What is not here
 

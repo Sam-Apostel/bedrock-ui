@@ -47,9 +47,10 @@ Radix primitive.
 | `combobox`, `command` | stays on Radix | Built on `cmdk`, not on a Radix primitive. |
 | `button`, `card`, `input`, `table`, `badge`, and the other unstyled-div components | unaffected | They never used Radix primitives. |
 
-Mixing is safe: Radix and bedrock are separate packages with no shared globals
-and no CSS collisions. It does mean both are in your bundle until the migration
-finishes — see [gaps](./should-you-switch.md#3-the-saving-is-uneven-and-menus-barely-save-anything).
+> Mixing is safe: Radix and bedrock are separate packages with no shared globals
+> and no CSS collisions. It does mean both are in your bundle until the
+> migration finishes — see
+> [should you switch?](./should-you-switch.md#3-the-saving-is-uneven-and-menus-barely-save-anything).
 
 ## What changed inside the component
 
@@ -59,9 +60,9 @@ finishes — see [gaps](./should-you-switch.md#3-the-saving-is-uneven-and-menus-
 everything regardless of where it sits in the tree. There is nothing to portal
 past. The export is kept because shadcn blocks import it.
 
-Consequence: the `container` prop is accepted and ignored. If you were
-portalling into a specific subtree to inherit a theme context, that now happens
-naturally, because the element never moves.
+> Consequence: the `container` prop is accepted and ignored. If you were
+> portalling into a specific subtree to inherit a theme context, that now
+> happens naturally, because the element never moves.
 
 ### `DialogOverlay` renders nothing
 
@@ -85,8 +86,8 @@ rather than a migration. See [gaps](./should-you-switch.md#6-several-parts-rende
 no `forceMount` and no presence wrapper; the element is always in the DOM and
 the browser sequences the exit.
 
-Tailwind 3 needs arbitrary variants (`[&:open]:`, `[&::backdrop]:`) and has no
-`starting:`, so entry transitions need a hand-written `@starting-style` block.
+> Tailwind 3 needs arbitrary variants (`[&:open]:`, `[&::backdrop]:`) and has no
+> `starting:`, so entry transitions need a hand-written `@starting-style` block.
 
 ### `Dialog` has no `open` prop in the default item
 
@@ -95,9 +96,9 @@ That is the two-root split reaching user land. `dialog.tsx` imports
 `open` throws in development with the command to install the controlled build
 instead.
 
-`onOpenChange` still exists on the uncontrolled build and still fires — it just
-cannot refuse. Most shadcn usage (`onOpenChange={() => form.reset()}`) is served
-by it.
+> `onOpenChange` still exists on the uncontrolled build and still fires — it
+> just cannot refuse. Most shadcn usage (`onOpenChange={() => form.reset()}`) is
+> served by it.
 
 ### `AlertDialogAction` and `AlertDialogCancel`
 

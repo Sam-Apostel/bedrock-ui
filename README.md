@@ -1,6 +1,7 @@
 # bedrock
 
-Headless React primitives built on the browser instead of on top of it.
+Headless React primitives that let the browser do the layering, positioning and
+dismissal.
 
 Radix-shaped anatomy — compound components, `asChild`, the part names you
 already type. Underneath, the top layer, invoker commands and anchor positioning

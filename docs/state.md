@@ -1,80 +1,74 @@
-# Open state: two roots
+# Controlled state
 
-The DOM owns open state. React does not mirror it, and in the common case does
-not participate in it at all.
+Every primitive here opens and closes on its own. The trigger is bound to the
+panel by the parser, the browser moves it, and React is told afterwards. You do
+not wire anything up to make that work, and most components never need this
+page.
 
-That is the inversion the library rests on, and it is why there are two roots
-instead of one root with an optional `open` prop.
+Reach for it when React has to **refuse** a move — a dialog that will not close
+over an unsaved form, a popover whose open state lives in a URL.
 
-## `Dialog.Root` — the default
+## Two entry points
 
-From `@apostel/bedrock`. The browser opens and closes it. React holds nothing.
-
-```tsx
-<Dialog.Root defaultOpen={false} onOpenChange={(open) => …}>
-```
-
-| prop           | type                     | notes                                     |
-| -------------- | ------------------------ | ----------------------------------------- |
-| `defaultOpen`  | `boolean`                | Read once, on mount.                      |
-| `onOpenChange` | `(open: boolean) => void`| **Read-only.** A `toggle` listener.       |
-
-`onOpenChange` here reports; it cannot refuse. That covers the case that gets
-miscategorised as "controlled" more often than any other:
+`onOpenChange` on the default import reports. It cannot refuse:
 
 ```tsx
-<Dialog.Root onOpenChange={(open) => { if (!open) form.reset() }}>
+import { Popover } from '@apostel/bedrock'
+
+<Popover.Root onOpenChange={(open) => { if (!open) clearFilters() }}>
 ```
 
-If that is what you need — *tell me when it closed* — you do not need the
-controlled entry point, and you should not pay for it.
-
-## `Dialog.Root` from `/controlled` — React gets a veto
+That covers *tell me when it closed*, which is the case most often mistaken for
+needing control. If you need a veto, change the import line:
 
 ```tsx
-import { Dialog } from '@apostel/bedrock/controlled'
+import { Popover } from '@apostel/bedrock/controlled'
 
-<Dialog.Root open={open} onOpenChange={setOpen}>
-  {/* identical children, identical props on every part */}
-</Dialog.Root>
+<Popover.Root open={open} onOpenChange={setOpen}>
 ```
 
-| prop           | type                      | notes                        |
-| -------------- | ------------------------- | ---------------------------- |
-| `open`         | `boolean`                 | Required. Decides.           |
-| `onOpenChange` | `(open: boolean) => void` | Fires whether or not you accept. |
+Every child part is byte-identical under both, and takes the same props, so
+nothing inside the root changes when you switch.
 
-Swapping is one import line. Every child part is byte-identical under both
-roots and cannot tell which one it is under — that is what makes the split save
-bytes rather than move them.
+| root         | `open`                    | `defaultOpen`        | `onOpenChange`             |
+| ------------ | ------------------------- | -------------------- | -------------------------- |
+| default      | —                         | read once, on mount, where the primitive has one | reports; cannot refuse     |
+| `/controlled`| required; decides         | —                    | fires whether or not you accept |
 
-## What "controlled" means here
+Not every primitive has both roots: `Popover` has no `defaultOpen` at all
+(a popover cannot be shown before its element is connected), and the value-based
+ones — `Tabs`, `Accordion`, `Checkbox`, `RadioGroup`, `Toggle` — control a
+`value` or `checked` rather than an `open`. Each primitive's own page says which
+it takes.
 
-Not *React owns the state*. **DOM leads, React vetoes:**
+> The two entry points are separate module graphs. If nothing in your app
+> imports `/controlled`, none of the reconciliation code is in your bundle —
+> that is the `exports` map, checked in CI by `npm run lint:graph`, not a
+> tree-shaking hope.
 
-1. The user clicks. `beforetoggle` fires. If your `open` prop disagrees and the
-   event is cancelable, it is prevented and nothing moved.
+## What `open` means
+
+Not *React owns the state*. **The DOM leads and React vetoes:**
+
+1. The user acts. The platform's `beforetoggle` fires. If your `open` prop
+   disagrees and the event is cancelable, it is prevented and nothing moved.
 2. `onOpenChange` fires either way. You decide.
 3. If `open` changes without user interaction, an effect moves the DOM to match.
 
-For `<dialog>` in Chrome 141, measured rather than assumed:
+Step 1 is what makes a refusal invisible, and not every element offers it. Where
+it is missing, step 3 is the whole mechanism: the DOM moves, you refuse, and it
+goes back — one frame of visible movement, **in the refusal case only**. That is
+not fixed with `flushSync`, and it is per element rather than per component:
 
-| transition           | hook                    | cancelable | so a refusal is…             |
-| -------------------- | ----------------------- | ---------- | ---------------------------- |
-| closed → open        | `beforetoggle`          | yes        | invisible; it never opens    |
-| open → closed        | `beforetoggle`          | no         | —                            |
-| Escape, `Dialog.Close`| `cancel`               | yes        | invisible; it stays open     |
+| built on              | cancelable hook                              | a refusal is…                       |
+| --------------------- | -------------------------------------------- | ----------------------------------- |
+| `popover` — Popover, DropdownMenu, Tooltip, HoverCard | `beforetoggle`, both directions | invisible; nothing moves |
+| `<dialog>` — Dialog, AlertDialog | `beforetoggle` opening, `cancel` closing | invisible; nothing moves            |
+| `<details>` — Collapsible, Accordion | none                           | one frame of movement, then back    |
 
-Both directions are genuinely vetoable, so there is no visible flicker for
-`Dialog`. Primitives whose platform hooks are not cancelable fall back to step 3
-alone, which means one frame of visible movement **in the refusal case only**.
-That is documented per primitive, and it is not fixed with `flushSync`.
-
-## Refusing a close
+Refusing a close reads the same everywhere:
 
 ```tsx
-const [open, setOpen] = useState(false)
-
 <Dialog.Root
   open={open}
   onOpenChange={(next) => {
@@ -84,25 +78,20 @@ const [open, setOpen] = useState(false)
 >
 ```
 
-`Dialog.Close` uses `command="request-close"`, never `command="close"`. `close`
-skips the `cancel` event, which is the only cancelable close hook a `<dialog>`
-has — using it would make the veto above impossible.
+> `<dialog>`'s close veto is why `Close` parts use `command="request-close"` and
+> never `command="close"`. `close` skips the `cancel` event, which is the only
+> cancelable close hook a `<dialog>` has.
 
 ## Bundle cost
 
-Measured with esbuild, minified, gzipped, React external:
+The gap between an entry-point pair is the whole cost of controlled mode for
+that primitive. Measured with esbuild, minified, gzipped, React external:
 
-| import                                      | gzip    |
-| ------------------------------------------- | ------- |
-| `Dialog` from `@apostel/bedrock`            | 1.95 kB |
-| `Dialog` from `@apostel/bedrock/controlled` | 2.09 kB |
-| `@radix-ui/react-dialog`                    | 13.7 kB |
+| import                                        | gzip    |
+| --------------------------------------------- | ------- |
+| `Dialog` from `@apostel/bedrock`              | 1.95 kB |
+| `Dialog` from `@apostel/bedrock/controlled`   | 2.09 kB |
 
-The gap between the two entry points is the whole cost of controlled mode for a
-Dialog. It is much smaller for the menu family, where both roots pull in the
-same roving module — see [gaps](./should-you-switch.md).
-
-The two entry points are separate module graphs. If nothing in your app imports
-`/controlled`, none of the reconciliation code is in your bundle — that is a
-guarantee from the `exports` map, checked in CI by `npm run lint:graph`, not a
-tree-shaking hope.
+It is smaller again for the menu family, where both roots pull in the same
+roving module. For per-primitive figures across the library, see
+[should you switch?](./should-you-switch.md).

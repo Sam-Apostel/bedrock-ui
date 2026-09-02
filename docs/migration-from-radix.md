@@ -38,7 +38,7 @@ These are safe to codemod.
 | `import * as Dialog from '@radix-ui/react-dialog'` | `import { Dialog } from '@apostel/bedrock'` | Namespace object rather than a module namespace. |
 | `<Dialog.Portal>` | delete it | `<dialog>` is in the top layer; there is nothing to portal past. |
 | `<Dialog.Overlay className="x" />` | `dialog::backdrop` in CSS | The backdrop is a pseudo-element. |
-| `open` + `onOpenChange` on `Dialog.Root` | same props, import from `@apostel/bedrock/controlled` | Two roots, one import line. |
+| `open` + `onOpenChange` on `Dialog.Root` | same props, import from `@apostel/bedrock/controlled` | Same props; one import line. |
 | `[data-state="open"]` | `:open` | Native state, no JS mirror. |
 | `[data-state="closed"]` | `:not(:open)` | Same. |
 | `forceMount` | delete it, and check what depended on it | Closed content unmounts, as in Radix, but there is no way to opt out. See [gaps](./should-you-switch.md#710-the-smaller-ones). |

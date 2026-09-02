@@ -30,7 +30,16 @@ sits in the tree, and its backdrop is a pseudo-element rather than a node.
 
 ## `Dialog.Root`
 
-See [two roots](./state.md). Renders no element.
+Renders no element. The trigger's `commandfor` does the opening, so there is
+nothing here to hold state in the common case.
+
+| prop           | type                      | notes                    |
+| -------------- | ------------------------- | ------------------------ |
+| `defaultOpen`  | `boolean`                 | Read once, on mount.     |
+| `onOpenChange` | `(open: boolean) => void` | Reports; cannot refuse.  |
+
+For an `open` prop React can refuse with, import from
+`@apostel/bedrock/controlled` — see [controlled state](./state.md).
 
 ## `Dialog.Trigger`
 

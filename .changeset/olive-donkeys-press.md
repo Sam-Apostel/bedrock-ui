@@ -9,6 +9,11 @@ without following the link or firing the trigger's `onClick`. A tap is still a
 tap, and a finger that drifts is scrolling rather than pressing. Dismissal is
 the popover's own light dismiss, so tapping anywhere else closes it.
 
+Where the browser runs `interestfor` itself (Chrome 142 and later) the press and
+the panel are its own, but the click the lift produces is not — without this, a
+long press on a hover card link previewed it and then followed it. That click is
+now swallowed on both paths.
+
 Two smaller behaviour changes come with it:
 
 - The trigger carries `-webkit-touch-callout: none` inline, and turns selection

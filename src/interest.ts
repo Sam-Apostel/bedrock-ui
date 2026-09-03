@@ -55,10 +55,16 @@ function hovering(event: Event): boolean {
  * Hover, focus and press intent, in JavaScript, for as long as `interestfor` is
  * not something we can rely on.
  *
- * This is the fallback the compat table calls "replaceable": when the attribute
- * ships, `useInterest` stops attaching anything and the same props become
+ * This is the fallback the compat table calls "replaceable": where the attribute
+ * is supported, `useInterest` stops opening anything and the same props become
  * declarative. Nothing above it changes — which is the entire reason
  * `delayDuration` is not called `interest-show-delay`.
+ *
+ * One thing stays attached either way. A long press ends in a click, and a
+ * browser answering the press itself still lets that click through, so the
+ * gesture previews the link *and* follows it. Tracking the press costs four
+ * listeners and an early return; leaving it to the platform costs a navigation
+ * nobody asked for.
  *
  * Deliberately not a general hover library: it does the gestures the pattern
  * needs — pointer in, pointer out, focus, blur, and the long press that stands
@@ -78,9 +84,11 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
   const pressTimer = useRef<number>(0)
   const clickTimer = useRef<number>(0)
 
-  // Null between gestures; `held` flips once the press has lasted long enough
-  // to have opened something, which is what separates a press from a tap.
-  const press = useRef<{ x: number; y: number; held: boolean } | null>(null)
+  // Null between gestures. `held` flips once our own press has lasted long
+  // enough to have opened something, which is what separates a press from a
+  // tap; `openAtDown` is what tells a press that opened the panel from a tap on
+  // a trigger whose panel was already showing.
+  const press = useRef<{ x: number; y: number; held: boolean; openAtDown: boolean } | null>(null)
 
   // Read at call time, so changing a delay never means rebinding anything.
   const options = useRef({ showDelay, hideDelay, hoverableContent })
@@ -88,10 +96,12 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
 
   const clear = useCallback(() => window.clearTimeout(timer.current), [])
 
+  const isOpen = useCallback(() => contentRef.current?.matches(':popover-open') === true, [])
+
   const reveal = useCallback(() => {
     const content = contentRef.current
-    if (content && !content.matches(':popover-open')) content.showPopover()
-  }, [])
+    if (content && !isOpen()) content.showPopover()
+  }, [isOpen])
 
   const show = useCallback(() => {
     clear()
@@ -167,10 +177,11 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
   /**
    * A long press is how a touch screen asks to see something without
    * activating it — the gesture iOS uses for its own link previews, and the one
-   * `interestfor` is specified to answer where the platform does this itself.
+   * `interestfor` answers where the platform runs intent itself. The press is
+   * tracked either way; only the opening is ours.
    *
-   * While it runs, selection is off. Otherwise the press is a text selection on
-   * Android and a selection magnifier on iOS before it is ever ours. It is
+   * While ours runs, selection is off. Otherwise the press is a text selection
+   * on Android and a selection magnifier on iOS before it is ever ours. It is
    * turned off for the gesture rather than for the life of the trigger, because
    * a hover card trigger is usually a link in a paragraph and permanently
    * unselectable text drops out of the selection around it.
@@ -182,7 +193,9 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
 
       const node = event.currentTarget as HTMLElement
       window.clearTimeout(pressTimer.current)
-      press.current = { x: pointer.clientX, y: pointer.clientY, held: false }
+      press.current = { x: pointer.clientX, y: pointer.clientY, held: false, openAtDown: isOpen() }
+      if (supportsInterestInvokers()) return
+
       node.style.setProperty('user-select', 'none')
       node.style.setProperty('-webkit-user-select', 'none')
 
@@ -192,7 +205,7 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
         reveal()
       }, PRESS_DURATION)
     },
-    [reveal],
+    [isOpen, reveal],
   )
 
   const endPress = useCallback((node: HTMLElement) => {
@@ -226,17 +239,22 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
       if (!state) return
 
       endPress(node)
-      if (!state.held) return
 
       // The lift is a pointerup outside every open popover, and the popover the
       // press opened did not exist when the finger went down — so as far as
       // light dismiss is concerned it was never part of this gesture, and it
       // closes. Re-assert it in the same task the dismissal ran in: nothing is
       // painted between the two, so the card the press opened simply stays.
-      reveal()
-      swallowClick(node)
+      if (state.held) reveal()
+
+      // Whoever opened it, the lift still produces a click, and on an `<a>` that
+      // click is a navigation. A browser answering the hold itself lets it
+      // through, so a long press there previews *and* follows the link; only
+      // that second half is ours to stop. A panel that was already showing when
+      // the finger went down is not this gesture's, and the tap under it stands.
+      if (state.held || (!state.openAtDown && isOpen())) swallowClick(node)
     },
-    [endPress, reveal, swallowClick],
+    [endPress, isOpen, reveal, swallowClick],
   )
 
   const cancelPress = useCallback(
@@ -254,21 +272,27 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
   const bindTrigger = useCallback(
     (node: HTMLElement, add: boolean) => {
       const method = add ? 'addEventListener' : 'removeEventListener'
+
+      // Touch captures its pointer implicitly, so every one of these lands on
+      // the trigger for the whole gesture, wherever the finger has gone. They
+      // are bound even where the platform runs intent itself, because the click
+      // a press ends in is left to us there — see `liftPress`.
+      node[method]('pointerdown', startPress)
+      node[method]('pointermove', movePress)
+      node[method]('pointerup', liftPress)
+      node[method]('pointercancel', cancelPress)
+
+      if (supportsInterestInvokers()) return
+
       node[method]('pointerenter', enter)
       node[method]('pointerleave', leave)
       // Focus, not focusin: the trigger itself is the control, and a tooltip
       // should not appear because something inside it was focused.
       node[method]('focus', focus)
       node[method]('blur', hide)
-      // Touch captures its pointer implicitly, so every one of these lands on
-      // the trigger for the whole gesture, wherever the finger has gone.
-      node[method]('pointerdown', startPress)
-      node[method]('pointermove', movePress)
-      node[method]('pointerup', liftPress)
-      node[method]('pointercancel', cancelPress)
       node[method]('contextmenu', suppressCallout)
     },
-    [enter, leave, focus, hide, startPress, movePress, liftPress, cancelPress, suppressCallout],
+    [startPress, movePress, liftPress, cancelPress, enter, leave, focus, hide, suppressCallout],
   )
 
   const bindContent = useCallback(
@@ -282,9 +306,6 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
 
   const registerTrigger = useCallback(
     (node: HTMLElement | null) => {
-      // When the platform does the work, nothing is attached and no timer runs.
-      if (supportsInterestInvokers()) return
-
       const previous = triggerRef.current
       if (previous) bindTrigger(previous, false)
 
@@ -296,13 +317,13 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
 
   const registerInterestContent = useCallback(
     (node: HTMLElement | null) => {
-      if (supportsInterestInvokers()) return
-
       const previous = contentRef.current
       if (previous) bindContent(previous, false)
 
+      // Held either way: where the platform runs intent, the lift still has to
+      // ask whether this press is the reason the panel is showing.
       contentRef.current = node
-      if (node) bindContent(node, true)
+      if (node && !supportsInterestInvokers()) bindContent(node, true)
     },
     [bindContent],
   )

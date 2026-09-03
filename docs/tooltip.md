@@ -94,6 +94,16 @@ is specified to answer where the platform runs intent itself.
 On iPhone, "force touch" is a long press: 3D Touch was replaced by Haptic Touch
 and Safari exposes no pressure to read, so the hold *is* the whole gesture.
 
+### Where the browser answers the hold itself
+
+Chrome 142 and later run `interestfor`, and there the press, the panel and its
+dismissal are the browser's: it opens the panel while you hold and takes it away
+when you lift. One half stays ours. The lift produces a click that the browser
+lets through, so without us a long press on a hover card link would preview it
+**and** follow it — so the press is tracked either way, and a click that ends a
+press which opened the panel is swallowed. Everything else in the table above is
+the JavaScript path, which is what every WebKit engine takes, iOS included.
+
 Two platform gestures compete for that hold, and the trigger takes both off —
 but only where the JavaScript path is running, because a browser doing intent
 itself owns the conflict too:

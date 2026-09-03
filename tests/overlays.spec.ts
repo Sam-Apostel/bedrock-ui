@@ -146,14 +146,32 @@ async function press(page: Page, testId: string, ms: number, drift = 0) {
   await cdp.detach()
 }
 
+/** True where `interestfor` is the browser's, which is what decides the path. */
+async function hasInterestInvokers(page: Page) {
+  return page.evaluate(() => 'interestForElement' in HTMLButtonElement.prototype)
+}
+
 /**
  * A touch screen has no hover, and the platform's answer is a long press — the
  * gesture iOS uses for its own link previews and the one `interestfor` is
  * specified to answer. A tap stays a tap: a tooltip that opens on tap is a
  * popover with extra steps.
+ *
+ * The attribute is taken away before the page loads, so these drive the
+ * JavaScript path on any browser. That is not a workaround for the test runner:
+ * it is the path every WebKit engine takes, iOS included, and the one this
+ * gesture was written for. What the browsers that *do* have the attribute leave
+ * behind is the describe below.
  */
 test.describe('on a touch screen', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
+
+  test.beforeEach(async ({ page }) => {
+    // Exactly what `capabilities.ts` reads, and nothing else.
+    await page.addInitScript(() => {
+      delete (HTMLButtonElement.prototype as { interestForElement?: unknown }).interestForElement
+    })
+  })
 
   test('a long press opens the tooltip and the lift leaves it open', async ({ page }) => {
     await page.goto('/?case=tooltip')
@@ -224,6 +242,36 @@ test.describe('on a touch screen', () => {
     // Light dismiss, which is the popover's own and not ours.
     await page.touchscreen.tap(10, 10)
     await expect(page.getByTestId('content')).toBeHidden()
+  })
+})
+
+/**
+ * Where the browser answers the hold itself, the panel is its own — and so is
+ * dismissing it on the lift. What it does not do is stop the click that lift
+ * produces, so the gesture previews the link and then follows it. That half is
+ * ours, and it is all that is asserted here.
+ */
+test.describe('on a touch screen, with the platform doing intent', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
+
+  test('a long press neither follows the link nor activates the trigger', async ({ page }) => {
+    await page.goto('/?case=hover-card')
+    test.skip(!(await hasInterestInvokers(page)), 'the browser has no interest invokers')
+
+    const url = page.url()
+    await press(page, 'trigger', 700)
+
+    expect(page.url()).toBe(url)
+    await expect(page.getByTestId('content')).toBeAttached()
+  })
+
+  test('a tap still activates the trigger', async ({ page }) => {
+    await page.goto('/?case=tooltip')
+    test.skip(!(await hasInterestInvokers(page)), 'the browser has no interest invokers')
+
+    await press(page, 'trigger', 100)
+
+    await expect(page.getByTestId('clicks')).toHaveText('1')
   })
 })
 

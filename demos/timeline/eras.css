@@ -169,6 +169,18 @@
   flex: 1;
 }
 
+/*
+ * The same 16px floor demos.css sets for ordinary demos, which cannot reach
+ * here: `.tl .t-field` outranks `.demo input`, so the grid would have kept its
+ * own 12.8px and iOS would have zoomed the viewport the moment the dialog in it
+ * took focus. The grid is scaled down anyway, so 16px still renders small.
+ */
+@media (pointer: coarse) {
+  .tl .t-field {
+    font-size: 16px;
+  }
+}
+
 .tl .t-check {
   display: flex;
   align-items: center;

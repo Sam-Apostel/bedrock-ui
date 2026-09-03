@@ -30,6 +30,8 @@ const PAGES = [
   ['compat.html', 'compat-timeline'],
   ['compat.html', 'compat-legend'],
   ['compat.html', 'compat-looks'],
+  ['styling.html', 'top-layer-exit'],
+  ['state.html', 'refusal'],
 ] as const
 
 test.describe('docs site', () => {
@@ -67,8 +69,13 @@ test.describe('docs site', () => {
     const requested: string[] = []
     page.on('request', (request) => requested.push(request.url()))
 
-    await page.goto(`${SITE}/styling.html`)
+    // Was styling.html until that page grew a demo of its own. The rule is
+    // about pages with no demos on them, not about that page in particular, so
+    // it moves rather than being relaxed. Every page named in PAGES is expected
+    // to load the bundle; this is one that is not.
+    await page.goto(`${SITE}/should-you-switch.html`)
 
+    expect(PAGES.some(([page_]) => page_ === 'should-you-switch.html')).toBe(false)
     expect(requested.some((url) => url.includes('demos.js'))).toBe(false)
   })
 
@@ -662,6 +669,175 @@ test.describe('the compat figures', () => {
     const measured = await Promise.all(['.tl-looks', '.tl-legend-grid'].map(width))
 
     for (const { own, stage } of measured) expect(own).toBeGreaterThan(stage * 0.9)
+  })
+})
+
+/**
+ * The three figures that used to be paragraphs.
+ *
+ * Each one exists because prose was asserting something a browser can settle,
+ * so each one is checked the way the claim is made rather than by taking a
+ * screenshot and hoping.
+ */
+test.describe('the bundle-size figure', () => {
+  test('every row carries its numbers as text, not only as a position', async ({ page }) => {
+    await page.goto(`${SITE}/index.html`)
+
+    const rows = page.locator('.sizes-row')
+    await expect(rows).toHaveCount(8)
+
+    // The plot is aria-hidden, so the figure has to read linearly without it.
+    // A figure whose only copy of a number is a percentage in a style attribute
+    // is a picture of data, not data.
+    await expect(rows.first()).toContainText('Select')
+    await expect(rows.first()).toContainText('0.84')
+    await expect(rows.first()).toContainText('31.5')
+    await expect(rows.first().locator('.sizes-track')).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  test('the rows and the ratios come out of docs/sizes.json', async ({ page }) => {
+    await page.goto(`${SITE}/index.html`)
+
+    const sizes = JSON.parse(readFileSync('docs/sizes.json', 'utf8')) as {
+      primitives: { name: string; bedrock: number; radix: number }[]
+    }
+    const expected = sizes.primitives
+      .toSorted((a, b) => b.radix / b.bedrock - a.radix / a.bedrock)
+      .map((row) => `${row.name} ${(row.radix / row.bedrock).toFixed(1)}`)
+
+    const rendered = await page.locator('.sizes-row').evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const name = node.querySelector('.sizes-name')?.textContent ?? ''
+        const ratio = node.querySelector('.sizes-ratio')?.textContent ?? ''
+        return `${name} ${ratio.replace('×', '')}`
+      }),
+    )
+
+    // Sorted by ratio, worst saving last: the gradient down the figure is the
+    // claim the paragraph under it makes, and a re-sort would silently break it.
+    expect(rendered).toEqual(expected)
+  })
+
+  test('the numbers the other pages quote agree with that file', async () => {
+    const sizes = JSON.parse(readFileSync('docs/sizes.json', 'utf8')) as {
+      primitives: { name: string; bedrock: number; radix: number }[]
+    }
+    const byName = new Map(sizes.primitives.map((row) => [row.name, row]))
+
+    // These figures were typed by hand into three pages, and one of them had
+    // already drifted: 5.9 over 0.70 is 8.4, and the README said 8.5. Nothing
+    // measures them in CI, so at least make the copies agree with each other.
+    const quoted = [
+      ['docs/should-you-switch.md', 'Select', /Select 31\.5 → 0\.84 kB/],
+      ['docs/should-you-switch.md', 'Dialog', /Dialog 13\.7 → 1\.95 kB/],
+      ['docs/should-you-switch.md', 'Tooltip', /Tooltip 19\.3 → 2\.55 kB/],
+      ['docs/should-you-switch.md', 'DropdownMenu', /DropdownMenu 31\.6 → 3\.55 kB/],
+    ] as const
+
+    for (const [file, name, pattern] of quoted) {
+      const row = byName.get(name)
+      expect(row, `${name} is missing from docs/sizes.json`).toBeTruthy()
+      expect(readFileSync(file, 'utf8')).toMatch(pattern)
+      expect(`${row?.radix} → ${row?.bedrock}`).toBe(
+        pattern.source.replace(/\\/g, '').replace(`${name} `, '').replace(' kB', ''),
+      )
+    }
+  })
+})
+
+test.describe('the top-layer exit demo', () => {
+  test('the two lanes differ by one entry in a transition list', async ({ page }) => {
+    await page.goto(`${SITE}/styling.html`)
+
+    const panels = page.locator('.tle-panel')
+    await expect(panels).toHaveCount(2)
+
+    const lists = await panels.evaluateAll((nodes) =>
+      nodes.map((node) => getComputedStyle(node).transitionProperty),
+    )
+
+    // The whole demo is this difference. If both lanes ever grow `overlay`, the
+    // right-hand one stops showing the bug and the section above it is a lie.
+    expect(lists[0]).toContain('overlay')
+    expect(lists[1]).not.toContain('overlay')
+    expect(lists[0]?.replace(', overlay', '')).toBe(lists[1])
+  })
+
+  test('the card that occludes it is an ordinary positioned element', async ({ page }) => {
+    await page.goto(`${SITE}/styling.html`)
+
+    // Nothing exotic: the point is that a plain z-index wins the moment the
+    // panel stops being in the top layer.
+    const card = page.locator('.tle-card').first()
+    await expect(card).toHaveCSS('z-index', '2')
+    await expect(card).toHaveCSS('position', 'relative')
+  })
+
+  test('a panel in the top layer is above the card, and reports as much', async ({ page }) => {
+    await page.goto(`${SITE}/styling.html`)
+
+    const lane = page.locator('.tle-lane[data-keeps]')
+    await lane.getByRole('button', { name: 'Open, then close' }).click()
+
+    const panel = lane.locator('.tle-panel')
+    await expect(panel).toBeVisible()
+
+    // The claim under the demo, checked at the element the browser promotes.
+    const box = (await panel.boundingBox()) ?? { x: 0, y: 0, width: 0, height: 0 }
+    const topmost = await page.evaluate(
+      ([x, y]) => document.elementFromPoint(x as number, y as number)?.className ?? '',
+      [box.x + box.width / 2, box.y + box.height / 2],
+    )
+    expect(topmost).toContain('tle-panel')
+  })
+})
+
+test.describe('the refusal demo', () => {
+  test('the default root reports a close it cannot prevent', async ({ page }) => {
+    await page.goto(`${SITE}/state.html`)
+
+    const lane = page.locator('.rf-lane').first()
+    await lane.getByRole('button', { name: /Open, then press Escape/ }).click()
+    await expect(lane.locator('dialog')).toHaveJSProperty('open', true)
+
+    await page.keyboard.press('Escape')
+
+    // Declining in the callback changes nothing: it is a `toggle` listener, and
+    // the dialog had already closed by the time it ran.
+    await expect(lane.locator('dialog')).toHaveJSProperty('open', false)
+    await expect(lane.locator('.rf-count')).toHaveText('Declined 1×. It closed anyway.')
+  })
+
+  test('the controlled root refuses the same close, and nothing moves', async ({ page }) => {
+    await page.goto(`${SITE}/state.html`)
+
+    const lane = page.locator('.rf-lane').nth(1)
+    await lane.getByRole('button', { name: /Open, then press Escape/ }).click()
+    await expect(lane.locator('dialog')).toHaveJSProperty('open', true)
+
+    await page.keyboard.press('Escape')
+    await expect(lane.locator('dialog')).toHaveJSProperty('open', true)
+
+    await lane.getByRole('button', { name: 'Cancel' }).click()
+    await expect(lane.locator('dialog')).toHaveJSProperty('open', true)
+    await expect(lane.locator('.rf-count')).toHaveText('Declined 2×. It is still open.')
+  })
+
+  test('the switch that unlocks it is reachable from inside the modal', async ({ page }) => {
+    await page.goto(`${SITE}/state.html`)
+
+    const lane = page.locator('.rf-lane').nth(1)
+    await lane.getByRole('button', { name: /Open, then press Escape/ }).click()
+
+    // A modal dialog makes the rest of the page inert. With this switch outside
+    // it, a reader who opened the dialog could decline forever and never get
+    // out, which is a trap rather than a demo.
+    const lock = lane.locator('dialog .rf-lock input')
+    await expect(lock).toBeVisible()
+    await lock.uncheck()
+
+    await page.keyboard.press('Escape')
+    await expect(lane.locator('dialog')).toHaveJSProperty('open', false)
   })
 })
 

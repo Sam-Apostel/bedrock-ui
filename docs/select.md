@@ -26,7 +26,7 @@ This is the largest single saving in the library: **0.84 kB against Radix's
 </Select.Root>
 ```
 
-`Select.Content` exists and is optional — items may sit directly inside the
+`Select.Content` exists and is optional; items may sit directly inside the
 root, which is what a `<select>` expects.
 
 ## `Select.Root`
@@ -60,13 +60,13 @@ Renders `<select data-bedrock-select>`. Takes every `<select>` prop.
 Where `appearance: base-select` is missing, the control falls back to the
 platform select: the native dropdown, unstyled by your CSS.
 
-That is a **downgrade in looks, not in function** — every option is still
+That is a **downgrade in looks, not in function**: every option is still
 reachable, still typeahead-searchable, still submits. See
 [browser support](./compat.html) for the current state.
 
 This is the one primitive where the visual gap between engines is large, and it
 is worth deciding deliberately whether that is acceptable for your product
-before adopting it. See [gaps](./should-you-switch.md).
+before adopting it. See [should you switch?](./should-you-switch.md).
 
 ## What is not here
 

@@ -1,7 +1,7 @@
 # Accordion
 
 A set of disclosures, each one a `<details>`. When the root is `type="single"`,
-the items share a `name` and the browser closes the open one — exclusivity with
+the items share a `name` and the browser closes the open one: exclusivity with
 no state, no registry and no effect.
 
 ```tsx
@@ -37,7 +37,7 @@ Renders a `<div>`. All the behaviour is in the items.
 
 `type="single"` always allows closing the open item, because a `<summary>`
 toggles. Radix's `collapsible={false}` has no native equivalent and is not
-offered — see [migration](./migration-from-radix.md).
+offered. See [migration](./migration-from-radix.md).
 
 There is no `value` prop here. For a controlled accordion, import from
 `@apostel/bedrock/controlled`.
@@ -102,7 +102,7 @@ inside a closed panel resets itself.
 
 Arrow keys do **not** move between items. `<details>` has no such behaviour, and
 adding it would mean intercepting keys the browser already assigns. See
-[gaps](./should-you-switch.md).
+[should you switch?](./should-you-switch.md).
 
 ## What is not here
 

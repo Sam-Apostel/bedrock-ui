@@ -35,7 +35,7 @@ import { AlertDialog } from '@apostel/bedrock'
 | `Content`, `Cancel`, `Action` | below                                   | Documented in full below. |
 
 For an `open` prop React can refuse with, import from
-`@apostel/bedrock/controlled` — see [controlled state](./state.md).
+`@apostel/bedrock/controlled`. See [controlled state](./state.md).
 
 > The first four are the same implementation `Dialog` exports, under a second
 > name. That is a fact about the bundle, not something you need to hold: their
@@ -52,8 +52,8 @@ Renders `<dialog role="alertdialog" data-bedrock-dialog>`.
 | `aria-describedby` | **Merged** with the `Description` id, deduped.                |
 | `asChild`          | Supported. The child must render a `<dialog>`.                |
 
-The element is always rendered — the trigger's `commandfor` has to resolve to
-something — but its children mount only while it is open, so a form inside is
+The element is always rendered, because the trigger's `commandfor` has to
+resolve to something, but its children mount only while it is open, so a form inside is
 gone when it closes rather than reset.
 
 > `role="alertdialog"` tells a screen reader to announce the whole dialog
@@ -69,7 +69,7 @@ is intent: `Action` carries your handler and a
 `data-bedrock-alert-dialog-action` hook, `Cancel` the matching cancel hook.
 
 There is **no `AlertDialog.Close`**. An alert dialog asks a question, so both
-ways out are answers — a third, meaningless dismissal would leave the caller not
+ways out are answers, and a third meaningless dismissal would leave the caller not
 knowing what the user decided.
 
 Escape still closes, and deliberately so. Removing it would trap a keyboard user
@@ -82,4 +82,4 @@ cancel: treat it as one.
   puts it for `showModal()`, on the first focusable control. Put `Cancel` first
   in the DOM if you want it focused, which is also the safer default.
 - **Light dismiss.** Clicking the backdrop does nothing, and here that is
-  unambiguously right — a question needs an answer.
+  unambiguously right: a question needs an answer.

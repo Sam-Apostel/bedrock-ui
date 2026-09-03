@@ -78,7 +78,7 @@ All of it native, including the right behaviour in right-to-left writing modes.
 - **Range sliders with two thumbs.** One `<input type="range">` is one value.
   Two inputs and a shared track is the honest way to do it, and it is not
   wrapped up here. This is the clearest functional gap against Radix; see
-  [gaps](./should-you-switch.md).
+  [should you switch?](./should-you-switch.md).
 - **`minStepsBetweenThumbs`.** Follows from the above.
 - **Vertical sliders in every engine.** `writing-mode` handles it where
   supported; see [browser support](./compat.html).

@@ -3,7 +3,7 @@
 Headless React primitives that let the browser do the layering, positioning and
 dismissal.
 
-Radix-shaped anatomy — compound components, `asChild`, the part names you
+Radix-shaped anatomy: compound components, `asChild`, the part names you
 already type. Underneath, the top layer, invoker commands and anchor positioning
 do the work that `Portal`, `Presence`, `DismissableLayer` and Floating UI used to
 do.
@@ -45,22 +45,27 @@ bundle never arrives.
 
 Measured with esbuild, minified and gzipped, React external:
 
+<!-- sizes-figure -->
+
 | primitive | bedrock | Radix | |
 | --- | --- | --- | --- |
-| Checkbox | **0.70 kB** | 5.9 kB | 8.5× |
-| Slider | **0.74 kB** | 9.8 kB | 13× |
-| Select | **0.84 kB** | 31.5 kB | 37× |
+| Checkbox | **0.70 kB** | 5.9 kB | 8.4× |
+| Slider | **0.74 kB** | 9.8 kB | 13.2× |
+| Select | **0.84 kB** | 31.5 kB | 37.5× |
 | Accordion | **1.61 kB** | 8.8 kB | 5.5× |
-| Dialog | **1.95 kB** | 13.7 kB | 7× |
-| Popover | **2.11 kB** | 24.2 kB | 11× |
+| Dialog | **1.95 kB** | 13.7 kB | 7.0× |
+| Popover | **2.11 kB** | 24.2 kB | 11.5× |
 | Tooltip | **2.55 kB** | 19.3 kB | 7.6× |
 | DropdownMenu | **3.55 kB** | 31.6 kB | 8.9× |
 
-The gap widens where the platform hands over a whole element and narrows where
-roving focus gets involved — menus save least, and
-[should you switch?](./docs/should-you-switch.md#3-the-saving-is-uneven-and-menus-barely-save-anything)
-says so in detail. The larger win is behavioural: no z-index fights, no portal
-clipping, no repositioning on every scroll frame.
+The ratio is largest where the platform hands over a whole element and smallest
+where it hands over nothing but the layering. Menus are the case to budget from:
+they save more kilobytes than anything but Select, and they still leave the
+largest bedrock bundle in the library, because roving focus and typeahead have
+no native equivalent and ship either way.
+[Should you switch?](./docs/should-you-switch.md#3-the-saving-is-uneven)
+breaks that down by group. The larger win is behavioural anyway: no z-index
+fights, no portal clipping, no repositioning on every scroll frame.
 
 ## What it costs
 
@@ -77,26 +82,26 @@ The component still opens, closes, traps focus and is announced correctly. Below
 it, nothing opens at all.
 
 [Browser support](./docs/compat.md) has every feature, its minimum version in
-each engine, and what its absence does to your UI — measured in the browser you
+each engine, and what its absence does to your UI, measured in the browser you
 open it in.
 
 ## Where to start
 
-- **[Getting started](./docs/getting-started.md)** — install, a first component,
+- **[Getting started](./docs/getting-started.md)**: install, a first component,
   and the one rule that applies to every trigger.
-- **[Should you switch?](./docs/should-you-switch.md)** — the case against
+- **[Should you switch?](./docs/should-you-switch.md)**: the case against
   adopting this. Read it first if you are evaluating.
-- **[Migrating from Radix](./docs/migration-from-radix.md)** — what changes,
+- **[Migrating from Radix](./docs/migration-from-radix.md)**: what changes,
   what breaks, and what to do about it.
-- **[shadcn registry](./docs/shadcn-registry.md)** — shadcn's own components with
+- **[shadcn registry](./docs/shadcn-registry.md)**: shadcn's own components with
   Radix swapped for bedrock, installable with `npx shadcn add`.
-- **[Agent skill](./skills/migrate-to-bedrock/SKILL.md)** — does the mechanical
+- **[Agent skill](./skills/migrate-to-bedrock/SKILL.md)**: does the mechanical
   migration and brings you the four decisions it cannot make for you.
 
 ## Status
 
-`0.1.0` on npm. All 29 primitives, 141 Playwright tests against real Chrome.
-What is missing is soak time and other engines — not components.
+`0.1.1` on npm. All 29 primitives, 190 Playwright tests against real Chrome.
+What is missing is soak time and other engines, not components.
 
 [Contributing](./CONTRIBUTING.md) · [Releasing](./RELEASING.md) ·
 [Changelog](./CHANGELOG.md)

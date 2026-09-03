@@ -59,7 +59,7 @@ Each takes `onOpenChange`, which reports and cannot refuse. Import from
 `@apostel/bedrock/controlled` for a veto.
 
 > `ContextMenu` opens on `contextmenu`, so it must `preventDefault()` the
-> browser's own menu — the one deliberate interception in the library. Opening
+> browser's own menu, the one deliberate interception in the library. Opening
 > is deferred by a task, because showing a popover inside the same gesture that
 > opened it means the gesture immediately light-dismisses it.
 
@@ -83,7 +83,7 @@ Renders `<div popover data-bedrock-menu>`.
 | `sideOffset`      | `number`  | Pixels between trigger and panel.                 |
 | `avoidCollisions` | `boolean` | Default `true`. Becomes `position-try-fallbacks`. |
 | `loop`            | `boolean` | Whether arrow keys wrap at the ends.               |
-| `id`              | —         | **Not forwarded**; `commandfor` points at it.      |
+| `id`              |           | **Not forwarded**; `commandfor` points at it.      |
 
 **Children mount only while it is open.** A menu that holds a checkbox item
 therefore starts from your state every time, not from whatever it was left in.
@@ -96,9 +96,9 @@ therefore starts from your state every time, not from whatever it was left in.
 | `CheckboxItem` | `<button role="menuitemcheckbox">`     | `checked`, `onCheckedChange`             |
 | `RadioGroup`   | `<div role="group">`                   | `value`, `onValueChange`                 |
 | `RadioItem`    | `<button role="menuitemradio">`        | `value` (required)                       |
-| `Label`        | `<div>`                                | —                                        |
-| `Group`        | `<div role="group">`                   | —                                        |
-| `Separator`    | `<div role="separator">`               | —                                        |
+| `Label`        | `<div>`                                |                                          |
+| `Group`        | `<div role="group">`                   |                                          |
+| `Separator`    | `<div role="separator">`               |                                          |
 
 `closeOnSelect` is off for checkbox and radio items, because ticking three
 boxes in a row is the point of having them.
@@ -121,7 +121,7 @@ its trigger and nested inside the parent's panel.
 | ---------- | ------------------------------ | ---------------------------------------- |
 | `Root`     | `<nav>`                        | Landmark, so it is one per region.        |
 | `List`     | `<ul>`                         | Roving focus across the top level.        |
-| `Item`     | `<li>`                         | —                                        |
+| `Item`     | `<li>`                         |                                          |
 | `Link`     | `<a>`                          | Takes `active` for the current page.      |
 | `Viewport` | `<div>`                        | Optional shared panel container.           |
 
@@ -147,4 +147,4 @@ that calls `router.push`, which breaks all three.
 - **Typeahead configuration.** The reset delay is fixed at one second.
 - **Animated submenus following the pointer.** No "safe triangle". Moving
   diagonally onto a submenu can close it, which is the honest cost of not
-  running a pointer-tracking loop. See [gaps](./should-you-switch.md).
+  running a pointer-tracking loop. See [should you switch?](./should-you-switch.md).

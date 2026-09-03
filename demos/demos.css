@@ -424,3 +424,202 @@
     monospace;
   color: var(--muted, #5c5f6b);
 }
+
+/* ── The top-layer exit demo ───────────────────────────────────────────── */
+
+/*
+ * Two lanes, identical but for one entry in a transition list.
+ *
+ * Everything here is deliberately slow: 900ms is far longer than any real
+ * dialog should take, and it is the only reason the difference is visible at
+ * all. At 180ms, which is what bedrock.css ships, this bug looks like a flicker
+ * and gets filed against z-index.
+ */
+.tle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.tle-lane {
+  min-width: 0;
+}
+
+.tle-label {
+  margin: 0 0 0.6rem;
+  font-size: 0.75rem;
+  color: var(--muted, #62626b);
+}
+
+.tle-label code {
+  font-size: 0.95em;
+}
+
+.tle-trigger {
+  margin-bottom: 0.75rem;
+}
+
+/*
+ * Room for the panel to hang below the band.
+ *
+ * The first version put a card the same size as the panel directly under the
+ * trigger, so the occluded case showed nothing at all: the panel vanished
+ * whole, which reads as "the transition did not run" rather than "the
+ * transition ran somewhere you cannot see". A band across the panel's middle
+ * leaves its head and its feet visible and makes the cut the whole point.
+ */
+.tle-lane {
+  min-height: 13rem;
+}
+
+/*
+ * An ordinary positioned element with a stacking order. It is the whole point:
+ * nothing about it is unusual, and it wins the moment the panel stops being in
+ * the top layer.
+ */
+.tle-card {
+  position: relative;
+  z-index: 2;
+  margin-top: 2.25rem;
+  padding: 1.1rem 0.8rem;
+  border: 1px solid var(--rule, #e3e0d8);
+  border-radius: 8px;
+  /* Opaque, so "behind" is not a matter of opinion. */
+  background: var(--sunk, #f2efe8);
+  font: 0.75rem/1 var(--mono, ui-monospace, monospace);
+  color: var(--muted, #62626b);
+}
+
+.tle-panel {
+  --_exit: 900ms;
+
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  width: 9.5rem;
+  /* Tall enough to cross the band and come out underneath it. */
+  height: 7.5rem;
+  border: 1px solid var(--accent, #b3350f);
+  border-radius: 10px;
+  background: var(--paper, #fbfaf8);
+  color: var(--ink, #101013);
+  font-size: 0.85rem;
+  opacity: 0;
+  /* The exit target. It slides down across the band on the way out, which is
+     what makes the occluded case read as "behind" rather than "gone". */
+  translate: 0 30px;
+
+  transition:
+    /* Opacity is held near 1 for most of the exit deliberately: a panel that is
+       half transparent halfway through tells you nothing about what is in front
+       of what. An opaque rectangle moving across an opaque card does. */
+    opacity var(--_exit) cubic-bezier(0.85, 0, 1, 0.35),
+    translate var(--_exit) ease,
+    display var(--_exit) allow-discrete;
+}
+
+/*
+ * The one declaration the demo exists for. Everything above is shared.
+ */
+.tle-lane[data-keeps] .tle-panel {
+  transition:
+    opacity var(--_exit) cubic-bezier(0.85, 0, 1, 0.35),
+    translate var(--_exit) ease,
+    display var(--_exit) allow-discrete,
+    overlay var(--_exit) allow-discrete;
+}
+
+.tle-panel:popover-open {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@starting-style {
+  .tle-panel:popover-open {
+    opacity: 0;
+    translate: 0 -6px;
+  }
+}
+
+/*
+ * Collapsed rather than removed, the way bedrock.css does it: `allow-discrete`
+ * still has to sequence the display change, and a demo that showed nothing at
+ * all here would be worse than a fast one.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .tle-panel {
+    --_exit: 60ms;
+  }
+}
+
+@media (max-width: 40rem) {
+  .tle {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── The refusal demo ──────────────────────────────────────────────────── */
+
+/*
+ * Two lanes, one veto each, and a counter that makes the invisible one legible.
+ *
+ * Deliberately not styled to look like a comparison table. The reader is meant
+ * to operate both, not read them: the whole difference is whether something
+ * moved, and only one of these can be settled by looking at a picture.
+ */
+.rf {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.rf-lane {
+  display: grid;
+  /* The stage takes the slack, so both verdicts sit on one line however tall
+     the trigger above them wraps. */
+  grid-template-rows: auto 1fr auto;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.rf-head {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted, #62626b);
+}
+
+.rf-head strong {
+  color: var(--ink, #101013);
+}
+
+.rf-stage {
+  min-width: 0;
+}
+
+/* Inside the dialog, where a reader who has locked themselves in can reach it. */
+.rf-lock {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.7rem 0;
+  padding: 0.6rem 0.7rem;
+  border-radius: 8px;
+  background: var(--sunk, #f2efe8);
+  font-size: 0.8rem;
+  color: var(--muted, #62626b);
+}
+
+.rf-count {
+  margin: 0;
+  font: 0.78rem/1.2 var(--mono, ui-monospace, monospace);
+  color: var(--accent, #b3350f);
+}
+
+@media (max-width: 40rem) {
+  .rf {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

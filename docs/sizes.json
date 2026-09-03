@@ -1,0 +1,16 @@
+{
+  "$comment": "Hand-measured, and the only copy. README.md, should-you-switch.md and state.md all quoted these numbers separately, which is three places for them to drift and one documented gap in known-gaps.md. The figure on the home page is built from this file and tests/docs.spec.ts checks the pages against it.",
+  "method": "esbuild, minified and gzipped, React external",
+  "measured": "2026-02-14",
+  "primitives": [
+    { "name": "Select", "bedrock": 0.84, "radix": 31.5 },
+    { "name": "Slider", "bedrock": 0.74, "radix": 9.8 },
+    { "name": "Popover", "bedrock": 2.11, "radix": 24.2 },
+    { "name": "DropdownMenu", "bedrock": 3.55, "radix": 31.6 },
+    { "name": "Checkbox", "bedrock": 0.7, "radix": 5.9 },
+    { "name": "Tooltip", "bedrock": 2.55, "radix": 19.3 },
+    { "name": "Dialog", "bedrock": 1.95, "radix": 13.7 },
+    { "name": "Accordion", "bedrock": 1.61, "radix": 8.8 }
+  ],
+  "controlled": { "name": "Dialog", "plain": 1.95, "controlled": 2.09 }
+}

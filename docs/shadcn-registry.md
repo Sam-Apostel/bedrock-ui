@@ -1,7 +1,7 @@
 # shadcn registry
 
 A drop-in replacement for the shadcn/ui components that bedrock can actually
-back. Same exports, same `data-slot` attributes, same class names — the diff in
+back. Same exports, same `data-slot` attributes, same class names. The diff in
 your app is the import inside `components/ui/*.tsx`, and nothing above it.
 
 ```bash
@@ -15,7 +15,7 @@ asks before overwriting, and the diff is the thing worth reading.
 ## What you get
 
 Below are shadcn's `Dialog`, `Tabs`, `Checkbox`, `Switch` and `Label` from this
-registry, imported from `registry/bedrock/ui/` **unmodified** — the same files
+registry, imported from `registry/bedrock/ui/` **unmodified**: the same files
 the command above installs, running on this page.
 
 The claim is that the swap is invisible. Open the dialog, walk the tabs with the
@@ -23,7 +23,7 @@ arrow keys, and check that against a shadcn app you already have.
 
 <!-- demo: registry -->
 
-The dialog has no `Portal` and no `Overlay` doing anything — both are no-ops now,
+The dialog has no `Portal` and no `Overlay` doing anything. Both are no-ops now,
 because a `<dialog>` is already in the top layer and its backdrop is a
 pseudo-element. The exports are still there, so your imports do not change.
 
@@ -35,10 +35,10 @@ Radix primitive.
 | shadcn component | status | notes |
 | --- | --- | --- |
 | `dialog` | **replaced** | Uncontrolled. `Portal` and `Overlay` are kept as no-ops so blocks keep compiling. |
-| `dialog-controlled` | **added** | Same file, controlled entry point, required `open`. Not a shadcn name — install it *as* `dialog` when you need the veto. |
+| `dialog-controlled` | **added** | Same file, controlled entry point, required `open`. Not a shadcn name, so install it *as* `dialog` when you need the veto. |
 | `alert-dialog` | **replaced** | `role="alertdialog"` on the same primitive. `Action`/`Cancel` are close buttons. |
 | `popover`, `tooltip`, `hover-card` | **replaced** | Anchor positioning; `side`/`align`/`sideOffset` keep their names. |
-| `dropdown-menu`, `context-menu` | **replaced** | Popover plus roving focus. `ContextMenuTrigger` renders its children in place — the root *is* the trigger area. |
+| `dropdown-menu`, `context-menu` | **replaced** | Popover plus roving focus. `ContextMenuTrigger` renders its children in place, so the root *is* the trigger area. |
 | `select` | **replaced** | A real `<select>`. `SelectValue` is `<selectedcontent>`; there is no `placeholder` render prop, because the closed state mirrors the chosen option's markup. |
 | `checkbox`, `switch`, `radio-group`, `slider`, `progress` | **replaced** | Native inputs. Every `Indicator` and `Thumb` element is gone; the marks are pseudo-elements, which is a smaller component and a bigger CSS change. |
 | `accordion`, `collapsible`, `tabs` | **replaced** | `<details>` for the first two. `AccordionTrigger` renders inside the `<summary>`. |
@@ -49,8 +49,8 @@ Radix primitive.
 
 > Mixing is safe: Radix and bedrock are separate packages with no shared globals
 > and no CSS collisions. It does mean both are in your bundle until the
-> migration finishes — see
-> [should you switch?](./should-you-switch.md#3-the-saving-is-uneven-and-menus-barely-save-anything).
+> migration finishes. See
+> [should you switch?](./should-you-switch.md#3-the-saving-is-uneven).
 
 ## What changed inside the component
 
@@ -67,12 +67,12 @@ past. The export is kept because shadcn blocks import it.
 ### `DialogOverlay` renders nothing
 
 The overlay is `::backdrop`, a pseudo-element. It cannot be a React node, so
-classes passed to `DialogOverlay` have nowhere to go — in development you get
+classes passed to `DialogOverlay` have nowhere to go, and in development you get
 one console warning pointing at the `backdrop:` variant on `DialogContent`,
 where those styles now live.
 
 If your overlay had children (a spinner, a close affordance), that is a redesign
-rather than a migration. See [gaps](./should-you-switch.md#6-several-parts-render-nothing-and-that-is-a-redesign-not-a-rename).
+rather than a migration. See [should you switch?](./should-you-switch.md#6-several-parts-render-nothing-and-that-is-a-redesign-not-a-rename).
 
 ### Animation keys off `:open`
 
@@ -82,7 +82,7 @@ rather than a migration. See [gaps](./should-you-switch.md#6-several-parts-rende
 ```
 
 `starting:` is `@starting-style` and `transition-discrete` is
-`transition-behavior: allow-discrete` — both are built into Tailwind 4. There is
+`transition-behavior: allow-discrete`, both built into Tailwind 4. There is
 no `forceMount` and no presence wrapper; the element is always in the DOM and
 the browser sequences the exit.
 
@@ -96,7 +96,7 @@ That is the two-root split reaching user land. `dialog.tsx` imports
 `open` throws in development with the command to install the controlled build
 instead.
 
-> `onOpenChange` still exists on the uncontrolled build and still fires — it
+> `onOpenChange` still exists on the uncontrolled build and still fires. It
 > just cannot refuse. Most shadcn usage (`onOpenChange={() => form.reset()}`) is
 > served by it.
 
@@ -117,7 +117,7 @@ Radix's `Action` behaves the same way, so this is a like-for-like swap.
 npm run registry:build
 ```
 
-Reads `registry.json`, inlines each component's source, and writes `r/*.json` —
+Reads `registry.json`, inlines each component's source, and writes `r/*.json`,
 the same output shape `shadcn build` produces, generated so a component and its
 registry entry cannot drift.
 

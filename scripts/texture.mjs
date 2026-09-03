@@ -37,6 +37,10 @@ const TEXTURE = [
   // thing, and an anchored `demo"` quietly failed to match it. Every widget on
   // a page was being counted as one more paragraph of prose.
   [/^<div class="demo[ "]/, 'demo'],
+  // A figure is one thing, not the paragraph and the list it is built out of.
+  // Without this the bundle-size figure on the home page decomposed into its
+  // own key and its own rows, and read as two more paragraphs of prose.
+  [/^<figure/, 'figure'],
   [/^<div class="table-wrap"|^<table/, 'table'],
   [/^<h[1-6]/, 'heading'],
   [/^<(ul|ol)/, 'list'],
@@ -54,7 +58,7 @@ function blocksOf(html) {
   if (start === -1 || end === -1) return []
 
   const main = html.slice(start + '<main>'.length, end)
-  return main.match(/<(p|pre|h[1-6]|ul|ol|div|blockquote|table)[\s>][\s\S]*?<\/\1>/g) ?? []
+  return main.match(/<(p|pre|h[1-6]|ul|ol|div|figure|blockquote|table)[\s>][\s\S]*?<\/\1>/g) ?? []
 }
 
 /**

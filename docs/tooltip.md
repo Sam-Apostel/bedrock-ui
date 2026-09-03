@@ -1,7 +1,7 @@
 # Tooltip and HoverCard
 
 Both are hover-and-focus intent over an anchored popover, and both are one
-implementation — they differ in their delays, in whether the content is
+implementation. They differ in their delays, in whether the content is
 hoverable, and in whether the thing is a label or a region.
 
 ```tsx
@@ -13,8 +13,8 @@ import { Tooltip, HoverCard } from '@apostel/bedrock'
 ## The honest part
 
 The panel, its stacking, its dismissal and its positioning are the platform's.
-**The intent timers are not.** `interestfor` — the attribute that would make
-this declarative — shipped in Chrome 142 and nowhere else, and is still not on
+**The intent timers are not.** `interestfor`, the attribute that would make this
+declarative, shipped in Chrome 142 and nowhere else, and is still not on
 a standards track, so `src/interest.ts` handles pointer in, pointer out, focus
 and blur for everyone.
 
@@ -34,14 +34,14 @@ Nothing above it changes, which is exactly why the prop is called
 
 ## `HoverCard.Root`
 
-Same, with `openDelay` instead of `delayDuration`, and **hoverable content** —
+Same, with `openDelay` instead of `delayDuration`, and **hoverable content**:
 moving the pointer from the trigger onto the card keeps it open. A tooltip's
 content is not hoverable, because a tooltip is a label and there is nothing in
 it to reach.
 
 ## `Trigger`
 
-Renders `<button>`, or whatever you pass with `asChild` — a HoverCard trigger is
+Renders `<button>`, or whatever you pass with `asChild`. A HoverCard trigger is
 usually an `<a>`, which is the point of link previews.
 
 > `aria-describedby` points at the content: a tooltip **describes** its trigger
@@ -55,7 +55,7 @@ Renders `<div popover data-bedrock-tooltip>` and takes `side`, `align`,
 
 Tooltip content uses `popover="hint"` where the browser supports it, so it
 layers above an open menu instead of closing it. Where it does not, it falls
-back to `auto` — opening a tooltip then closes an open menu, which is wrong but
+back to `auto`, so opening a tooltip closes an open menu, which is wrong but
 not broken.
 
 Children mount only while open.
@@ -76,6 +76,6 @@ put unique navigation in one.
 
 - **A shared provider with a global "skip delay" window.** Radix opens
   subsequent tooltips instantly once one has opened. Not implemented; each root
-  keeps its own timers. See [gaps](./should-you-switch.md).
+  keeps its own timers. See [should you switch?](./should-you-switch.md).
 - **Touch support beyond the platform's.** There is no hover on a touch screen,
   and a tooltip that opens on tap is a popover with extra steps.

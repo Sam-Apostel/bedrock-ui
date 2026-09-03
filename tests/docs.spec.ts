@@ -644,6 +644,39 @@ test.describe('on a phone', () => {
     await expect(links).toBeHidden()
   })
 
+  /**
+   * Opened from inside the page, deliberately.
+   *
+   * `locator.click()` scrolls its target into view first, and on a sticky bar
+   * that means back up the page — which is exactly the state where the two
+   * faults below do not happen. Both shipped green because of it.
+   */
+  test('the menu opens where the reader is, not where the page starts', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+    await page.evaluate(() => window.scrollTo(0, 1500))
+    await page.evaluate(() => document.querySelector('.nav-toggle').click())
+
+    const panel = page.locator('.nav-links')
+    await expect(panel).toBeVisible()
+
+    const geometry = await page.evaluate(() => {
+      const bar = document.querySelector('nav').getBoundingClientRect()
+      const links = document.querySelector('.nav-links').getBoundingClientRect()
+      return {
+        barTop: Math.round(bar.top),
+        barBottom: Math.round(bar.bottom),
+        panelTop: Math.round(links.top),
+      }
+    })
+
+    // The bar is still stuck to the top: a scroll lock that makes the body a
+    // scroll container takes that away, because that is what sticky sticks to.
+    expect(geometry.barTop).toBe(0)
+    // And the panel hangs off it, in the viewport rather than at the top of the
+    // document 1500px above.
+    expect(geometry.panelTop).toBe(geometry.barBottom)
+  })
+
   test('the page behind the open nav does not scroll either', async ({ page }) => {
     await page.goto(`${SITE}/dialog.html`)
 

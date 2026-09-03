@@ -117,7 +117,8 @@ body {
  * This is the gap listed in known-gaps.md, closed here rather than in the
  * library — it is a judgement about this page's layout, and the two lines it
  * costs are the argument for leaving it to the site. `body` as well as the root
- * because iOS Safari keeps scrolling the document when only the root is hidden.
+ * because iOS Safari keeps scrolling the document when only the root is hidden;
+ * see the note on the body rule for why the two values differ.
  *
  * The nav panel is in the list for the same reason: it is a scroller of its own,
  * and a scroller that reaches its end hands the rest of the gesture to the page
@@ -125,9 +126,18 @@ body {
  * stops a *programmatic* scroll — measured, and it is why the browser can still
  * move the page under you to reveal a field when the on-screen keyboard opens.
  */
-html:has(dialog:modal, .nav-links:popover-open),
-html:has(dialog:modal, .nav-links:popover-open) body {
+html:has(dialog:modal, .nav-links:popover-open) {
   overflow: hidden;
+}
+
+/*
+ * `clip` on the body, not `hidden`. Both stop the gesture; only `hidden` makes
+ * the body a scroll container, and a scroll container is what a sticky element
+ * sticks to — so the nav bar stopped sticking to the viewport the moment the
+ * lock came on, and slid away with the page under its own open panel.
+ */
+html:has(dialog:modal, .nav-links:popover-open) body {
+  overflow: clip;
 }
 
 /* ── Shell ─────────────────────────────────────────────────────────────── */
@@ -197,9 +207,24 @@ nav {
  * links move into the top layer where they belong.
  */
 @media (max-width: 62rem) {
+  /*
+   * The bar's height, and so the line everything else measures from: where the
+   * panel starts, and how far down a jump link has to land.
+   *
+   * A constant rather than `anchor(--nav-bar bottom)`, which tracked the bar
+   * faithfully — including the time the bar was 1500px above the screen with
+   * the panel loyally beside it. Anchoring inherits every fault the anchor has.
+   * A stated offset cannot leave the viewport: whatever happens to the bar, the
+   * menu still opens where the reader is looking. A sticky bar is one number
+   * tall, and this is the number.
+   */
+  :root {
+    --bar: calc(var(--u) * 8);
+  }
+
   /* Whatever is scrolled to lands below the bar rather than under it. */
   html {
-    scroll-padding-top: calc(var(--u) * 9);
+    scroll-padding-top: calc(var(--bar) + var(--u));
   }
 
   nav {
@@ -214,8 +239,8 @@ nav {
      * copy button over a code block.
      */
     z-index: 2;
-    /* What the panel below hangs from, where the browser can do that. */
-    anchor-name: --nav-bar;
+    /* Stated, so the panel below can start exactly where this ends. */
+    height: var(--bar);
     max-height: none;
     overflow: visible;
     /* Out into the shell's gutter, so nothing shows past it while it is stuck. */
@@ -263,12 +288,9 @@ nav {
 
   .nav-links:popover-open {
     position: fixed;
-    inset: calc(var(--u) * 8) var(--u2) auto;
-    /* The bar's real bottom edge, where the browser can tell us where it is.
-       The line above is the same number rounded, for where it cannot. */
-    top: anchor(--nav-bar bottom);
+    inset: var(--bar) var(--u2) auto;
     width: auto;
-    max-height: calc(100dvh - calc(var(--u) * 10));
+    max-height: calc(100dvh - var(--bar) - var(--u2));
     overflow-y: auto;
     margin: 0;
     padding: var(--u2) var(--u3);

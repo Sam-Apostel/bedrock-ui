@@ -66,8 +66,8 @@ positioning are the two rows that decide whether you get "works" or "works and
 looks right".
 
 `interestfor`, which would drive Tooltip and HoverCard, is not standardised and
-**not in Chrome stable either**. Those two ship on a JavaScript fallback as
-their normal path, not as a contingency.
+is **in Chrome only**. Those two ship on a JavaScript fallback as their normal
+path, not as a contingency.
 
 ### 3. The saving is uneven, and menus barely save anything
 

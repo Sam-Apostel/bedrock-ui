@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 /**
  * Drives the built site rather than a fixture.
@@ -27,6 +27,7 @@ const PAGES = [
   ['toast.html', 'toast'],
   ['display.html', 'display'],
   ['shadcn-registry.html', 'registry'],
+  ['compat.html', 'compat-timeline'],
 ] as const
 
 test.describe('docs site', () => {
@@ -361,6 +362,185 @@ test.describe('site chrome', () => {
     // the hand-written compat.html, so none of this had ever been visible.
     await expect(page.getByText('The stance')).toBeVisible()
     await expect(page.getByRole('heading', { name: /degrades/ })).toBeVisible()
+  })
+})
+
+/** Recursive rather than a loop, which the linter is right to object to. */
+async function stepRight(range: Locator, times: number): Promise<void> {
+  if (times <= 0) return
+  await range.press('ArrowRight')
+  await stepRight(range, times - 1)
+}
+
+/**
+ * Moves the slider to one of its stops with the keyboard.
+ *
+ * The input counts in days, not in stops — that is what puts the playhead where
+ * the date is — so setting `value` to an index would land on whatever happened
+ * nearest that many days after 2013. Arrow keys are what a reader has, and what
+ * the widget intercepts to move by events.
+ */
+async function scrubTo(page: Page, index: number): Promise<void> {
+  const range = page.locator('.tl-range')
+  await range.focus()
+  await range.press('Home')
+  await stepRight(range, index)
+}
+
+/**
+ * The timeline is the compat page's headline, and every claim it makes is
+ * checkable: that a component which could not have existed at the selected
+ * date is switched off rather than merely greyed, that one built on markup
+ * from 2011 never switches off at all, and that the styling belongs to the era
+ * rather than to the components.
+ */
+test.describe('the compat timeline', () => {
+  test('opens on the most recent moment that has actually happened', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    await expect(page.locator('.tl-tile')).toHaveCount(15)
+    // Past the end are projected dates, which must not be where it opens.
+    await expect(page.locator('.tl')).not.toHaveAttribute('data-ahead', 'true')
+
+    const when = await page.locator('time.tl-when').getAttribute('datetime')
+    expect(when && when <= new Date().toISOString().slice(0, 10)).toBe(true)
+  })
+
+  test('a component that could not exist yet is switched off, not just greyed', async ({
+    page,
+  }) => {
+    await page.goto(`${SITE}/compat.html`)
+    await scrubTo(page, 0)
+
+    const dialog = page.locator('.tl-tile', { hasText: 'Dialog' }).first()
+    await expect(dialog).toHaveAttribute('data-status', 'dead')
+    // 2013: no <dialog>, no invoker commands, so the trigger is inert — which
+    // means it cannot be focused, not merely that it looks disabled.
+    const focusable = await dialog
+      .getByRole('button', { name: 'Rename project' })
+      .evaluate((node) => {
+        node.focus()
+        return document.activeElement === node
+      })
+
+    expect(focusable).toBe(false)
+  })
+
+  test('a component with nothing to wait for is marked, not withheld', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+    await scrubTo(page, 0)
+
+    // Tabs needs no platform feature, which is the strongest form of "you will
+    // never have to check this" — so it carries the same mark as a feature that
+    // has been everywhere for thirty months, and says why instead of borrowing
+    // Baseline's words for it.
+    const tabs = page.locator('.tl-tile', { hasText: 'Tabs' }).first()
+    await expect(tabs).toHaveAttribute('data-status', 'gold')
+    await expect(tabs.locator('.tl-badge')).toHaveText('nothing to wait for')
+  })
+
+  test('the axis is drawn in time, not in stops', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    const axis = (await page.locator('.tl-ticks').boundingBox()) ?? { x: 0, width: 1 }
+    const ticks = await page
+      .locator('.tl-tick')
+      .evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().x))
+
+    // Spread evenly, 40% of the stops would sit in the last 40% of the track.
+    // Placed by date, most of them do: almost everything here happened after
+    // 2023, and that pile-up is the point of drawing it this way.
+    const late = ticks.filter((x) => (x - axis.x) / axis.width > 0.6)
+
+    expect(ticks.length).toBeGreaterThan(40)
+    expect(late.length / ticks.length).toBeGreaterThan(0.5)
+  })
+
+  test('the header says what the features in the event do, and links MDN', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+    await scrubTo(page, 2)
+
+    // 26 Aug 2014: Chrome 37 shipped showModal() and ::backdrop on one day.
+    const features = page.locator('.tl-features li')
+    await expect(features).toHaveCount(2)
+    await expect(features.first()).toContainText('top layer')
+
+    // The link is MDN's own URL for the feature, out of the compat data.
+    const href = await features.first().locator('a').getAttribute('href')
+    expect(href).toBe('https://developer.mozilla.org/docs/Web/API/HTMLDialogElement/showModal')
+  })
+
+  test('a narrow screen gets the whole grid, scaled down', async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 900 })
+    await page.goto(`${SITE}/compat.html`)
+    await expect(page.locator('.tl-grid')).toBeVisible()
+
+    const layout = await page.locator('.tl-grid').evaluate((node) => {
+      const style = getComputedStyle(node)
+      return { zoom: style.zoom, columns: style.gridTemplateColumns.split(' ').length }
+    })
+
+    // Zoomed, not rebuilt: four columns of real components at whatever size
+    // fits, rather than a simplified layout that throws the styling away.
+    expect(Number(layout.zoom)).toBeLessThan(1)
+    expect(layout.columns).toBe(4)
+    await expect(page.locator('.tl-tile').first().locator('.tl-stage')).toBeVisible()
+  })
+
+  test('a component built on markup that already shipped never switches off', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    const tabs = page.locator('.tl-tile', { hasText: 'Tabs' }).first()
+    const statusAt = async (index: number) => {
+      await scrubTo(page, index)
+      return tabs.getAttribute('data-status')
+    }
+
+    // Spread across the whole track, including the first moment on it. Tabs is
+    // roving tabindex and nothing else, so there has never been a date at
+    // which it did not work.
+    expect([
+      await statusAt(0),
+      await statusAt(12),
+      await statusAt(24),
+      await statusAt(36),
+      await statusAt(48),
+    ]).toEqual(['gold', 'gold', 'gold', 'gold', 'gold'])
+  })
+
+  test('the styling belongs to the era, and the markup does not change', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    const tile = page.locator('.tl-tile').first()
+    const look = () =>
+      tile.evaluate((node) => {
+        const style = getComputedStyle(node)
+        return `${style.backgroundColor} ${style.borderRadius} ${style.boxShadow}`
+      })
+
+    await scrubTo(page, 0)
+    const flat = await look()
+    const markup = await tile.locator('.tl-stage').innerHTML()
+
+    await scrubTo(page, 30)
+    expect(await page.locator('.tl').getAttribute('data-era')).not.toBe('flat')
+    expect(await look()).not.toBe(flat)
+    // Same components, restyled. If this ever differs, the grid is swapping
+    // implementations and the page is making a claim it cannot support.
+    expect(await tile.locator('.tl-stage').innerHTML()).toBe(markup)
+  })
+
+  test('the grid and the table are built from the same file', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+    await scrubTo(page, 0)
+
+    // The tile names the date the Popover API first shipped anywhere; the table
+    // names the version that shipped it. Chrome 114 was released on 30 May
+    // 2023, and both of those come out of docs/compat.json.
+    await expect(page.locator('.tl-tile', { hasText: 'Popover' }).first()).toContainText(
+      '30 May 2023',
+    )
+    await expect(page.locator('tr.floor', { hasText: 'Popover API' })).toContainText('114')
   })
 })
 

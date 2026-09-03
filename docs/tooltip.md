@@ -14,8 +14,9 @@ import { Tooltip, HoverCard } from '@apostel/bedrock'
 
 The panel, its stacking, its dismissal and its positioning are the platform's.
 **The intent timers are not.** `interestfor` — the attribute that would make
-this declarative — is not standardised and is not in Chrome stable, so
-`src/interest.ts` handles pointer in, pointer out, focus and blur.
+this declarative — shipped in Chrome 142 and nowhere else, and is still not on
+a standards track, so `src/interest.ts` handles pointer in, pointer out, focus
+and blur for everyone.
 
 It is written as a fallback rather than as a feature: when the attribute ships,
 `useInterest` stops attaching anything and the same props become declarative.

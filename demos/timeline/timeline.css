@@ -1,0 +1,671 @@
+/*
+ * The frame around the era grid: axis, scrubber, tiles, status.
+ *
+ * Everything here is structure — where things sit and how big they are. What
+ * they look like is in eras.css, as custom properties this file consumes with
+ * fallbacks. That split is the whole point of the widget: if a colour or a
+ * radius appeared below, an era could not fully replace it.
+ *
+ * Spacing is one scale, and every measurement in this file is on it. The grid
+ * is read as a grid, which means the eye is measuring alignment whether or not
+ * it is asked to.
+ */
+
+.tl {
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s6: 24px;
+  --s8: 32px;
+
+  container-type: inline-size;
+  width: 100%;
+  margin: 0;
+  padding: var(--s6);
+  background: var(--e-ground);
+  /* The era decides whether it has an edge, the way it decides everything else
+     here. The docs frame that used to sit outside this one is gone. */
+  border: var(--e-frame, 0);
+  border-radius: var(--e-frame-radius, 0);
+  color: var(--e-ink);
+  font-family: var(--e-font);
+  transition:
+    background 400ms ease,
+    color 400ms ease;
+}
+
+/* ── The moment ────────────────────────────────────────────────────────── */
+
+.tl-head {
+  display: grid;
+  gap: var(--s1);
+  margin-bottom: var(--s4);
+}
+
+.tl-when {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--e-accent);
+}
+
+.tl-headline {
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--e-display, var(--e-font));
+  font-size: clamp(1.15rem, 2.4cqi, 1.55rem);
+  font-weight: var(--e-display-weight, 700);
+  letter-spacing: var(--e-display-tracking, 0);
+  text-transform: var(--e-display-case, none);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.tl-headline em {
+  font-style: normal;
+  color: var(--e-muted);
+  font-weight: 400;
+}
+
+/*
+ * What the features in the headline do, with a link to MDN for each.
+ *
+ * One or two lines here is the difference between a date that means something
+ * and a version number you have to go and look up.
+ */
+.tl-features {
+  margin: var(--s1) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s2);
+  max-width: 68ch;
+}
+
+.tl-features li {
+  display: grid;
+  gap: 0 var(--s2);
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+  align-items: baseline;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.tl-feature-name {
+  font-family: var(--e-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  color: var(--e-ink);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+
+a.tl-feature-name {
+  color: var(--e-accent);
+}
+
+.tl-does {
+  color: var(--e-muted);
+}
+
+@container (max-width: 40rem) {
+  .tl-features li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── The axis ──────────────────────────────────────────────────────────── */
+
+/*
+ * Four layers, back to front: year gridlines, the era ribbon, one tick per
+ * moment, and the playhead. Every one of them is placed by date — `--at` is a
+ * percentage of the whole span — which is what makes the eight quiet years
+ * look quiet and the last three look like the pile-up they were.
+ */
+.tl-axis {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 4.75rem;
+  padding-top: 1.5rem;
+}
+
+.tl-years,
+.tl-ticks {
+  position: absolute;
+  inset: 1.5rem 0 0;
+}
+
+.tl-year {
+  position: absolute;
+  left: var(--at);
+  top: 0;
+  bottom: 0.95rem;
+  width: 1px;
+  background: currentColor;
+  opacity: 0.14;
+}
+
+.tl-year i {
+  position: absolute;
+  bottom: -0.95rem;
+  left: 0;
+  transform: translateX(-50%);
+  font-style: normal;
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  color: var(--e-muted);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+/*
+ * Everything to the right of today is arithmetic — thirty months from the day
+ * a feature reached the last engine — and the axis says so by going hatched
+ * rather than by captioning it.
+ */
+.tl-ahead {
+  position: absolute;
+  left: var(--at);
+  right: 0;
+  top: 1.5rem;
+  bottom: 0.95rem;
+  border-left: 1px solid currentColor;
+  background: repeating-linear-gradient(-45deg, transparent 0 4px, currentColor 4px 5px);
+  opacity: 0.16;
+}
+
+.tl-tick {
+  position: absolute;
+  left: var(--at);
+  bottom: 0.95rem;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.28;
+  transition:
+    height 200ms ease,
+    opacity 200ms ease;
+}
+
+/* How much that date mattered, in pixels. */
+.tl-tick[data-kind='preview'] {
+  height: 0.3rem;
+}
+
+.tl-tick[data-kind='ship'] {
+  height: 0.55rem;
+}
+
+.tl-tick[data-kind='widely'] {
+  height: 0.85rem;
+}
+
+.tl-tick[data-kind='everywhere'] {
+  height: 1.15rem;
+}
+
+.tl-tick[data-past] {
+  opacity: 0.5;
+}
+
+/* Reaching every engine, and staying there long enough to forget about, are
+   the two milestones worth finding at a glance across thirteen years. */
+.tl-tick[data-past][data-kind='everywhere'] {
+  background: var(--e-accent);
+  opacity: 0.9;
+}
+
+.tl-tick[data-past][data-kind='widely'] {
+  background: var(--e-good, var(--e-accent));
+  opacity: 0.9;
+}
+
+.tl-playhead {
+  position: absolute;
+  left: var(--at);
+  top: 1.4rem;
+  bottom: 0.95rem;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--e-accent);
+  /* It crosses a band of its own colour at the right-hand end of the track. */
+  box-shadow: 0 0 0 1px var(--e-ground);
+  transition: left 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/*
+ * Kept inside the axis at both ends without measuring anything: a percentage in
+ * `translateX` resolves against the element's own width, so shifting by `--at`
+ * hangs the pill off the playhead's right at the start of the track, centres it
+ * in the middle, and tucks it fully inside at the end.
+ */
+.tl-playhead-date {
+  position: absolute;
+  top: -1.45rem;
+  left: 0;
+  transform: translateX(calc(-1 * var(--at)));
+  padding: 0.15rem var(--s2);
+  font-size: 0.625rem;
+  line-height: 1.3;
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--e-accent-ink, #fff);
+  background: var(--e-accent);
+  border-radius: var(--e-radius, 4px);
+}
+
+/*
+ * A real range input, laid over the axis and invisible.
+ *
+ * Dragging, touch, Home, End and the whole pointer story are the browser's;
+ * only the arrow keys are intercepted, because the input counts in days and a
+ * reader wants to move by events. The thumb is one pixel wide so that the
+ * position the browser computes from a click matches the playhead drawn above
+ * it — a wide thumb insets the track by half its width at each end.
+ */
+.tl-range {
+  position: absolute;
+  inset: 1.4rem 0 0.95rem;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tl-range::-webkit-slider-runnable-track {
+  height: 100%;
+  background: transparent;
+}
+
+.tl-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 1px;
+  height: 100%;
+  opacity: 0;
+}
+
+.tl-range::-moz-range-track {
+  height: 100%;
+  background: transparent;
+}
+
+.tl-range::-moz-range-thumb {
+  width: 1px;
+  height: 100%;
+  border: 0;
+  opacity: 0;
+}
+
+.tl-range:focus-visible {
+  outline: none;
+}
+
+/* The focus ring belongs on the thing you can see, not on the invisible input. */
+.tl-axis:has(.tl-range:focus-visible) {
+  outline: 2px solid var(--e-accent);
+  outline-offset: var(--s1);
+  border-radius: var(--e-radius, 4px);
+}
+
+/* ── Controls ──────────────────────────────────────────────────────────── */
+
+.tl-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+}
+
+.tl-step {
+  flex: none;
+  height: 2rem;
+  padding: 0 var(--s3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1;
+  color: var(--e-ink);
+  background: var(--e-btn-bg, transparent);
+  border: var(--e-btn-border, 1px solid currentColor);
+  border-radius: var(--e-radius, 4px);
+  cursor: pointer;
+}
+
+.tl-step {
+  width: 2rem;
+  padding: 0;
+}
+
+.tl-step[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/*
+ * How much of the library worked on that date, as one bar.
+ *
+ * Three counts and four colours was a legend for a picture already on the
+ * screen. The fill is everything that works at all; the darker part of it is
+ * what works with nothing missing. The exact split is the grid's job.
+ */
+.tl-ready {
+  position: relative;
+  height: 0.5rem;
+  margin: 0 0 var(--s4);
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in oklab, currentColor 16%, transparent);
+}
+
+.tl-ready-fill,
+.tl-ready-whole {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--at);
+  border-radius: 999px;
+  transition: width 300ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Two intensities of one measure, not two colours: everything that works, and
+   the part of it with nothing missing. */
+.tl-ready-fill {
+  background: color-mix(in oklab, var(--e-good, var(--e-accent)) 35%, transparent);
+}
+
+.tl-ready-whole {
+  background: var(--e-good, var(--e-accent));
+}
+
+/* ── Grid ──────────────────────────────────────────────────────────────── */
+
+.tl-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: minmax(9.5rem, auto);
+  grid-auto-flow: dense;
+  gap: var(--s3);
+}
+
+.tl-tile {
+  position: relative;
+  grid-column: span var(--span);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  min-width: 0;
+  padding: var(--e-tile-pad, var(--s3));
+  background: var(--e-tile);
+  color: var(--e-tile-ink, var(--e-ink));
+  border: var(--e-tile-border, 1px solid rgb(128 128 128 / 0.25));
+  border-radius: var(--e-radius, 4px);
+  box-shadow: var(--e-shadow, none);
+  overflow: hidden;
+  transition:
+    background 400ms ease,
+    box-shadow 400ms ease,
+    opacity 300ms ease,
+    filter 300ms ease;
+}
+
+/*
+ * Title, then status underneath.
+ *
+ * They shared a line until the day it produced "Popov / er" and "AlertDialo /
+ * g": a one-column tile is not wide enough for a name and a label, and the
+ * name is what loses. On its own line the status also lines up down the grid,
+ * which the right-aligned version never quite did.
+ */
+.tl-tile-head {
+  display: grid;
+  gap: 2px;
+}
+
+.tl-tile-head h4 {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--e-display, var(--e-font));
+  font-size: 0.875rem;
+  line-height: 1.3;
+  font-weight: var(--e-display-weight, 700);
+  letter-spacing: var(--e-display-tracking, 0);
+  text-transform: var(--e-display-case, none);
+}
+
+.tl-badge {
+  font-size: 0.625rem;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--e-muted);
+}
+
+.tl-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: var(--s2);
+  padding: var(--s1) 0;
+}
+
+/*
+ * Switched off, and saying so twice: greyed for the eye, `inert` in the markup
+ * for everything else. A tile in this state is a component that could not have
+ * been built at this point in history at all.
+ */
+.tl-tile[data-status='dead'] {
+  opacity: 0.42;
+  filter: grayscale(1);
+  box-shadow: none;
+}
+
+.tl-tile[data-status='gold'] {
+  border-color: var(--e-good, var(--e-accent));
+  box-shadow: var(--e-glow, 0 0 0 1px var(--e-good, var(--e-accent)));
+}
+
+.tl-tile[data-status='gold'] .tl-badge {
+  color: var(--e-good, var(--e-accent));
+  font-weight: 700;
+}
+
+/* ── Per-tile detail ───────────────────────────────────────────────────── */
+
+/*
+ * Pushed to the bottom of the tile, so the notes line up across a row however
+ * tall the components above them are. Fifteen tiles with fifteen different
+ * baselines is the difference between a grid and a pile.
+ */
+.tl-detail {
+  margin-top: auto;
+  padding-top: var(--s2);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--e-muted);
+}
+
+.tl-detail summary {
+  display: grid;
+  grid-template-columns: 0.75em 1fr;
+  gap: 0 var(--s1);
+  cursor: pointer;
+  list-style: none;
+}
+
+.tl-detail summary::-webkit-details-marker {
+  display: none;
+}
+
+.tl-detail summary::marker {
+  content: '';
+}
+
+/* A hanging marker, so a note that wraps stays in its own column. */
+.tl-detail summary::before {
+  content: '';
+  width: 0.32em;
+  height: 0.32em;
+  margin-top: 0.5em;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 150ms ease;
+}
+
+.tl-detail[open] summary::before {
+  transform: rotate(45deg) translate(0, -0.1em);
+}
+
+.tl-detail ul {
+  margin: var(--s2) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--s2);
+}
+
+.tl-detail li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--s1) var(--s2);
+  align-items: baseline;
+}
+
+.tl-detail li[data-level='absent'] {
+  opacity: 0.55;
+}
+
+.tl-feature {
+  font-family: var(--e-mono, ui-monospace, monospace);
+  font-size: 0.9em;
+  color: var(--e-tile-ink, var(--e-ink));
+  overflow-wrap: anywhere;
+}
+
+.tl-why {
+  grid-column: 2;
+}
+
+.tl-none {
+  grid-column: 1 / -1;
+}
+
+.tl-chips {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.tl-chip {
+  width: 1.35rem;
+  text-align: center;
+  font-size: 0.5625rem;
+  line-height: 1.5;
+  border-radius: 2px;
+  background: rgb(128 128 128 / 0.18);
+  color: var(--e-muted);
+}
+
+.tl-chip[data-state='yes'] {
+  background: var(--e-accent);
+  color: var(--e-accent-ink, #fff);
+}
+
+.tl-chip[data-state='preview'] {
+  outline: 1px dashed var(--e-accent);
+  color: var(--e-accent);
+}
+
+.tl-source {
+  margin: var(--s4) 0 0;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--e-muted);
+  max-width: 62ch;
+}
+
+.tl-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* demos.css hands its focus ring to ordinary demos only, so this is ours. */
+.tl :focus-visible {
+  outline: 2px solid var(--e-accent);
+  outline-offset: 2px;
+}
+
+/* `code` on this site carries the page's own surface colour, not the era's. */
+.tl code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* ── Zoomed out ────────────────────────────────────────────────────────── */
+
+/*
+ * Narrow gets the whole grid, smaller — not a different grid.
+ *
+ * `zoom` scales the layout, so the four columns keep their proportions and the
+ * bento composition survives; the element simply gets more CSS pixels to lay
+ * out in than the screen has. Every era's styling survives with it, which a
+ * stack of simplified cards would have thrown away — and that styling is what
+ * the widget is for. Pinch to read one.
+ */
+@container (max-width: 46rem) {
+  .tl-grid {
+    zoom: 0.66;
+  }
+}
+
+@container (max-width: 34rem) {
+  .tl-grid {
+    zoom: 0.5;
+  }
+}
+
+@container (max-width: 26rem) {
+  .tl {
+    padding: var(--s4);
+  }
+
+  .tl-grid {
+    zoom: 0.4;
+  }
+
+  .tl-controls {
+    flex-wrap: wrap;
+  }
+
+  .tl-axis {
+    order: -1;
+    flex-basis: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl,
+  .tl-tile,
+  .tl-tick,
+  .tl-playhead,
+  .tl-ready-fill,
+  .tl-ready-whole {
+    transition: none;
+  }
+}

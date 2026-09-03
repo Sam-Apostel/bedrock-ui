@@ -1,0 +1,721 @@
+/*
+ * Seven looks, one set of components.
+ *
+ * Nothing in demos/timeline/tiles.tsx knows any of this exists. The tiles are
+ * bedrock primitives with class names on them; every colour, radius, shadow and
+ * typeface below arrives from whichever era the slider is parked in. That is
+ * the demonstration: "headless" is hard to argue in prose and obvious the
+ * moment the same dialog is Material at one end of the track and brutalist at
+ * the other.
+ *
+ * Typefaces are stacks of things people already have. A docs page that pulls
+ * four webfonts to make a joke about 2019 is a worse page.
+ */
+
+/* ── The skin every era paints ─────────────────────────────────────────── */
+
+.tl .t-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.tl .t-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tl .t-stack {
+  display: grid;
+  gap: 0.3rem;
+  width: 100%;
+}
+
+.tl .t-btn {
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: var(--e-btn-weight, 500);
+  letter-spacing: var(--e-btn-tracking, 0);
+  text-transform: var(--e-btn-case, none);
+  padding: var(--e-btn-pad, 0.4rem 0.8rem);
+  color: var(--e-btn-ink);
+  background: var(--e-btn-bg);
+  border: var(--e-btn-border, 0);
+  border-radius: var(--e-btn-radius, 4px);
+  box-shadow: var(--e-btn-shadow, none);
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.tl .t-btn:active {
+  transform: var(--e-btn-press, none);
+}
+
+.tl .t-quiet {
+  color: var(--e-ink);
+  background: var(--e-quiet-bg, transparent);
+  border: var(--e-quiet-border, 1px solid currentColor);
+  box-shadow: none;
+}
+
+.tl .t-danger {
+  background: var(--e-danger, #d64545);
+  color: #fff;
+}
+
+.tl .t-panel {
+  margin: 0;
+  padding: 0.75rem;
+  color: var(--e-panel-ink, var(--e-tile-ink, var(--e-ink)));
+  background: var(--e-panel-bg, var(--e-tile));
+  border: var(--e-panel-border, 1px solid rgb(128 128 128 / 0.3));
+  border-radius: var(--e-radius, 4px);
+  box-shadow: var(--e-panel-shadow, none);
+  backdrop-filter: var(--e-panel-blur, none);
+  font-size: 0.82rem;
+  max-width: 20rem;
+}
+
+/*
+ * `margin: auto` is what centres a modal dialog — the UA sets it and the panel
+ * rule above resets it, which parks the dialog in the top-left corner. Put it
+ * back rather than reaching for a transform.
+ */
+.tl .t-dialog {
+  margin: auto;
+  padding: 1.1rem;
+  min-width: min(22rem, 90vw);
+}
+
+.tl .t-dialog::backdrop {
+  background: var(--e-scrim, rgb(0 0 0 / 0.4));
+}
+
+.tl .t-menu {
+  padding: 0.3rem;
+  display: grid;
+  gap: 1px;
+  min-width: 9rem;
+}
+
+/*
+ * A closed popover is hidden by a UA rule, and any author `display` beats it.
+ * `.t-menu { display: grid }` was enough to leave every closed menu on the page
+ * visible as a ghost box under its trigger — put the UA's rule back in the
+ * author origin, where the skin can't outrank it.
+ */
+.tl [popover]:not(:popover-open) {
+  display: none;
+}
+
+.tl .t-item {
+  padding: 0.3rem 0.5rem;
+  border-radius: calc(var(--e-radius, 4px) / 1.5);
+  cursor: pointer;
+}
+
+.tl .t-item:hover,
+.tl .t-item:focus-visible {
+  background: var(--e-accent);
+  color: var(--e-accent-ink, #fff);
+  outline: none;
+}
+
+.tl .t-sep {
+  height: 1px;
+  margin: 0.25rem 0;
+  background: currentColor;
+  opacity: 0.2;
+  border: 0;
+}
+
+.tl .t-tip {
+  margin: 0;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.75rem;
+  color: var(--e-accent-ink, #fff);
+  background: var(--e-tip-bg, var(--e-ink));
+  border: var(--e-tip-border, 0);
+  border-radius: var(--e-radius, 4px);
+}
+
+.tl .t-title {
+  display: block;
+  font-family: var(--e-display, var(--e-font));
+  font-weight: var(--e-display-weight, 700);
+  font-size: 0.9rem;
+  margin: 0 0 0.2rem;
+}
+
+.tl .t-muted {
+  margin: 0 0 0.5rem;
+  font-size: 0.76rem;
+  opacity: 0.7;
+}
+
+.tl .t-field {
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.5rem;
+  color: inherit;
+  background: var(--e-field-bg, rgb(255 255 255 / 0.08));
+  border: var(--e-field-border, 1px solid rgb(128 128 128 / 0.45));
+  border-radius: var(--e-radius, 4px);
+  min-width: 0;
+  flex: 1;
+}
+
+/*
+ * The same 16px floor demos.css sets for ordinary demos, which cannot reach
+ * here: `.tl .t-field` outranks `.demo input`, so the grid would have kept its
+ * own 12.8px and iOS would have zoomed the viewport the moment the dialog in it
+ * took focus. The grid is scaled down anyway, so 16px still renders small.
+ */
+@media (pointer: coarse) {
+  .tl .t-field {
+    font-size: 16px;
+  }
+}
+
+.tl .t-check {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0;
+}
+
+.tl .t-link {
+  color: var(--e-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.tl .t-drop {
+  padding: 0.6rem 0.8rem;
+  font-size: 0.78rem;
+  border: 1px dashed currentColor;
+  border-radius: var(--e-radius, 4px);
+  opacity: 0.85;
+}
+
+.tl .t-out {
+  font-size: 0.7rem;
+  font-family: var(--e-mono, ui-monospace, monospace);
+  opacity: 0.7;
+}
+
+/*
+ * `base-select` leaves the select with a box of its own — a bordered, rounded,
+ * padded frame — and then the trigger inside it gets the era's button
+ * treatment. Two borders around one control, one of them nobody asked for.
+ * The trigger is the control, so the select keeps nothing but its font.
+ */
+.tl .t-select {
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+/* The arrow belongs inside the button with the label, and is drawn there. */
+.tl .t-select::picker-icon {
+  display: none;
+}
+
+.tl .t-caret {
+  font-size: 0.7em;
+  opacity: 0.8;
+}
+
+/*
+ * The trigger inside a `base-select` is `display: contents` until you say
+ * otherwise, so every era's button treatment was being dropped on the floor
+ * and only the inherited colour came through — which in the flat era is white
+ * text on a white tile. Giving it a box brings the padding, background and
+ * border back; the picker still opens, because that is the browser's.
+ */
+.tl .t-select > .t-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tl .t-fold {
+  width: 100%;
+  border: var(--e-tile-border, 1px solid rgb(128 128 128 / 0.25));
+  border-radius: var(--e-radius, 4px);
+  overflow: hidden;
+}
+
+.tl .t-summary {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: var(--e-btn-weight, 500);
+  text-align: left;
+  color: inherit;
+  background: var(--e-quiet-bg, rgb(128 128 128 / 0.1));
+  border: 0;
+  cursor: pointer;
+}
+
+/* The disclosure triangle is the UA's; the era draws its own affordance. */
+.tl .t-summary {
+  list-style: none;
+}
+
+.tl .t-summary::-webkit-details-marker {
+  display: none;
+}
+
+.tl .t-summary::marker {
+  content: '';
+}
+
+/* An open popover with nothing in it is still a box in the top layer. */
+.tl .t-toasts:empty {
+  display: none;
+}
+
+.tl .t-fold-body {
+  padding: 0.45rem 0.6rem;
+  font-size: 0.76rem;
+  opacity: 0.85;
+}
+
+.tl .t-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: var(--e-tile-border, 1px solid rgb(128 128 128 / 0.25));
+}
+
+.tl .t-tab {
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.6rem;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.tl .t-tab[aria-selected='true'] {
+  color: var(--e-accent);
+  border-bottom-color: var(--e-accent);
+  font-weight: 700;
+}
+
+.tl .t-tab-body {
+  padding: 0.5rem 0.1rem;
+  font-size: 0.76rem;
+  opacity: 0.85;
+}
+
+.tl .t-box,
+.tl .t-switch {
+  accent-color: var(--e-accent);
+  width: 1rem;
+  height: 1rem;
+}
+
+.tl .t-switch {
+  width: 1.9rem;
+}
+
+.tl .t-slider {
+  width: 100%;
+  max-width: 12rem;
+  accent-color: var(--e-accent);
+}
+
+.tl .t-toasts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+  border: 0;
+  background: none;
+  inset: auto 1rem 1rem auto;
+}
+
+.tl .t-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.tl .t-progress {
+  width: 100%;
+  max-width: 12rem;
+  accent-color: var(--e-accent);
+}
+
+.tl .t-ratio {
+  width: 100%;
+  max-width: 7rem;
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  background: var(--e-field-bg, rgb(128 128 128 / 0.12));
+  border-radius: var(--e-radius, 4px);
+}
+
+/* ── 2013–2015 · Flat ──────────────────────────────────────────────────── */
+
+.tl[data-era='flat'] {
+  color-scheme: light;
+
+  --e-ground: #ecf0f1;
+  --e-ink: #2c3e50;
+  --e-tile-ink: #2c3e50;
+  --e-muted: #7f8c8d;
+  --e-accent: #1abc9c;
+  --e-accent-ink: #fff;
+  --e-good: #16a085;
+  --e-danger: #e74c3c;
+  --e-tile: #fff;
+  --e-tile-border: 0;
+  --e-radius: 0;
+  --e-shadow: none;
+  --e-band: #dfe4e6;
+  --e-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --e-display-weight: 300;
+  --e-display-case: uppercase;
+  --e-display-tracking: 0.09em;
+  --e-btn-bg: #1abc9c;
+  --e-btn-ink: #fff;
+  --e-btn-case: uppercase;
+  --e-btn-tracking: 0.08em;
+  --e-btn-weight: 600;
+  --e-btn-pad: 0.45rem 0.9rem;
+  --e-quiet-bg: #ecf0f1;
+  --e-quiet-border: 0;
+  --e-panel-shadow: 0 2px 0 rgb(44 62 80 / 0.12);
+  --e-panel-border: 0;
+  --e-field-bg: #fff;
+  --e-field-border: 1px solid #bdc3c7;
+}
+
+/* ── 2016–2017 · Material ──────────────────────────────────────────────── */
+
+.tl[data-era='material'] {
+  color-scheme: light;
+
+  --e-ground: #fafafa;
+  --e-ink: rgb(0 0 0 / 0.87);
+  --e-tile-ink: rgb(0 0 0 / 0.87);
+  --e-muted: rgb(0 0 0 / 0.54);
+  --e-accent: #3f51b5;
+  --e-accent-ink: #fff;
+  --e-good: #009688;
+  --e-danger: #f44336;
+  --e-tile: #fff;
+  --e-tile-border: 0;
+  --e-radius: 2px;
+  --e-shadow: 0 1px 3px rgb(0 0 0 / 0.2), 0 1px 2px rgb(0 0 0 / 0.12);
+  --e-band: #e0e0e0;
+  --e-font: Roboto, 'Segoe UI', system-ui, sans-serif;
+  --e-display-weight: 500;
+  --e-btn-bg: #ff4081;
+  --e-btn-ink: #fff;
+  --e-btn-case: uppercase;
+  --e-btn-tracking: 0.09em;
+  --e-btn-weight: 500;
+  --e-btn-pad: 0.45rem 1rem;
+  --e-btn-shadow: 0 2px 4px rgb(0 0 0 / 0.24);
+  --e-btn-press: translateY(1px);
+  --e-quiet-bg: transparent;
+  --e-quiet-border: 0;
+  --e-panel-shadow: 0 8px 10px rgb(0 0 0 / 0.2);
+  --e-panel-border: 0;
+  --e-field-bg: transparent;
+  --e-field-border: 0 0 1px 0 solid rgb(0 0 0 / 0.42);
+  --e-glow: 0 6px 14px rgb(0 150 136 / 0.35);
+}
+
+/* The one era where an underline is the field, not a box around it. */
+.tl[data-era='material'] .t-field {
+  border: 0;
+  border-bottom: 1px solid rgb(0 0 0 / 0.42);
+  border-radius: 0;
+  background: transparent;
+}
+
+/* ── 2017–2019 · Gradient ──────────────────────────────────────────────── */
+
+.tl[data-era='gradient'] {
+  color-scheme: light;
+
+  --e-ground: linear-gradient(135deg, #f7f2ff, #eaf1ff 60%, #fff0f7);
+  --e-ink: #1f1235;
+  --e-tile-ink: #1f1235;
+  --e-muted: #6b6580;
+  --e-accent: #7b2ff7;
+  --e-accent-ink: #fff;
+  --e-good: #00b39b;
+  --e-danger: #f0426d;
+  --e-tile: #fff;
+  --e-tile-border: 0;
+  --e-tile-pad: 1rem;
+  --e-radius: 16px;
+  --e-shadow: 0 10px 30px rgb(80 40 160 / 0.12);
+  --e-band: rgb(123 47 247 / 0.14);
+  --e-font: 'Avenir Next', Avenir, 'Segoe UI', system-ui, sans-serif;
+  --e-display-weight: 700;
+  --e-btn-bg: linear-gradient(90deg, #7b2ff7, #f107a3);
+  --e-btn-ink: #fff;
+  --e-btn-radius: 999px;
+  --e-btn-pad: 0.5rem 1.1rem;
+  --e-btn-weight: 600;
+  --e-btn-shadow: 0 8px 18px rgb(180 40 160 / 0.32);
+  --e-btn-press: translateY(2px);
+  --e-quiet-bg: rgb(123 47 247 / 0.08);
+  --e-quiet-border: 0;
+  --e-panel-shadow: 0 16px 40px rgb(80 40 160 / 0.18);
+  --e-panel-border: 0;
+  --e-field-bg: rgb(123 47 247 / 0.06);
+  --e-field-border: 0;
+  --e-glow: 0 12px 28px rgb(0 179 155 / 0.35);
+}
+
+/* ── 2019–2020 · Neumorphism ───────────────────────────────────────────── */
+
+.tl[data-era='neumorphic'] {
+  color-scheme: light;
+
+  --e-frame-radius: 24px;
+
+  --e-ground: #e0e5ec;
+  --e-ink: #4a5568;
+  --e-tile-ink: #4a5568;
+  --e-muted: #97a0b3;
+  --e-accent: #6d5dfc;
+  --e-accent-ink: #fff;
+  --e-good: #55b685;
+  --e-danger: #e07a7a;
+  --e-tile: #e0e5ec;
+  --e-tile-border: 0;
+  --e-tile-pad: 1rem;
+  --e-radius: 16px;
+  --e-shadow: 7px 7px 14px #c5cbd6, -7px -7px 14px #fbffff;
+  --e-band: #d5dae3;
+  --e-font: Nunito, 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+  --e-display-weight: 800;
+  --e-btn-bg: #e0e5ec;
+  --e-btn-ink: #5a6478;
+  --e-btn-radius: 12px;
+  --e-btn-weight: 700;
+  --e-btn-pad: 0.45rem 0.9rem;
+  --e-btn-shadow: 5px 5px 10px #c5cbd6, -5px -5px 10px #fbffff;
+  --e-btn-press: scale(0.98);
+  --e-quiet-bg: #e0e5ec;
+  --e-quiet-border: 0;
+  --e-panel-bg: #e0e5ec;
+  --e-panel-border: 0;
+  --e-panel-shadow: 9px 9px 18px #c5cbd6, -9px -9px 18px #fbffff;
+  --e-field-bg: #e0e5ec;
+  --e-field-border: 0;
+  --e-tip-bg: #6d5dfc;
+  --e-scrim: rgb(224 229 236 / 0.7);
+  --e-glow: 0 0 0 2px #6d5dfc, 7px 7px 14px #c5cbd6;
+}
+
+/* Pressed in rather than out. The whole era in one declaration. */
+.tl[data-era='neumorphic'] .t-btn:active,
+.tl[data-era='neumorphic'] .t-field {
+  box-shadow:
+    inset 4px 4px 8px #c5cbd6,
+    inset -4px -4px 8px #fbffff;
+}
+
+/* ── 2020–2022 · Glassmorphism ─────────────────────────────────────────── */
+
+.tl[data-era='glass'] {
+  color-scheme: dark;
+
+  --e-frame: 1px solid rgb(255 255 255 / 0.2);
+  --e-frame-radius: 20px;
+
+  --e-ground:
+    radial-gradient(60rem 30rem at 15% -10%, #6d3bff 0%, transparent 60%),
+    radial-gradient(50rem 26rem at 90% 10%, #ff4d9d 0%, transparent 55%),
+    radial-gradient(40rem 30rem at 60% 110%, #24d3ee 0%, transparent 60%), #191634;
+  --e-ink: #f4f6ff;
+  --e-tile-ink: #f4f6ff;
+  --e-muted: rgb(244 246 255 / 0.68);
+  --e-accent: #8be9ff;
+  --e-accent-ink: #07243a;
+  --e-good: #9dffb0;
+  --e-danger: #ff8fa8;
+  --e-tile: rgb(255 255 255 / 0.1);
+  --e-tile-border: 1px solid rgb(255 255 255 / 0.25);
+  --e-tile-pad: 1rem;
+  --e-radius: 18px;
+  --e-shadow: 0 10px 30px rgb(10 5 40 / 0.35);
+  --e-band: rgb(255 255 255 / 0.16);
+  --e-font: 'SF Pro Display', -apple-system, 'Segoe UI Variable', system-ui, sans-serif;
+  --e-display-weight: 600;
+  --e-btn-bg: rgb(255 255 255 / 0.16);
+  --e-btn-ink: #f4f6ff;
+  --e-btn-border: 1px solid rgb(255 255 255 / 0.35);
+  --e-btn-radius: 12px;
+  --e-btn-weight: 600;
+  --e-btn-pad: 0.45rem 0.95rem;
+  --e-quiet-bg: rgb(255 255 255 / 0.06);
+  --e-quiet-border: 1px solid rgb(255 255 255 / 0.2);
+  --e-panel-bg: rgb(28 24 60 / 0.55);
+  --e-panel-border: 1px solid rgb(255 255 255 / 0.3);
+  --e-panel-shadow: 0 20px 50px rgb(5 2 25 / 0.5);
+  --e-panel-blur: blur(18px) saturate(160%);
+  --e-field-bg: rgb(255 255 255 / 0.12);
+  --e-field-border: 1px solid rgb(255 255 255 / 0.3);
+  --e-tip-bg: rgb(28 24 60 / 0.75);
+  --e-tip-border: 1px solid rgb(255 255 255 / 0.3);
+  --e-scrim: rgb(12 8 40 / 0.55);
+  --e-glow: 0 0 0 1px #9dffb0, 0 0 24px rgb(157 255 176 / 0.35);
+}
+
+/* backdrop-filter had just landed everywhere, and everything got frosted. */
+.tl[data-era='glass'] .tl-tile,
+.tl[data-era='glass'] .t-fold,
+.tl[data-era='glass'] .t-drop {
+  backdrop-filter: blur(14px) saturate(150%);
+}
+
+/* ── 2023–2024 · Neo-brutalism ─────────────────────────────────────────── */
+
+.tl[data-era='brutal'] {
+  color-scheme: light;
+
+  --e-frame: 3px solid #111;
+
+  --e-ground: #f4f1e8;
+  --e-ink: #111;
+  --e-tile-ink: #111;
+  --e-muted: #55524a;
+  --e-accent: #ff4d4d;
+  --e-accent-ink: #fff;
+  --e-good: #00b34a;
+  --e-danger: #111;
+  --e-tile: #fff;
+  --e-tile-border: 3px solid #111;
+  --e-tile-pad: 0.9rem;
+  --e-radius: 0;
+  --e-shadow: 6px 6px 0 #111;
+  --e-band: #e6e1d3;
+  --e-font: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  --e-display: 'Arial Black', 'Helvetica Neue', Impact, sans-serif;
+  --e-display-weight: 900;
+  --e-display-case: uppercase;
+  --e-display-tracking: -0.01em;
+  --e-btn-bg: #ffde59;
+  --e-btn-ink: #111;
+  --e-btn-border: 3px solid #111;
+  --e-btn-radius: 0;
+  --e-btn-weight: 800;
+  --e-btn-pad: 0.4rem 0.85rem;
+  --e-btn-shadow: 4px 4px 0 #111;
+  --e-btn-press: translate(4px, 4px);
+  --e-quiet-bg: #fff;
+  --e-quiet-border: 3px solid #111;
+  --e-panel-bg: #fff;
+  --e-panel-border: 3px solid #111;
+  --e-panel-shadow: 8px 8px 0 #111;
+  --e-field-bg: #fff;
+  --e-field-border: 3px solid #111;
+  --e-tip-bg: #111;
+  --e-scrim: rgb(17 17 17 / 0.35);
+  --e-glow: 6px 6px 0 #00b34a;
+}
+
+.tl[data-era='brutal'] .t-btn:active {
+  box-shadow: 0 0 0 #111;
+}
+
+/* ── 2024–now · Bento ──────────────────────────────────────────────────── */
+
+/*
+ * The only era that follows the page rather than replacing it, because it is
+ * the page: today's stop should look like the site it is sitting in.
+ *
+ * Written as a light block plus a dark override rather than with `light-dark()`
+ * — the docs bundle's CSS transform rewrites that function inside a custom
+ * property into a value the browser drops, which shows up as a dialog with no
+ * background at all.
+ */
+.tl[data-era='bento'] {
+  --e-frame: 1px solid #e3e0d8;
+  --e-frame-radius: 16px;
+  --e-ground: #f4f2ee;
+  --e-ink: #101013;
+  --e-tile-ink: var(--e-ink);
+  --e-muted: #62626b;
+  --e-accent: #b3350f;
+  --e-accent-ink: #fff;
+  --e-good: #1f7a4d;
+  --e-danger: #b3350f;
+  --e-tile: #fff;
+  --e-tile-border: 1px solid #e3e0d8;
+  --e-tile-pad: 1rem;
+  --e-radius: 14px;
+  --e-shadow: none;
+  --e-band: #e3e0d8;
+  --e-font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --e-display-weight: 620;
+  --e-btn-bg: #fff;
+  --e-btn-ink: var(--e-ink);
+  --e-btn-border: 1px solid #d9d5cb;
+  --e-btn-radius: 9px;
+  --e-btn-weight: 550;
+  --e-btn-pad: 0.4rem 0.8rem;
+  --e-quiet-bg: transparent;
+  --e-quiet-border: 1px solid #e3e0d8;
+  --e-panel-bg: #fff;
+  --e-panel-border: 1px solid #e3e0d8;
+  --e-panel-shadow: 0 12px 30px rgb(16 16 19 / 0.12);
+  --e-field-bg: #fbfaf8;
+  --e-field-border: 1px solid #d9d5cb;
+  --e-tip-bg: #101013;
+  --e-tip-ink: #fbfaf8;
+  --e-scrim: rgb(0 0 0 / 0.45);
+  --e-glow: 0 0 0 1px var(--e-good);
+}
+
+@media (prefers-color-scheme: dark) {
+  .tl[data-era='bento'] {
+    --e-frame: 1px solid #26262e;
+    --e-ground: #0d0d11;
+    --e-ink: #ecebe6;
+    --e-muted: #90909a;
+    --e-accent: #ff7a45;
+    --e-good: #4ade80;
+    --e-danger: #ff7a45;
+    --e-tile: #16161b;
+    --e-tile-border: 1px solid #26262e;
+    --e-band: #22222a;
+    --e-btn-bg: #22222a;
+    --e-btn-border: 1px solid #32323c;
+    --e-quiet-border: 1px solid #2c2c34;
+    --e-panel-bg: #16161b;
+    --e-panel-border: 1px solid #2c2c34;
+    --e-panel-shadow: 0 12px 30px rgb(0 0 0 / 0.5);
+    --e-field-bg: #101014;
+    --e-field-border: 1px solid #32323c;
+    --e-tip-bg: #ecebe6;
+    --e-tip-ink: #101013;
+  }
+}
+
+.tl[data-era='bento'] .t-tip {
+  color: var(--e-tip-ink);
+}

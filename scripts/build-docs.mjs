@@ -121,6 +121,38 @@ function rewriteLinks(markdown) {
 const DEMO_COMMENT = /<!--\s*demo:\s*([\w-]+)\s*-->/g
 const DEMO_TOKEN = /(?:<p>)?@@bedrock-demo:([\w-]+)@@(?:<\/p>)?/g
 
+/**
+ * `<!-- widget: compat-timeline -->` mounts the same way with no source view.
+ *
+ * A demo is a snippet you are meant to read — twenty lines of JSX with its
+ * source underneath. A widget is a piece of the page: the timeline is its own
+ * directory, and a `<details>` promising "Source" that opens onto the one-line
+ * re-export that mounts it is worse than no source view at all.
+ */
+const WIDGET_COMMENT = /<!--\s*widget:\s*([\w-]+)\s*-->/g
+const WIDGET_TOKEN = /(?:<p>)?@@bedrock-widget:([\w-]+)@@(?:<\/p>)?/g
+
+/**
+ * Carries the `demo` class so the texture check counts it as a live thing.
+ *
+ * scripts/texture.mjs classifies blocks by what they open with, and a widget
+ * that read as prose would let a wall of paragraphs run through it unnoticed.
+ */
+function widgetBlock(name) {
+  const file = join(DEMOS, `${name}.tsx`)
+
+  if (!existsSync(file)) {
+    throw new Error(`docs reference widget "${name}", but ${file} does not exist`)
+  }
+
+  return (
+    `<div class="demo demo-widget">` +
+    `<div class="demo-stage" data-demo="${name}">` +
+    `<span class="demo-pending">Loading…</span>` +
+    `</div></div>`
+  )
+}
+
 function demoBlock(name) {
   const file = join(DEMOS, `${name}.tsx`)
 
@@ -220,6 +252,17 @@ const PROBES = {
   'popover-open': `sel(':popover-open')`,
   'details-name': `'name' in HTMLDetailsElement.prototype`,
   'details-content': `sel('::details-content')`,
+  // The foundations. Each of these is true in anything that can run the page,
+  // which is the point: the column shows a wall of yes above rows that shipped
+  // a decade ago, and a scatter below them.
+  'details-el': `'HTMLDetailsElement' in window`,
+  'select-el': `'HTMLSelectElement' in window`,
+  'range-input': `(() => { const el = document.createElement('input'); el.type = 'range'; return el.type === 'range' })()`,
+  'checkbox-input': `(() => { const el = document.createElement('input'); el.type = 'checkbox'; return el.type === 'checkbox' })()`,
+  'radio-input': `(() => { const el = document.createElement('input'); el.type = 'radio'; return el.type === 'radio' })()`,
+  'progress-el': `'HTMLProgressElement' in window`,
+  'aspect-ratio': `prop('aspect-ratio', '16 / 9')`,
+  'reduced-motion': `matchMedia('(prefers-reduced-motion)').media !== 'not all'`,
 }
 
 function version(value) {
@@ -364,11 +407,16 @@ for (const { source, out, title } of PAGES) {
       used.add(name)
       return `@@bedrock-demo:${name}@@`
     })
+    .replace(WIDGET_COMMENT, (_comment, name) => {
+      used.add(name)
+      return `@@bedrock-widget:${name}@@`
+    })
     .replace(MATRIX_COMMENT, () => '@@bedrock-matrix@@')
 
   const parsed = marked.parse(tokenised, { async: false })
   const body = wrapTables(parsed)
     .replace(DEMO_TOKEN, (_token, name) => demoBlock(name))
+    .replace(WIDGET_TOKEN, (_token, name) => widgetBlock(name))
     .replace(MATRIX_TOKEN, () => matrixTable())
 
   const heading = /^#\s+(.+)$/m.exec(markdown)?.[1]

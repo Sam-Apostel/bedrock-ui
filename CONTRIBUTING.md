@@ -35,6 +35,7 @@ Individually, cheapest first:
 | `npm test` | Playwright against Chrome. Add `-g "name"` to narrow. |
 | `npm run docs:build` | the static site, into `site/`. |
 | `npm run registry:build` | regenerates `r/*.json` from the registry sources. |
+| `npm run compat:build` | rewrites the versions, dates and Baseline status in `docs/compat.json` from MDN's data. |
 
 `npm run lint:graph` is not a style check. It enforces that `src/index.ts`
 cannot reach the controlled layer by *any* path, and that nothing in `src`
@@ -165,12 +166,14 @@ keep honest:
 | `docs/should-you-switch.md` | the costs of adopting bedrock at all — the page an evaluator should read first. |
 | `docs/known-gaps.md` | specific missing behaviour. Close a gap and delete it here; open one and add it here in the same commit, not in a follow-up. |
 
-The browser-support matrix on `docs/compat.md` is generated from
-`docs/compat.json`, whose minimum versions come from MDN's compat data. Add a
-row when a primitive starts depending on a new platform feature, and fill in
-`degrade` — "what happens when this is missing" is the column that makes the
-page worth having. The **Here** column is feature-detected in the reader's own
-browser by an inline script.
+`docs/compat.md` renders `docs/compat.json` twice: as the timeline grid at the
+top of the page and as the matrix below it. Add a row when a primitive starts
+depending on a new platform feature, fill in `degrade` — "what happens when
+this is missing" is the column that makes the page worth having — and list the
+row under the components that use it, as `requires` if they stop working
+without it and `enhances` if they only get worse. The **Here** column is
+feature-detected in the reader's own browser by an inline script. See *The
+compat data* below for where the version numbers come from.
 
 ### Live demos
 
@@ -197,3 +200,32 @@ Demos are typechecked and linted like everything else, and `npm run verify`
 builds the site and drives the real generated pages, so a demo that mounts an
 empty box fails the suite rather than shipping. Keep them short: a demo is an
 argument for one behaviour, not a kitchen sink.
+
+### Widgets
+
+`<!-- widget: <name> -->` mounts the same way and skips the source view. It is
+for the two or three pieces of the site that are a page element rather than an
+example, where a `<details>` promising "Source" would open onto a one-line
+re-export and help nobody:
+
+```
+demos/cases/compat-timeline.tsx   the mount point, one re-export
+demos/timeline/                   the widget: data, tiles, chrome, eras
+```
+
+Reach for `demo:` unless the thing you are adding is longer than the page
+around it.
+
+### The compat data
+
+`docs/compat.json` is half prose and half measurement:
+
+| written by hand | rewritten by `npm run compat:build` |
+| --- | --- |
+| feature names, what uses them, what breaks without them, the component map, the eras | every version number, every release date, Baseline status and dates |
+
+The generator reads `@mdn/browser-compat-data` and `web-features`. Both are
+devDependencies and neither is needed to build the site — the output is
+committed — so run it when a browser ships something and commit what it
+produces. The table and the timeline read that one file, which is what stops
+the page from disagreeing with itself.

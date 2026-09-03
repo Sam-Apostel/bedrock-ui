@@ -25,6 +25,32 @@
   min-height: 3.5rem;
 }
 
+/*
+ * A widget owns its whole box: no flex centring, no padding of ours.
+ *
+ * It also has to be told to fill the width. `container-type: inline-size` makes
+ * an element's inline size independent of its contents, which inside a flex row
+ * resolves to nothing at all — the grid rendered fifteen tiles into a box zero
+ * pixels wide, and every one of them was invisible.
+ */
+.demo-widget .demo-stage {
+  display: block;
+  padding: 0;
+  min-height: 0;
+}
+
+/*
+ * No frame of ours around a widget.
+ *
+ * The compat timeline paints its own ground, so the docs border ran around the
+ * outside of a surface that already had an edge — two frames, one inside the
+ * other, in every era.
+ */
+.demo-widget {
+  border: 0;
+  border-radius: 0;
+}
+
 /* Replaced when the bundle mounts; visible only if it never does. */
 .demo-pending {
   color: var(--muted, #5c5f6b);
@@ -225,11 +251,17 @@
   color: var(--code-punctuation, #7d7a6d);
 }
 
-/* Controls. Deliberately generic: every part below is one element. The copy
- * button is chrome around a demo rather than part of one, and is excluded here
- * rather than out-specified below — it is styled with the source block. */
-.demo button:not(.registry-demo *, .demo-copy),
-.demo .btn:not(.registry-demo *) {
+/*
+ * Controls. Deliberately generic: every part below is one element.
+ *
+ * Two exclusions. The copy button is chrome around a demo rather than part of
+ * one, and is styled with the source block instead of being out-specified
+ * here. Widgets are excluded the way the registry gallery already is: the
+ * compat timeline restyles every one of these elements seven different ways,
+ * and a docs-tokened border would survive into all seven.
+ */
+.demo:not(.demo-widget) button:not(.registry-demo *, .demo-copy),
+.demo:not(.demo-widget) .btn:not(.registry-demo *) {
   font: inherit;
   font-size: 0.9rem;
   padding: 0.4rem 0.8rem;
@@ -240,11 +272,11 @@
   cursor: pointer;
 }
 
-.demo button:not(.registry-demo *, .demo-copy):hover {
+.demo:not(.demo-widget) button:not(.registry-demo *, .demo-copy):hover {
   border-color: var(--muted, #5c5f6b);
 }
 
-.demo :focus-visible:not(.registry-demo *) {
+.demo:not(.demo-widget) :focus-visible:not(.registry-demo *) {
   outline: 2px solid var(--accent, #0a58c2);
   outline-offset: 2px;
 }
@@ -270,7 +302,7 @@
   }
 }
 
-.demo [data-bedrock-dialog]:not(.registry-demo *) {
+.demo:not(.demo-widget) [data-bedrock-dialog]:not(.registry-demo *) {
   border: 1px solid var(--rule, #e3e4e8);
   border-radius: 12px;
   background: var(--paper, #fff);
@@ -288,13 +320,13 @@
  * inherits from the element it belongs to. The literal is for a browser where
  * it does not, and for a demo mounted somewhere with no docs tokens at all.
  */
-.demo [data-bedrock-dialog]::backdrop {
+.demo:not(.demo-widget) [data-bedrock-dialog]::backdrop {
   background: rgb(0 0 0 / 0.42);
   -webkit-backdrop-filter: blur(var(--backdrop-blur, 3px));
   backdrop-filter: blur(var(--backdrop-blur, 3px));
 }
 
-.demo [popover]:not(.registry-demo *) {
+.demo:not(.demo-widget) [popover]:not(.registry-demo *) {
   border: 1px solid var(--rule, #e3e4e8);
   border-radius: 10px;
   background: var(--paper, #fff);
@@ -303,13 +335,13 @@
   margin: 0;
 }
 
-.demo [data-bedrock-menu],
-.demo [data-bedrock-select-content] {
+.demo:not(.demo-widget) [data-bedrock-menu],
+.demo:not(.demo-widget) [data-bedrock-select-content] {
   padding: 0.3rem;
   min-width: 11rem;
 }
 
-.demo [data-bedrock-menu-item] {
+.demo:not(.demo-widget) [data-bedrock-menu-item] {
   display: flex;
   gap: 0.5rem;
   align-items: center;
@@ -319,20 +351,20 @@
   cursor: pointer;
 }
 
-.demo [data-bedrock-menu-item]:hover,
-.demo [data-bedrock-menu-item]:focus {
+.demo:not(.demo-widget) [data-bedrock-menu-item]:hover,
+.demo:not(.demo-widget) [data-bedrock-menu-item]:focus {
   background: var(--sunk, #f7f7f9);
   outline: none;
 }
 
-.demo [data-bedrock-menu-separator] {
+.demo:not(.demo-widget) [data-bedrock-menu-separator] {
   height: 1px;
   background: var(--rule, #e3e4e8);
   margin: 0.3rem 0;
   border: 0;
 }
 
-.demo [data-bedrock-menu-label] {
+.demo:not(.demo-widget) [data-bedrock-menu-label] {
   padding: 0.35rem 0.6rem;
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -340,8 +372,8 @@
   color: var(--muted, #5c5f6b);
 }
 
-.demo [data-bedrock-tabs-list]:not(.registry-demo *),
-.demo [data-bedrock-toolbar]:not(.registry-demo *) {
+.demo:not(.demo-widget) [data-bedrock-tabs-list]:not(.registry-demo *),
+.demo:not(.demo-widget) [data-bedrock-toolbar]:not(.registry-demo *) {
   display: flex;
   gap: 0.3rem;
   border-bottom: 1px solid var(--rule, #e3e4e8);
@@ -349,24 +381,24 @@
   margin-bottom: 0.9rem;
 }
 
-.demo [data-bedrock-tabs-trigger][aria-selected='true']:not(.registry-demo *) {
+.demo:not(.demo-widget) [data-bedrock-tabs-trigger][aria-selected='true']:not(.registry-demo *) {
   border-color: var(--accent, #0a58c2);
   color: var(--accent, #0a58c2);
 }
 
-.demo [data-bedrock-accordion-item],
-.demo [data-bedrock-collapsible] {
+.demo:not(.demo-widget) [data-bedrock-accordion-item],
+.demo:not(.demo-widget) [data-bedrock-collapsible] {
   border-bottom: 1px solid var(--rule, #e3e4e8);
 }
 
 /* The demo's own disclosures, not the source block's — that one is above. */
-.demo summary:not(.registry-demo *, .demo-source *) {
+.demo:not(.demo-widget) summary:not(.registry-demo *, .demo-source *) {
   cursor: pointer;
   padding: 0.55rem 0;
 }
 
-.demo [data-bedrock-accordion-content],
-.demo [data-bedrock-collapsible-content] {
+.demo:not(.demo-widget) [data-bedrock-accordion-content],
+.demo:not(.demo-widget) [data-bedrock-collapsible-content] {
   padding-bottom: 0.7rem;
   color: var(--muted, #5c5f6b);
   font-size: 0.93rem;
@@ -384,7 +416,7 @@
   margin-bottom: 0.7rem;
 }
 
-.demo output {
+.demo:not(.demo-widget) output {
   font:
     13px ui-monospace,
     SFMono-Regular,

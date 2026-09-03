@@ -28,6 +28,8 @@ const PAGES = [
   ['display.html', 'display'],
   ['shadcn-registry.html', 'registry'],
   ['compat.html', 'compat-timeline'],
+  ['compat.html', 'compat-legend'],
+  ['compat.html', 'compat-looks'],
 ] as const
 
 test.describe('docs site', () => {
@@ -360,7 +362,7 @@ test.describe('site chrome', () => {
     await page.goto(`${SITE}/compat.html`)
     // compat.md rendered to compat.html and was then clobbered by the copy of
     // the hand-written compat.html, so none of this had ever been visible.
-    await expect(page.getByText('The stance')).toBeVisible()
+    await expect(page.getByRole('heading', { name: /not betting on/ })).toBeVisible()
     await expect(page.getByRole('heading', { name: /degrades/ })).toBeVisible()
   })
 })
@@ -380,8 +382,17 @@ async function stepRight(range: Locator, times: number): Promise<void> {
  * nearest that many days after 2013. Arrow keys are what a reader has, and what
  * the widget intercepts to move by events.
  */
+/**
+ * The grid, told apart from the other two widgets on the page.
+ *
+ * The key under it and the row of era surfaces below that are both `.tl` roots
+ * as well, because that is what makes eras.css paint them. A bare `.tl` here
+ * used to mean the timeline and now means whichever of the three comes first.
+ */
+const GRID = '[data-demo="compat-timeline"]'
+
 async function scrubTo(page: Page, index: number): Promise<void> {
-  const range = page.locator('.tl-range')
+  const range = page.locator(`${GRID} .tl-range`)
   await range.focus()
   await range.press('Home')
   await stepRight(range, index)
@@ -398,9 +409,9 @@ test.describe('the compat timeline', () => {
   test('opens on the most recent moment that has actually happened', async ({ page }) => {
     await page.goto(`${SITE}/compat.html`)
 
-    await expect(page.locator('.tl-tile')).toHaveCount(15)
+    await expect(page.locator(`${GRID} .tl-tile`)).toHaveCount(15)
     // Past the end are projected dates, which must not be where it opens.
-    await expect(page.locator('.tl')).not.toHaveAttribute('data-ahead', 'true')
+    await expect(page.locator(`${GRID} .tl`)).not.toHaveAttribute('data-ahead', 'true')
 
     const when = await page.locator('time.tl-when').getAttribute('datetime')
     expect(when && when <= new Date().toISOString().slice(0, 10)).toBe(true)
@@ -412,7 +423,7 @@ test.describe('the compat timeline', () => {
     await page.goto(`${SITE}/compat.html`)
     await scrubTo(page, 0)
 
-    const dialog = page.locator('.tl-tile', { hasText: 'Dialog' }).first()
+    const dialog = page.locator(`${GRID} .tl-tile`, { hasText: 'Dialog' }).first()
     await expect(dialog).toHaveAttribute('data-status', 'dead')
     // 2013: no <dialog>, no invoker commands, so the trigger is inert — which
     // means it cannot be focused, not merely that it looks disabled.
@@ -434,7 +445,7 @@ test.describe('the compat timeline', () => {
     // never have to check this" — so it carries the same mark as a feature that
     // has been everywhere for thirty months, and says why instead of borrowing
     // Baseline's words for it.
-    const tabs = page.locator('.tl-tile', { hasText: 'Tabs' }).first()
+    const tabs = page.locator(`${GRID} .tl-tile`, { hasText: 'Tabs' }).first()
     await expect(tabs).toHaveAttribute('data-status', 'gold')
     await expect(tabs.locator('.tl-badge')).toHaveText('nothing to wait for')
   })
@@ -442,9 +453,9 @@ test.describe('the compat timeline', () => {
   test('the axis is drawn in time, not in stops', async ({ page }) => {
     await page.goto(`${SITE}/compat.html`)
 
-    const axis = (await page.locator('.tl-ticks').boundingBox()) ?? { x: 0, width: 1 }
+    const axis = (await page.locator(`${GRID} .tl-ticks`).boundingBox()) ?? { x: 0, width: 1 }
     const ticks = await page
-      .locator('.tl-tick')
+      .locator(`${GRID} .tl-tick`)
       .evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().x))
 
     // Spread evenly, 40% of the stops would sit in the last 40% of the track.
@@ -461,7 +472,7 @@ test.describe('the compat timeline', () => {
     await scrubTo(page, 2)
 
     // 26 Aug 2014: Chrome 37 shipped showModal() and ::backdrop on one day.
-    const features = page.locator('.tl-features li')
+    const features = page.locator(`${GRID} .tl-features li`)
     await expect(features).toHaveCount(2)
     await expect(features.first()).toContainText('top layer')
 
@@ -473,9 +484,9 @@ test.describe('the compat timeline', () => {
   test('a narrow screen gets the whole grid, scaled down', async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 900 })
     await page.goto(`${SITE}/compat.html`)
-    await expect(page.locator('.tl-grid')).toBeVisible()
+    await expect(page.locator(`${GRID} .tl-grid`)).toBeVisible()
 
-    const layout = await page.locator('.tl-grid').evaluate((node) => {
+    const layout = await page.locator(`${GRID} .tl-grid`).evaluate((node) => {
       const style = getComputedStyle(node)
       return { zoom: style.zoom, columns: style.gridTemplateColumns.split(' ').length }
     })
@@ -484,13 +495,13 @@ test.describe('the compat timeline', () => {
     // fits, rather than a simplified layout that throws the styling away.
     expect(Number(layout.zoom)).toBeLessThan(1)
     expect(layout.columns).toBe(4)
-    await expect(page.locator('.tl-tile').first().locator('.tl-stage')).toBeVisible()
+    await expect(page.locator(`${GRID} .tl-tile`).first().locator('.tl-stage')).toBeVisible()
   })
 
   test('a component built on markup that already shipped never switches off', async ({ page }) => {
     await page.goto(`${SITE}/compat.html`)
 
-    const tabs = page.locator('.tl-tile', { hasText: 'Tabs' }).first()
+    const tabs = page.locator(`${GRID} .tl-tile`, { hasText: 'Tabs' }).first()
     const statusAt = async (index: number) => {
       await scrubTo(page, index)
       return tabs.getAttribute('data-status')
@@ -511,7 +522,7 @@ test.describe('the compat timeline', () => {
   test('the styling belongs to the era, and the markup does not change', async ({ page }) => {
     await page.goto(`${SITE}/compat.html`)
 
-    const tile = page.locator('.tl-tile').first()
+    const tile = page.locator(`${GRID} .tl-tile`).first()
     const look = () =>
       tile.evaluate((node) => {
         const style = getComputedStyle(node)
@@ -523,7 +534,7 @@ test.describe('the compat timeline', () => {
     const markup = await tile.locator('.tl-stage').innerHTML()
 
     await scrubTo(page, 30)
-    expect(await page.locator('.tl').getAttribute('data-era')).not.toBe('flat')
+    expect(await page.locator(`${GRID} .tl`).getAttribute('data-era')).not.toBe('flat')
     expect(await look()).not.toBe(flat)
     // Same components, restyled. If this ever differs, the grid is swapping
     // implementations and the page is making a claim it cannot support.
@@ -537,10 +548,120 @@ test.describe('the compat timeline', () => {
     // The tile names the date the Popover API first shipped anywhere; the table
     // names the version that shipped it. Chrome 114 was released on 30 May
     // 2023, and both of those come out of docs/compat.json.
-    await expect(page.locator('.tl-tile', { hasText: 'Popover' }).first()).toContainText(
+    await expect(page.locator(`${GRID} .tl-tile`, { hasText: 'Popover' }).first()).toContainText(
       '30 May 2023',
     )
     await expect(page.locator('tr.floor', { hasText: 'Popover API' })).toContainText('114')
+  })
+})
+
+/**
+ * The two figures the grid's prose used to be.
+ *
+ * The key was three rows of a table naming looks the reader had to picture;
+ * the era row was a paragraph asserting that the styling is never the
+ * component's. Both are now claims a browser can check, which is the only
+ * reason to have built them.
+ */
+test.describe('the compat figures', () => {
+  test('the key is three real tiles in the three states it names', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    const keys = page.locator('.tl-legend-key')
+    await expect(keys).toHaveCount(3)
+
+    // Real states out of the same data the grid runs on, not three mock-ups
+    // hand-set to look right. Dead first, because a key that led with a working
+    // tile would bury the state the reader is least likely to guess.
+    await expect(keys.nth(0).locator('.tl-tile')).toHaveAttribute('data-status', 'dead')
+    await expect(keys.nth(1).locator('.tl-tile')).toHaveAttribute('data-status', 'degraded')
+    await expect(keys.nth(2).locator('.tl-tile')).toHaveAttribute('data-status', 'gold')
+
+    // Switched off, not merely greyed: the same promise the grid makes.
+    await expect(keys.nth(0).locator('.tl-stage')).toHaveAttribute('inert', '')
+  })
+
+  test('the key draws the four ticks with the axis markup, not four swatches', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    const kinds = page.locator('.tl-legend-ticks .tl-tick')
+    await expect(kinds).toHaveCount(4)
+
+    /*
+     * Height is what a tick encodes, and the key is only a key if its heights
+     * are the axis's own. Four hand-drawn swatches would pass an eye and drift
+     * the first time someone decides that reaching every engine deserves
+     * another two pixels.
+     */
+    const heightByKind = (selector: string) =>
+      page
+        .locator(selector)
+        .evaluateAll((nodes) =>
+          Object.fromEntries(
+            nodes.map((node) => [
+              node.getAttribute('data-kind'),
+              Math.round(node.getBoundingClientRect().height * 100),
+            ]),
+          ),
+        )
+
+    const key = await heightByKind('.tl-legend-ticks .tl-tick')
+    const axis = await heightByKind(`${GRID} .tl-tick`)
+
+    expect(Object.keys(key).toSorted()).toEqual(['everywhere', 'preview', 'ship', 'widely'])
+    expect(key).toEqual(axis)
+    // Four kinds, four heights: an encoding that collapsed two of them would
+    // still match the axis and still tell the reader nothing.
+    expect(new Set(Object.values(key)).size).toBe(4)
+  })
+
+  test('the era row is one markup under five stylesheets', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    const cells = page.locator('.tl-look')
+    await expect(cells).toHaveCount(5)
+
+    /*
+     * The claim, both halves of it: identical markup, and no two of them
+     * painted the same. If the markup ever differs, the row is five components
+     * dressed up as one and the section above it is a lie.
+     *
+     * Generated ids are stripped rather than compared. Every root mints its own
+     * so that `aria-controls` points at this cell's panel and not the first
+     * one's, which is React doing the right thing and not the markup differing.
+     */
+    const markup = await cells.evaluateAll((nodes) =>
+      nodes.map((node) =>
+        node.innerHTML.replaceAll(/(id|aria-controls|aria-labelledby)="[^"]*"/g, ''),
+      ),
+    )
+    expect(new Set(markup).size).toBe(1)
+
+    const looks = await cells.evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const style = getComputedStyle(node)
+        return `${style.backgroundColor}|${style.backgroundImage}|${style.borderRadius}|${style.fontFamily}`
+      }),
+    )
+    expect(new Set(looks).size).toBe(5)
+  })
+
+  test('both figures fill the column rather than the prose measure', async ({ page }) => {
+    await page.goto(`${SITE}/compat.html`)
+
+    // Every `ul` on the site is capped at the measure, and both figures are
+    // lists. They shipped once at 672px inside a 897px column, floating in the
+    // middle of it like something half-loaded.
+    const width = (selector: string) =>
+      page.locator(selector).evaluate((node) => ({
+        own: Math.round(node.getBoundingClientRect().width),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- both sit in a stage
+        stage: Math.round(node.closest('.demo-stage')!.getBoundingClientRect().width),
+      }))
+
+    const measured = await Promise.all(['.tl-looks', '.tl-legend-grid'].map(width))
+
+    for (const { own, stage } of measured) expect(own).toBeGreaterThan(stage * 0.9)
   })
 })
 

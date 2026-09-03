@@ -323,10 +323,13 @@ ${probes}
 })()
 </script>`
 
+  // The note that used to close this line said the Here column is measured in
+  // your browser as you read, which is what the pull quote directly above it in
+  // compat.md says, in the same words. Provenance is this line's job; what the
+  // column means is that quote's.
   return (
     `<p class="matrix-meta">Minimum versions from <code>${COMPAT.source}</code> ` +
-    `${escapeHtml(COMPAT.sourceVersion)}, ${COMPAT.generated}. ${escapeHtml(COMPAT.note)} ` +
-    `The <strong>Here</strong> column is measured in your browser as you read.</p>` +
+    `${escapeHtml(COMPAT.sourceVersion)}, ${COMPAT.generated}. ${escapeHtml(COMPAT.note)}</p>` +
     sections.join('') +
     script
   )

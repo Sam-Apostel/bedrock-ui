@@ -1,0 +1,127 @@
+/*
+ * The key to the grid, laid out as three tiles and three sentences.
+ *
+ * Structure only, like timeline.css: every colour and radius here is an era
+ * custom property, so the key is painted by whichever era it is standing in
+ * rather than by this file. A key that styled itself would be the one tile on
+ * the page whose look was not the era's, which is the claim the page is making.
+ */
+
+.tl-legend {
+  container-type: inline-size;
+}
+
+.tl-legend-grid {
+  /* The docs give every `ul` the prose measure. This one is a figure. */
+  max-width: none;
+  display: grid;
+  /*
+   * Two rows declared on the parent and borrowed by every key, so the three
+   * sentences start on one line however tall the live components above them
+   * turn out. Sized per key, the Popover tile's shorter body pushed its
+   * sentence up and the row read as three unrelated columns.
+   */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto auto;
+  gap: var(--s3) var(--s4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tl-legend-key {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  gap: var(--s3);
+  min-width: 0;
+}
+
+/*
+ * A tile spans its own column count inside the grid above, which is what makes
+ * that grid read as a grid. Here every key is one column wide.
+ */
+.tl-legend-tile .tl-tile {
+  grid-column: auto;
+  height: 100%;
+}
+
+.tl-legend-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--e-muted, var(--e-ink));
+}
+
+.tl-legend-when {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.625rem;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--e-accent, var(--e-ink));
+}
+
+.tl-legend-note code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+/* ── The scrubber's ticks ──────────────────────────────────────────────── */
+
+/*
+ * One row, wrapping, rather than a column each: the labels are four words and
+ * fourteen, and four equal columns spent three lines of height on the longest
+ * one and left the other three sitting in white space.
+ */
+.tl-legend-ticks {
+  max-width: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s6);
+  margin: var(--s6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tl-legend-ticks li {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s2);
+  min-width: 0;
+  font-size: 0.8125rem;
+  color: var(--e-muted, var(--e-ink));
+}
+
+/*
+ * A stand-in for the axis: a tick positions itself against the nearest
+ * positioned ancestor, and its height is half of what it encodes, so the box
+ * has to be as tall as the tallest tick and sit them all on one floor.
+ */
+.tl-legend-tick {
+  position: relative;
+  display: block;
+  width: 0.75rem;
+  height: 1.15rem;
+}
+
+.tl-legend-tick .tl-tick {
+  left: 50%;
+  bottom: 0;
+  /* Two pixels reads as a hairline where the axis has eighty of them to make a
+     shape. Alone against a label it needs to be a mark. */
+  width: 3px;
+}
+
+@container (width < 40rem) {
+  .tl-legend-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .tl-legend-key {
+    grid-row: auto;
+    grid-template-rows: none;
+  }
+}

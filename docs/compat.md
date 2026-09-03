@@ -1,42 +1,46 @@
 # Browser support
 
-bedrock targets current browsers on purpose. This page says exactly how
-current, twice: once as a thing you can scrub through, and once as a table you
-can read a version number out of.
+bedrock's floor is Chrome 135, Firefox 144 and Safari 26.2, the releases where
+each engine shipped invoker commands. A bedrock trigger is `commandfor` with no
+JavaScript standing behind it, so under that floor a trigger is a button that
+does nothing.
+
+The last of the three landed in December 2025. Drag back from there and watch
+the library switch off.
 
 <!-- widget: compat-timeline -->
 
-## What you are looking at
+## Reading the grid
 
-Fifteen live components, and a slider that stops on every date one of the
-platform features under them changed state — shipped behind a flag, shipped for
-real, reached every engine, or passed the thirty months in every engine that
-Baseline calls *widely available*.
+<!-- widget: compat-legend -->
 
-| | |
-| --- | --- |
-| **Greyed out** | A feature it cannot work without is in no engine yet. The tile is `inert`, because a component that could not have been built then should not be operable now. |
-| **Plain** | It works, with something missing — placement, a transition, single-open exclusivity. The line under each tile says which, and opens onto the rest. |
-| **Outlined** | Everything it uses is in every engine, and has been for long enough that you can stop checking. |
+> The track runs a little past today. Those last stops are arithmetic, thirty
+> months from the day the last engine shipped, and each one says so when you
+> land on it.
 
-The styling changes with the date because that is the other half of the claim.
-Every tile is the same markup at every stop on the timeline; only the
-stylesheet moves. If a headless primitive can be Material in 2016 and
-brutalist in 2023 without one line of the component changing, "unstyled" means
-something more useful than "you get no CSS".
+## One markup, five stylesheets
 
-> The track runs a little past today. Those last few stops are arithmetic —
-> thirty months from the day the last engine shipped — and each one says so when
-> you land on it.
+```tsx
+<Tabs.Root className="t-stack" defaultValue="editor">
+  <Tabs.List className="t-tabs">
+    <Tabs.Trigger className="t-tab" value="editor">Editor</Tabs.Trigger>
+    <Tabs.Trigger className="t-tab" value="preview">Preview</Tabs.Trigger>
+  </Tabs.List>
+  <Tabs.Content className="t-tab-body" value="editor">Saved just now.</Tabs.Content>
+</Tabs.Root>
+```
 
-## The stance
+<!-- widget: compat-looks -->
 
-Current browsers, deliberately. The floor is set by invoker commands — Chrome
-135, Firefox 144, Safari 26.2 — because triggers are `commandfor` with no
-JavaScript standing behind them. The timeline puts a date on that: December
-2025 is when most of this library became possible at all.
+Nothing in that snippet changes between the five renderings. Nothing in the
+grid above changes either, at any stop on the track: fifteen components, one set
+of class names, and a stylesheet swapping underneath. That is what unstyled
+buys you. Not the absence of CSS, but a redesign in 2029 that never opens a
+component.
 
-Two things make that defensible rather than merely convenient:
+## What you are not betting on
+
+The floor is a bet on the platform. Two things keep the bet off your code:
 
 | | |
 | --- | --- |
@@ -56,13 +60,13 @@ Three rows are load-bearing. Everything else is polish:
 
 Accessibility never lands in the degradation column. Focus trapping, dismissal,
 naming and keyboard operation come from `<dialog>`, the popover stack and native
-buttons — the parts that shipped everywhere years ago, which is the last group
-in the table below.
+buttons, which shipped everywhere years ago. They are the last group in the
+table below.
 
 ## The matrix
 
 > The **Here** column is not a claim. It is measured in the browser you are
-> reading this in, as you read it — and it is the one part of this page that
+> reading this in, as you read it, and it is the one part of this page that
 > works with JavaScript switched off, on a browser too old to run the grid
 > above.
 

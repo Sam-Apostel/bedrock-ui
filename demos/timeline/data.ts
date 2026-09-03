@@ -199,7 +199,7 @@ function events(row: Row): TimelineEvent[] {
       kind: 'widely',
       text: row.baseline.widely
         ? `${name} is Baseline widely available`
-        : `${name} passes 30 months in every engine — Baseline's bar for widely available`,
+        : `${name} passes 30 months in every engine, which is Baseline's bar for widely available`,
       weight: WEIGHT.widely + critical,
     })
   }

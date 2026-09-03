@@ -32,7 +32,11 @@ const TEXTURE = [
   [/^<pre/, 'code'],
   // A demo's source block is a <pre> in a wrapper, and reads as one.
   [/^<div class="demo-code"/, 'code'],
-  [/^<div class="demo"/, 'demo'],
+  // The class list, not the class: widgetBlock in build-docs.mjs ships
+  // `class="demo demo-widget"` precisely so the check counts a widget as a live
+  // thing, and an anchored `demo"` quietly failed to match it. Every widget on
+  // a page was being counted as one more paragraph of prose.
+  [/^<div class="demo[ "]/, 'demo'],
   [/^<div class="table-wrap"|^<table/, 'table'],
   [/^<h[1-6]/, 'heading'],
   [/^<(ul|ol)/, 'list'],

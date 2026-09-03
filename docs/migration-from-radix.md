@@ -177,7 +177,7 @@ straight swap.
 | `ScrollArea` | native scrolling. `Scrollbar`/`Thumb`/`Corner` render nothing; use `scrollbar-width` and `scrollbar-color`. |
 | `Tabs` | the unselected panel is unmounted rather than hidden, so switching away resets it. |
 | `Toast` | one `popover="manual"` region for the stack. No swipe-to-dismiss. |
-| `Tooltip`, `HoverCard` | `delayDuration`/`openDelay` unchanged. The trigger may be an `<a>`, which is what makes link previews work without a wrapper. |
+| `Tooltip`, `HoverCard` | `delayDuration`/`openDelay` unchanged. The trigger may be an `<a>`, which is what makes link previews work without a wrapper. A long press opens both on a touch screen, where Radix opens neither. See [touch](./tooltip.md#touch). |
 | `DropdownMenu`, `ContextMenu`, `Menubar` | same anatomy. Submenus need no configuration: a nested popover keeps its parent open because the invoker is inside it. |
 | `NavigationMenu` | `Viewport` renders nothing: each content is anchored to its own item and already in the top layer. |
 | `AspectRatio` | one element with `aspect-ratio`, not a padding wrapper. |

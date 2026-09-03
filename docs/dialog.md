@@ -152,5 +152,19 @@ are UA behaviour for `showModal()`, which is why Dialog ships no focus code.
 - **`modal={false}`.** A non-modal dialog is a different element and a different
   set of guarantees; it will be `Popover`, not a prop on this.
 - **Scroll locking.** `showModal()` makes the background inert but does not lock
-  scroll. Two declarations of CSS get it back, and these docs use them. See
-  [known gaps](./known-gaps.md#missing-behaviour).
+  scroll. Apply this to your page to close the
+  [gap](./known-gaps.md#missing-behaviour):
+
+  ```css
+  html {
+    /* Reserved up front, so taking the scroll away shifts nothing sideways. */
+    scrollbar-gutter: stable;
+  }
+
+  /* The root as well as the body: iOS Safari keeps scrolling the document when
+     only the root is hidden. */
+  html:has(dialog:modal),
+  html:has(dialog:modal) body {
+    overflow: hidden;
+  }
+  ```

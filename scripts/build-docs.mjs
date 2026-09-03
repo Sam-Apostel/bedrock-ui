@@ -448,7 +448,10 @@ function page({ title, body, current, demos }) {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, interactive-widget=resizes-content"
+    />
     <title>${title}</title>
     <style>${STYLE}</style>${head}
   </head>

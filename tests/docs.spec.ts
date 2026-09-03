@@ -941,6 +941,58 @@ test.describe('on a phone', () => {
     await expect(links).toBeHidden()
   })
 
+  test('the page behind the open nav does not scroll either', async ({ page }) => {
+    await page.goto(`${SITE}/dialog.html`)
+
+    await page.getByRole('button', { name: 'Menu' }).click()
+    await expect(page.locator('.nav-links')).toBeVisible()
+
+    // Parked at the last link, because the panel is a scroller of its own and
+    // what it did at its end was hand the rest of the gesture to the page.
+    await page.locator('.nav-links').evaluate((node) => {
+      node.scrollTop = node.scrollHeight
+    })
+    await page.mouse.move(195, 400)
+    await page.mouse.wheel(0, 400)
+    await page.waitForTimeout(300)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+
+    // And over the bar, where the wheel lands on the backdrop rather than on
+    // the links.
+    await page.mouse.move(195, 30)
+    await page.mouse.wheel(0, 400)
+    await page.waitForTimeout(300)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  })
+
+  test('nothing on the page paints over the nav bar', async ({ page }) => {
+    await page.goto(`${SITE}/dialog.html`)
+
+    // The demo source's row, parked under the bar. Its chevron and filename
+    // each make a stacking context, which is enough to paint over a sticky bar
+    // that has no z-index of its own — and did.
+    await page.locator('.demo-source summary').evaluate((node) => {
+      window.scrollTo(0, node.getBoundingClientRect().top + window.scrollY - 20)
+    })
+    await page.waitForTimeout(200)
+
+    const strangers = await page.evaluate(() => {
+      const bar = document.querySelector('nav').getBoundingClientRect()
+      const found = new Set()
+
+      for (let x = 4; x < window.innerWidth; x += 6) {
+        for (let y = 4; y < bar.bottom - 2; y += 6) {
+          const element = document.elementFromPoint(x, y)
+          if (element && !element.closest('nav')) found.add(element.className || element.tagName)
+        }
+      }
+
+      return [...found]
+    })
+
+    expect(strangers).toEqual([])
+  })
+
   test('a field is large enough that focusing it does not zoom the page', async ({ page }) => {
     await page.goto(`${SITE}/dialog.html`)
     await page.getByRole('button', { name: 'Rename project' }).click()

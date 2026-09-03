@@ -81,4 +81,4 @@ All of it native, including the right behaviour in right-to-left writing modes.
   [should you switch?](./should-you-switch.md).
 - **`minStepsBetweenThumbs`.** Follows from the above.
 - **Vertical sliders in every engine.** `writing-mode` handles it where
-  supported; see [browser support](./compat.html).
+  supported; see [browser support](./compat.md).

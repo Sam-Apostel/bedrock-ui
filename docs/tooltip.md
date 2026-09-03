@@ -15,14 +15,14 @@ import { Tooltip, HoverCard } from '@apostel/bedrock'
 The panel, its stacking, its dismissal and its positioning are the platform's.
 **The intent timers are not.** `interestfor`, the attribute that would make this
 declarative, shipped in Chrome 142 and nowhere else, and is still not on
-a standards track, so `src/interest.ts` handles pointer in, pointer out, focus
-and blur for everyone.
+a standards track, so `src/interest.ts` handles pointer in, pointer out, focus,
+blur and the long press for everyone.
 
 It is written as a fallback rather than as a feature: when the attribute ships,
 `useInterest` stops attaching anything and the same props become declarative.
 Nothing above it changes, which is exactly why the prop is called
 `delayDuration` and not `interest-show-delay`. See
-[browser support](./compat.html).
+[browser support](./compat.md).
 
 ## `Tooltip.Root`
 
@@ -68,14 +68,59 @@ Children mount only while open.
 | blur      | Closes.                                                 |
 | `Escape`  | Closes.                                                 |
 
+Focus opens it where the browser calls that focus visible: `:focus-visible`,
+asked of the trigger itself. Tapping a control focuses it on Android, and a
+tooltip that appears because you tapped the button is a tooltip nobody asked
+for.
+
 There is no key that opens a hover card, and that is a real gap for
 keyboard-only users where the card holds links that exist nowhere else. Do not
 put unique navigation in one.
+
+## Touch
+
+There is no hover on a touch screen, so the gesture is a **long press**: hold
+the trigger for half a second and the tooltip or card opens. That is the hold
+iOS and Android already use for their own previews, and the one `interestfor`
+is specified to answer where the platform runs intent itself.
+
+| gesture           | what happens                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| tap               | Nothing opens. The trigger's `onClick` runs, a link follows.                                                             |
+| press, then lift  | Opens, and stays open. The click the lift produces is swallowed, so pressing a link previews it instead of following it. |
+| press, then drag  | Nothing opens; past about 10px the finger is scrolling.                                                                 |
+| tap anywhere else | Closes. Light dismiss is the popover's, not ours.                                                                        |
+
+On iPhone, "force touch" is a long press: 3D Touch was replaced by Haptic Touch
+and Safari exposes no pressure to read, so the hold *is* the whole gesture.
+
+### Where the browser answers the hold itself
+
+Chrome 142 and later run `interestfor`, and there the press, the panel and its
+dismissal are the browser's: it opens the panel while you hold and takes it away
+when you lift. One half stays ours. The lift produces a click that the browser
+lets through, so without us a long press on a hover card link would preview it
+**and** follow it. The press is tracked either way, and a click that ends a
+press which opened the panel is swallowed. Everything else in the table above is
+the JavaScript path, which is what every WebKit engine takes, iOS included.
+
+Two platform gestures compete for that hold, and the trigger takes both off,
+but only where the JavaScript path is running, because a browser doing intent
+itself owns the conflict too:
+
+- **`-webkit-touch-callout: none`**, inline on the trigger, so iOS offers no
+  share sheet for the link you are pressing.
+- **`user-select: none`**, for the length of the press and no longer. Setting it
+  permanently would drop the trigger's own text out of any selection made around
+  it, and a hover card trigger is usually a link in the middle of a paragraph.
+
+There is no prop to turn the press off. If a trigger must not answer a hold,
+it is a control with a description, not a tooltip.
 
 ## What is not here
 
 - **A shared provider with a global "skip delay" window.** Radix opens
   subsequent tooltips instantly once one has opened. Not implemented; each root
   keeps its own timers. See [should you switch?](./should-you-switch.md).
-- **Touch support beyond the platform's.** There is no hover on a touch screen,
-  and a tooltip that opens on tap is a popover with extra steps.
+- **A tap that opens anything.** See [touch](#touch): the gesture is a press,
+  and a tap stays a tap.

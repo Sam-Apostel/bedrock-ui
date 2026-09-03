@@ -9,6 +9,9 @@ import { HoverCard, Tooltip } from '../../src/index'
  * The intent timers are JavaScript today. When `interestfor` ships, the same
  * props become declarative and nothing above this changes — which is why the
  * prop is `delayDuration` and not `interest-show-delay`.
+ *
+ * On a phone, hold either one for half a second. A tap is still a tap: the
+ * button activates and the link follows.
  */
 export default function TooltipDemo() {
   return (

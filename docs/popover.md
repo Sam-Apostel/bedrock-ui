@@ -45,7 +45,7 @@ onto one-for-one:
 | -------- | ------------------------------------------------------------------ |
 | `auto`   | Light-dismisses, and closes other `auto` popovers when it opens.    |
 | `manual` | Neither. You close it yourself.                                     |
-| `hint`   | Layers above an open menu instead of closing it. See [browser support](./compat.html). |
+| `hint`   | Layers above an open menu instead of closing it. See [browser support](./compat.md). |
 
 There is no `defaultOpen`. A popover cannot be shown before its element is
 connected, and calling `showPopover()` from a mount effect is exactly the class

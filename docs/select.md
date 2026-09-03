@@ -62,7 +62,7 @@ platform select: the native dropdown, unstyled by your CSS.
 
 That is a **downgrade in looks, not in function**: every option is still
 reachable, still typeahead-searchable, still submits. See
-[browser support](./compat.html) for the current state.
+[browser support](./compat.md) for the current state.
 
 This is the one primitive where the visual gap between engines is large, and it
 is worth deciding deliberately whether that is acceptable for your product

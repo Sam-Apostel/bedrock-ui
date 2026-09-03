@@ -17,6 +17,13 @@ export interface TooltipTriggerProps extends ComponentPropsWithRef<'button'>, As
  * The `interestfor` attribute is emitted only when the platform can act on it.
  * Otherwise the same node is handed to the JavaScript fallback, and nothing
  * about the markup a consumer writes changes either way.
+ *
+ * The callout suppression goes with the fallback rather than with the trigger:
+ * a long press is how a touch screen asks to see more, and on iOS the callout
+ * menu — the share sheet on a link, the copy bar on text — takes that gesture
+ * first. Where the platform runs intent itself it also owns that conflict, so
+ * we leave it alone. Selection is only turned off for the length of a press,
+ * in `interest.ts`, so a link in a paragraph still comes with the paragraph.
  */
 export function TooltipTrigger({ asChild, ref, style, ...props }: TooltipTriggerProps) {
   const { id, anchor, native, registerTrigger } = useTooltipContext('Tooltip.Trigger')
@@ -28,7 +35,13 @@ export function TooltipTrigger({ asChild, ref, style, ...props }: TooltipTrigger
       {...(native ? { interestfor: id } : {})}
       // Describes rather than labels: the trigger keeps its own name.
       aria-describedby={id}
-      style={{ anchorName: anchor, ...style } as typeof style}
+      style={
+        {
+          anchorName: anchor,
+          ...(native ? null : { WebkitTouchCallout: 'none' }),
+          ...style,
+        } as typeof style
+      }
       ref={useComposedRefs<HTMLElement>(ref, registerTrigger, (node) =>
         validateTrigger(node, 'interest', 'Tooltip.Trigger'),
       )}

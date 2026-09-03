@@ -387,13 +387,13 @@
       "group": "overlay",
       "name": "<code>interestfor</code>",
       "uses": "Tooltip, HoverCard",
-      "does": "Expresses hover-and-focus intent declaratively, with the delays in CSS, so a tooltip needs no timers in JavaScript.",
+      "does": "Expresses hover, focus and long-press intent declaratively, with the delays in CSS, so a tooltip needs no timers in JavaScript.",
       "critical": false,
       "bcd": "html.elements.button.interestfor",
       "chrome": "142",
       "firefox": null,
       "safari": null,
-      "degrade": "Hover and focus intent falls back to JavaScript timers. Behaviour is equivalent; the bundle is bigger and the delay is not tunable from CSS.",
+      "degrade": "Hover, focus and touch long-press intent fall back to JavaScript timers. Behaviour is equivalent; the bundle is bigger and the delay is not tunable from CSS.",
       "support": {
         "chrome": {
           "version": "142",

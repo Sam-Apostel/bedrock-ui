@@ -122,6 +122,111 @@ test.describe('Tooltip', () => {
   })
 })
 
+/**
+ * A long press, driven through the protocol rather than through Playwright's
+ * touchscreen, because `tap()` is a tap and the whole gesture here is the hold.
+ * Real touch events, so the pointer events the library listens to carry
+ * `pointerType: 'touch'` and the browser produces the click a lift produces.
+ */
+async function press(page: Page, testId: string, ms: number, drift = 0) {
+  const cdp = await page.context().newCDPSession(page)
+  const box = (await page.getByTestId(testId).boundingBox())!
+  const x = box.x + box.width / 2
+  const y = box.y + box.height / 2
+
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] })
+  if (drift) {
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ x, y: y + drift }],
+    })
+  }
+  await page.waitForTimeout(ms)
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+  await cdp.detach()
+}
+
+/**
+ * A touch screen has no hover, and the platform's answer is a long press — the
+ * gesture iOS uses for its own link previews and the one `interestfor` is
+ * specified to answer. A tap stays a tap: a tooltip that opens on tap is a
+ * popover with extra steps.
+ */
+test.describe('on a touch screen', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
+
+  test('a long press opens the tooltip and the lift leaves it open', async ({ page }) => {
+    await page.goto('/?case=tooltip')
+    const content = page.getByTestId('content')
+
+    await expect(content).toBeHidden()
+    await press(page, 'trigger', 700)
+
+    // The lift is a pointerup outside every open popover, so this is also the
+    // assertion that light dismiss did not take back what the press opened.
+    await expect(content).toBeVisible()
+    await expect(page.getByTestId('clicks')).toHaveText('0')
+  })
+
+  test('a tap activates the trigger and opens nothing', async ({ page }) => {
+    await page.goto('/?case=tooltip')
+
+    await press(page, 'trigger', 100)
+
+    await expect(page.getByTestId('clicks')).toHaveText('1')
+    // Long enough for the delay, the close delay and the focus that a tap
+    // leaves behind on Android to have each had their chance.
+    await page.waitForTimeout(300)
+    await expect(page.getByTestId('content')).toBeHidden()
+  })
+
+  test('a finger that drifts is scrolling, and opens nothing', async ({ page }) => {
+    await page.goto('/?case=tooltip')
+
+    await press(page, 'trigger', 700, 40)
+
+    await expect(page.getByTestId('content')).toBeHidden()
+  })
+
+  test('a long press on a link previews it instead of following it', async ({ page }) => {
+    await page.goto('/?case=hover-card')
+    const url = page.url()
+
+    await press(page, 'trigger', 700)
+
+    await expect(page.getByTestId('content')).toBeVisible()
+    expect(page.url()).toBe(url)
+  })
+
+  test('the lift never paints the card closed on its way back', async ({ page }) => {
+    await page.goto('/?case=hover-card')
+    await record(page, '[data-testid="content"]')
+
+    await press(page, 'trigger', 700)
+    await expect(page.getByTestId('content')).toBeVisible()
+    await page.waitForTimeout(300)
+
+    // Light dismiss closes it on the lift and the same task opens it again, so
+    // the closed state exists but is never painted. Every frame from the first
+    // open one onwards is open, or the gesture flickers on a real phone.
+    const frames = await page.evaluate(() => window.bedrockFrames ?? [])
+    const opened = frames.findIndex((frame) => frame.open)
+
+    expect(opened).toBeGreaterThanOrEqual(0)
+    expect(frames.slice(opened).filter((frame) => !frame.open)).toEqual([])
+  })
+
+  test('tapping elsewhere dismisses what the press opened', async ({ page }) => {
+    await page.goto('/?case=hover-card')
+    await press(page, 'trigger', 700)
+    await expect(page.getByTestId('content')).toBeVisible()
+
+    // Light dismiss, which is the popover's own and not ours.
+    await page.touchscreen.tap(10, 10)
+    await expect(page.getByTestId('content')).toBeHidden()
+  })
+})
+
 test.describe('HoverCard', () => {
   test('an anchor can be the trigger, which is what link previews need', async ({ page }) => {
     await page.goto('/?case=hover-card')

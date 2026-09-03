@@ -52,6 +52,23 @@ function TooltipCase() {
   )
 }
 
+/**
+ * An info icon: nothing happens when you tap it, so a press has nothing to be
+ * careful of and the tooltip can come up almost at once.
+ */
+function TooltipIconCase() {
+  return (
+    <div style={{ padding: 100 }}>
+      <Tooltip.Root delayDuration={50} closeDelay={20}>
+        <Tooltip.Trigger data-testid="trigger" aria-label="About billing">
+          i
+        </Tooltip.Trigger>
+        <Tooltip.Content data-testid="content">Charged monthly</Tooltip.Content>
+      </Tooltip.Root>
+    </div>
+  )
+}
+
 function HoverCardCase() {
   return (
     <div style={{ padding: 100 }}>
@@ -73,5 +90,6 @@ export const OVERLAY_CASES: Record<string, ReactNode> = {
   popover: <PopoverCase />,
   'refused-popover': <RefusedPopover />,
   tooltip: <TooltipCase />,
+  'tooltip-icon': <TooltipIconCase />,
   'hover-card': <HoverCardCase />,
 }

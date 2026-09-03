@@ -3,13 +3,15 @@ import { anchorName } from '../anchor'
 import { useSupportsInterestInvokers } from '../capabilities'
 import { useControlledRoot, type ControlledRootProps } from '../create-controlled-root'
 import { useInterest } from '../interest'
-import { popoverAdapter } from '../popover/shared'
+import { popoverAdapter, usePopoverKind } from '../popover/shared'
 import type { TooltipContextValue } from './shared'
 
 export interface ControlledInterestOptions extends ControlledRootProps {
   showDelay: number
   hideDelay: number
   hoverableContent: boolean
+  /** Whether a press that opened it survives the finger coming back up. */
+  pressHolds: boolean
   kind: 'hint' | 'auto'
   role: 'tooltip' | undefined
 }
@@ -23,15 +25,17 @@ export interface ControlledInterestOptions extends ControlledRootProps {
  * still decides whether it happens.
  */
 export function useControlledInterestRoot(options: ControlledInterestOptions): TooltipContextValue {
-  const { open, onOpenChange, showDelay, hideDelay, hoverableContent, kind, role } = options
+  const { open, onOpenChange, showDelay, hideDelay, hoverableContent, pressHolds, role } = options
   const context = useControlledRoot({ open, onOpenChange }, popoverAdapter)
   const anchor = useMemo(() => anchorName(context.id), [context.id])
   const native = useSupportsInterestInvokers()
+  const kind = usePopoverKind(options.kind)
 
   const { registerTrigger, registerInterestContent } = useInterest({
     showDelay,
     hideDelay,
     hoverableContent,
+    pressHolds,
   })
 
   const registerContent = useCallback(

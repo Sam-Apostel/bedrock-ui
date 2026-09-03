@@ -54,9 +54,15 @@ Renders `<div popover data-bedrock-tooltip>` and takes `side`, `align`,
 `sideOffset` and `avoidCollisions`, exactly as [Popover](./popover.md) does.
 
 Tooltip content uses `popover="hint"` where the browser supports it, so it
-layers above an open menu instead of closing it. Where it does not, it falls
-back to `auto`, so opening a tooltip closes an open menu, which is wrong but
-not broken.
+layers above an open menu instead of closing it. Where it does not — every
+engine but Chrome today — it falls back to `auto`, so opening a tooltip closes
+an open menu, which is wrong but not broken.
+
+> The fallback is asked for, not assumed. `popover` is an enumerated attribute
+> whose invalid-value default is **manual**, so writing `hint` at an engine that
+> has never heard of it does not degrade to `auto`: it produces a popover that
+> neither light dismiss nor Escape reaches. `Popover.Root`'s `kind` prop
+> resolves the same way.
 
 Children mount only while open.
 
@@ -79,20 +85,45 @@ put unique navigation in one.
 
 ## Touch
 
-There is no hover on a touch screen, so the gesture is a **long press**: hold
-the trigger for half a second and the tooltip or card opens. That is the hold
-iOS and Android already use for their own previews, and the one `interestfor`
-is specified to answer where the platform runs intent itself.
+There is no hover on a touch screen, so the gesture is a **press**: hold the
+trigger and the tooltip or card opens. That is the hold iOS and Android already
+use for their own previews, and the one `interestfor` is specified to answer
+where the platform runs intent itself.
 
-| gesture           | what happens                                                                                                             |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| tap               | Nothing opens. The trigger's `onClick` runs, a link follows.                                                             |
-| press, then lift  | Opens, and stays open. The click the lift produces is swallowed, so pressing a link previews it instead of following it. |
-| press, then drag  | Nothing opens; past about 10px the finger is scrolling.                                                                 |
-| tap anywhere else | Closes. Light dismiss is the popover's, not ours.                                                                        |
+| gesture           | what happens                                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| tap               | Nothing opens. The trigger's `onClick` runs, a link follows.                                                               |
+| press             | Opens while you hold it. The click the lift produces is swallowed, so pressing a link previews it instead of following it. |
+| lift              | A **tooltip** goes; a **hover card** stays. A tooltip is a label held up while you press; a card is somewhere to go.       |
+| press, then drag  | Nothing opens; past about 10px the finger is scrolling.                                                                    |
+| tap anywhere else | Closes the card. Light dismiss is the popover's, not ours.                                                                 |
 
-On iPhone, "force touch" is a long press: 3D Touch was replaced by Haptic Touch
-and Safari exposes no pressure to read, so the hold *is* the whole gesture.
+On iPhone, "force touch" is a press: 3D Touch was replaced by Haptic Touch and
+Safari exposes no pressure to read, so the hold *is* the whole gesture.
+
+### How long the hold is
+
+Not one number, because the wait is not for the gesture — it is for the tap the
+gesture might have been.
+
+| the trigger              | the wait                                                        |
+| ------------------------ | --------------------------------------------------------------- |
+| does nothing when tapped | 150ms, as fast as a hold can be told from the start of a scroll |
+| does something           | 250ms, just past the length of a tap                            |
+
+An info icon is the first row: nothing happens when you tap it, so there is no
+tap to protect and it does not pay for one. The second row is a trigger that has
+somewhere to go, which means any of:
+
+- an `onClick`, on the `Trigger` or on its `asChild` child
+- an `<a href>`
+- a submit button inside a `<form>`
+
+A component that binds its handler where neither the props nor the DOM show it
+reads as inert and gets the shorter hold; the cost is a preview where a tap was
+meant, on a hold already past a tap's length. Neither number is `delayDuration`
+— a press is a different gesture from a pointer coming to rest, and tuning one
+says nothing about the other.
 
 ### Where the browser answers the hold itself
 

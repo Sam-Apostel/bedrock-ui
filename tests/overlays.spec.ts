@@ -128,7 +128,7 @@ test.describe('Tooltip', () => {
  * Real touch events, so the pointer events the library listens to carry
  * `pointerType: 'touch'` and the browser produces the click a lift produces.
  */
-async function press(page: Page, testId: string, ms: number, drift = 0) {
+async function hold(page: Page, testId: string, ms: number, drift = 0) {
   const cdp = await page.context().newCDPSession(page)
   const box = (await page.getByTestId(testId).boundingBox())!
   const x = box.x + box.width / 2
@@ -142,8 +142,27 @@ async function press(page: Page, testId: string, ms: number, drift = 0) {
     })
   }
   await page.waitForTimeout(ms)
-  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
-  await cdp.detach()
+
+  return async () => {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    await cdp.detach()
+  }
+}
+
+async function press(page: Page, testId: string, ms: number, drift = 0) {
+  const release = await hold(page, testId, ms, drift)
+  await release()
+}
+
+/**
+ * Open right now, with no retrying. The press timers are still running while a
+ * test asserts, so a retried expectation would happily wait for a panel that
+ * was supposed to stay shut.
+ */
+function openNow(page: Page) {
+  return page.evaluate(
+    () => document.querySelector('[data-testid="content"]')?.matches(':popover-open') === true,
+  )
 }
 
 /** True where `interestfor` is the browser's, which is what decides the path. */
@@ -173,17 +192,45 @@ test.describe('on a touch screen', () => {
     })
   })
 
-  test('a long press opens the tooltip and the lift leaves it open', async ({ page }) => {
+  test('a tooltip is held up while you press, and goes when you let go', async ({ page }) => {
     await page.goto('/?case=tooltip')
     const content = page.getByTestId('content')
 
     await expect(content).toBeHidden()
+    const release = await hold(page, 'trigger', 700)
+    expect(await openNow(page)).toBe(true)
+
+    await release()
+
+    await expect(content).toBeHidden()
+    // The press was a peek, so the button it was pressing never fired.
+    await expect(page.getByTestId('clicks')).toHaveText('0')
+  })
+
+  test('a hover card stays after the lift, because it is somewhere to go', async ({ page }) => {
+    await page.goto('/?case=hover-card')
+    const content = page.getByTestId('content')
+
     await press(page, 'trigger', 700)
 
     // The lift is a pointerup outside every open popover, so this is also the
     // assertion that light dismiss did not take back what the press opened.
     await expect(content).toBeVisible()
-    await expect(page.getByTestId('clicks')).toHaveText('0')
+  })
+
+  test('an info icon opens almost at once; a button waits out the tap', async ({ page }) => {
+    // Nothing happens when you tap an icon, so there is no tap to protect.
+    await page.goto('/?case=tooltip-icon')
+    const lift = await hold(page, 'trigger', 200)
+    expect(await openNow(page)).toBe(true)
+    await lift()
+
+    // The same hold on a trigger that does something is still inside the window
+    // where it might have been a tap, so nothing has opened yet.
+    await page.goto('/?case=tooltip')
+    const release = await hold(page, 'trigger', 200)
+    expect(await openNow(page)).toBe(false)
+    await release()
   })
 
   test('a tap activates the trigger and opens nothing', async ({ page }) => {
@@ -242,6 +289,60 @@ test.describe('on a touch screen', () => {
     // Light dismiss, which is the popover's own and not ours.
     await page.touchscreen.tap(10, 10)
     await expect(page.getByTestId('content')).toBeHidden()
+  })
+})
+
+/**
+ * `popover` is an enumerated attribute whose invalid-value default is manual, so
+ * `hint` on an engine that does not have it is not a tooltip that layers badly —
+ * it is a tooltip nothing dismisses. Every WebKit engine is that engine today.
+ *
+ * Emulated rather than skipped: the capability test is made to answer no, and
+ * any `hint` that still reaches an element is turned into the `manual` such an
+ * engine would have read it as. A tooltip that cannot be tapped away then fails
+ * here rather than on someone's phone.
+ */
+test.describe('where the browser has no hint popovers', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      delete (HTMLButtonElement.prototype as { interestForElement?: unknown }).interestForElement
+
+      // The property, so the capability test answers no; the attribute, so any
+      // `hint` that still gets written lands as the manual such an engine reads.
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'popover')!
+
+      Object.defineProperty(HTMLElement.prototype, 'popover', {
+        ...descriptor,
+        set(value: unknown) {
+          descriptor.set?.call(this, value === 'hint' ? 'manual' : value)
+        },
+      })
+
+      const setAttribute = Element.prototype.setAttribute
+      Element.prototype.setAttribute = function (name: string, value: string) {
+        setAttribute.call(this, name, name === 'popover' && value === 'hint' ? 'manual' : value)
+      }
+    })
+  })
+
+  test('the tooltip asks for auto instead', async ({ page }) => {
+    await page.goto('/?case=tooltip')
+
+    await expect(page.getByTestId('content')).toHaveAttribute('popover', 'auto')
+  })
+
+  test('and Escape still closes it, which manual would not', async ({ page }) => {
+    await page.goto('/?case=tooltip')
+    const content = page.getByTestId('content')
+
+    await page.getByTestId('trigger').focus()
+    await expect(content).toBeVisible()
+
+    // The whole cost of the wrong attribute, in one key: a manual popover is
+    // dismissed by nothing at all, so this is the assertion that fails on every
+    // WebKit engine when the fallback is not asked for.
+    await page.keyboard.press('Escape')
+    await expect(content).toBeHidden()
   })
 })
 

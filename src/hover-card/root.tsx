@@ -23,6 +23,8 @@ export function HoverCardRoot({
     showDelay: openDelay,
     hideDelay: closeDelay,
     hoverableContent: true,
+    // Somewhere to go, so the lift leaves it up to be read and reached into.
+    pressHolds: true,
     kind: 'auto',
     role: undefined,
     onOpenChange,

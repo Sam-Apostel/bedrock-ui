@@ -225,7 +225,7 @@
       "chrome": "151",
       "firefox": "153",
       "safari": null,
-      "degrade": "Tooltips use the ordinary popover stack, so opening a tooltip closes an open menu instead of layering above it.",
+      "degrade": "Tooltips ask for the ordinary popover stack instead, so opening a tooltip closes an open menu rather than layering above it. Asking is the whole fallback: the attribute's invalid-value default is manual, so an unasked-for hint would be a tooltip that light dismiss and Escape never reach.",
       "support": {
         "chrome": {
           "version": "151",

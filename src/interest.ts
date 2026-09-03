@@ -6,16 +6,24 @@ export interface InterestOptions {
   hideDelay: number
   /** Whether moving the pointer onto the content keeps it open. */
   hoverableContent: boolean
+  /** Whether a press that opened it survives the finger coming back up. */
+  pressHolds: boolean
 }
 
 /**
- * A press long enough to be a deliberate gesture rather than a tap. iOS and
- * Android both use half a second for their own long-press, so it is the number
- * a thumb already knows — and it is deliberately not `showDelay`, because a
- * press is a different gesture from a pointer coming to rest, and a consumer
- * tuning one has said nothing about the other.
+ * How long a finger rests before the panel opens, in milliseconds.
+ *
+ * Two numbers, because the wait is not for the gesture — it is for the tap the
+ * gesture might have been. An info icon does nothing when you tap it, so there
+ * is nothing to protect and the only thing left to wait for is long enough to
+ * tell a hold from the start of a scroll. A button or a link does something,
+ * and opening before a tap has had time to be a tap would eat it.
+ *
+ * Neither is `showDelay`. A press is a different gesture from a pointer coming
+ * to rest, and a consumer tuning one has said nothing about the other.
  */
-const PRESS_DURATION = 500
+const PRESS_WITHOUT_A_TAP = 150
+const PRESS_PAST_A_TAP = 250
 
 /** How far a finger may drift and still be pressing rather than scrolling. */
 const PRESS_SLOP = 10
@@ -40,6 +48,23 @@ function focusIsVisible(node: Element): boolean {
     // keyboard user who can never see one.
     return true
   }
+}
+
+/**
+ * Whether tapping this trigger would do anything.
+ *
+ * Only half the answer is in the DOM — a React handler is not an attribute — so
+ * the trigger part passes what it knows and this covers the rest: a link, and a
+ * button that submits the form it is in.
+ */
+function activatesOnTap(node: HTMLElement): boolean {
+  if (node.tagName === 'A') return node.hasAttribute('href')
+
+  return (
+    node.tagName === 'BUTTON' &&
+    (node as HTMLButtonElement).type !== 'button' &&
+    node.closest('form') !== null
+  )
 }
 
 /**
@@ -77,7 +102,12 @@ function hovering(event: Event): boolean {
  * the teardown and the rebuild — which is exactly when the pointer is moving
  * from the trigger onto the content.
  */
-export function useInterest({ showDelay, hideDelay, hoverableContent }: InterestOptions) {
+export function useInterest({
+  showDelay,
+  hideDelay,
+  hoverableContent,
+  pressHolds,
+}: InterestOptions) {
   const triggerRef = useRef<HTMLElement | null>(null)
   const contentRef = useRef<HTMLElement | null>(null)
   const timer = useRef<number>(0)
@@ -91,8 +121,12 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
   const press = useRef<{ x: number; y: number; held: boolean; openAtDown: boolean } | null>(null)
 
   // Read at call time, so changing a delay never means rebinding anything.
-  const options = useRef({ showDelay, hideDelay, hoverableContent })
-  options.current = { showDelay, hideDelay, hoverableContent }
+  const options = useRef({ showDelay, hideDelay, hoverableContent, pressHolds })
+  options.current = { showDelay, hideDelay, hoverableContent, pressHolds }
+
+  // What the trigger part knows and the DOM does not: whether a tap has a
+  // handler to reach. Set on every registration, read when a press begins.
+  const triggerActivates = useRef(false)
 
   const clear = useCallback(() => window.clearTimeout(timer.current), [])
 
@@ -101,6 +135,11 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
   const reveal = useCallback(() => {
     const content = contentRef.current
     if (content && !isOpen()) content.showPopover()
+  }, [isOpen])
+
+  /** Now, not after `hideDelay`: a gesture that ended has nothing to wait for. */
+  const conceal = useCallback(() => {
+    if (isOpen()) contentRef.current?.hidePopover()
   }, [isOpen])
 
   const show = useCallback(() => {
@@ -199,11 +238,16 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
       node.style.setProperty('user-select', 'none')
       node.style.setProperty('-webkit-user-select', 'none')
 
-      pressTimer.current = window.setTimeout(() => {
-        if (!press.current) return
-        press.current.held = true
-        reveal()
-      }, PRESS_DURATION)
+      const protecting = triggerActivates.current || activatesOnTap(node)
+
+      pressTimer.current = window.setTimeout(
+        () => {
+          if (!press.current) return
+          press.current.held = true
+          reveal()
+        },
+        protecting ? PRESS_PAST_A_TAP : PRESS_WITHOUT_A_TAP,
+      )
     },
     [isOpen, reveal],
   )
@@ -240,12 +284,20 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
 
       endPress(node)
 
-      // The lift is a pointerup outside every open popover, and the popover the
-      // press opened did not exist when the finger went down — so as far as
-      // light dismiss is concerned it was never part of this gesture, and it
-      // closes. Re-assert it in the same task the dismissal ran in: nothing is
-      // painted between the two, so the card the press opened simply stays.
-      if (state.held) reveal()
+      // A tooltip is a label held up while you press, so it goes when you let
+      // go — and closing it here rather than leaving it to light dismiss is
+      // what makes that true on an engine whose light dismiss never runs.
+      //
+      // A card is somewhere to go, so it stays. That takes work: the lift is a
+      // pointerup outside every open popover, and the popover the press opened
+      // did not exist when the finger went down, so as far as light dismiss is
+      // concerned it was never part of this gesture and it closes. Re-assert in
+      // the same task the dismissal ran in — nothing is painted between the
+      // two, so the card the press opened simply stays.
+      if (state.held) {
+        if (options.current.pressHolds) reveal()
+        else conceal()
+      }
 
       // Whoever opened it, the lift still produces a click, and on an `<a>` that
       // click is a navigation. A browser answering the hold itself lets it
@@ -254,7 +306,7 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
       // the finger went down is not this gesture's, and the tap under it stands.
       if (state.held || (!state.openAtDown && isOpen())) swallowClick(node)
     },
-    [endPress, isOpen, reveal, swallowClick],
+    [conceal, endPress, isOpen, reveal, swallowClick],
   )
 
   const cancelPress = useCallback(
@@ -305,7 +357,9 @@ export function useInterest({ showDelay, hideDelay, hoverableContent }: Interest
   )
 
   const registerTrigger = useCallback(
-    (node: HTMLElement | null) => {
+    (node: HTMLElement | null, activates = false) => {
+      triggerActivates.current = activates
+
       const previous = triggerRef.current
       if (previous) bindTrigger(previous, false)
 

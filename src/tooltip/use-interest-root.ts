@@ -3,12 +3,15 @@ import { anchorName } from '../anchor'
 import { useSupportsInterestInvokers } from '../capabilities'
 import { useInterest } from '../interest'
 import { useOpenState } from '../open-state'
+import { usePopoverKind } from '../popover/shared'
 import type { TooltipContextValue } from './shared'
 
 export interface InterestRootOptions {
   showDelay: number
   hideDelay: number
   hoverableContent: boolean
+  /** Whether a press that opened it survives the finger coming back up. */
+  pressHolds: boolean
   kind: 'hint' | 'auto'
   role: 'tooltip' | undefined
   onOpenChange?: ((open: boolean) => void) | undefined
@@ -23,6 +26,7 @@ export function useInterestRoot(options: InterestRootOptions): TooltipContextVal
   const id = useId()
   const anchor = useMemo(() => anchorName(id), [id])
   const native = useSupportsInterestInvokers()
+  const kind = usePopoverKind(options.kind)
 
   const changeRef = useRef(options.onOpenChange)
   changeRef.current = options.onOpenChange
@@ -34,6 +38,7 @@ export function useInterestRoot(options: InterestRootOptions): TooltipContextVal
     showDelay: options.showDelay,
     hideDelay: options.hideDelay,
     hoverableContent: options.hoverableContent,
+    pressHolds: options.pressHolds,
   })
 
   const registerContent = useCallback(
@@ -50,11 +55,11 @@ export function useInterestRoot(options: InterestRootOptions): TooltipContextVal
       open,
       anchor,
       native,
-      kind: options.kind,
+      kind,
       role: options.role,
       registerContent,
       registerTrigger,
     }),
-    [id, open, anchor, native, options.kind, options.role, registerContent, registerTrigger],
+    [id, open, anchor, native, kind, options.role, registerContent, registerTrigger],
   )
 }

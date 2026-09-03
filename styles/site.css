@@ -118,9 +118,15 @@ body {
  * library — it is a judgement about this page's layout, and the two lines it
  * costs are the argument for leaving it to the site. `body` as well as the root
  * because iOS Safari keeps scrolling the document when only the root is hidden.
+ *
+ * The nav panel is in the list for the same reason: it is a scroller of its own,
+ * and a scroller that reaches its end hands the rest of the gesture to the page
+ * behind it. What it stops is the gesture. Neither this nor `overflow: clip`
+ * stops a *programmatic* scroll — measured, and it is why the browser can still
+ * move the page under you to reveal a field when the on-screen keyboard opens.
  */
-html:has(dialog:modal),
-html:has(dialog:modal) body {
+html:has(dialog:modal, .nav-links:popover-open),
+html:has(dialog:modal, .nav-links:popover-open) body {
   overflow: hidden;
 }
 
@@ -200,6 +206,14 @@ nav {
     /* The bar stays reachable from anywhere in a long page. */
     position: sticky;
     top: 0;
+    /*
+     * Above 1, not above 0: anything further down the page that makes a
+     * stacking context of its own — an `opacity` under 1, a `rotate` — paints
+     * over a sticky bar with `z-index: auto` purely by document order, and the
+     * demo source's chevron and filename did exactly that. 1 is taken by the
+     * copy button over a code block.
+     */
+    z-index: 2;
     /* What the panel below hangs from, where the browser can do that. */
     anchor-name: --nav-bar;
     max-height: none;
@@ -263,6 +277,9 @@ nav {
     background: var(--paper);
     color: var(--ink);
     box-shadow: 0 var(--u2) var(--u4) rgb(0 0 0 / 0.22);
+    /* Reaching the end of the links is the end of the gesture, not the start of
+       one on the page underneath. */
+    overscroll-behavior: contain;
   }
 
   .nav-links::backdrop {

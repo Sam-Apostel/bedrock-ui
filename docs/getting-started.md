@@ -36,7 +36,7 @@ That renders:
 No effect opens it, no state hook holds it, no portal moves it. The button is
 bound to the dialog by the parser, which is why the markup above works before
 React hydrates and keeps working if the bundle never arrives. There is a test
-for exactly that — `tests/no-javascript.spec.ts` renders the markup, disables
+for exactly that: `tests/no-javascript.spec.ts` renders the markup, disables
 JavaScript, and clicks it.
 
 ## The one rule
@@ -57,8 +57,8 @@ activation and no implicit `aria-expanded`.
 </Dialog.Trigger>
 ```
 
-There is no fallback click handler, deliberately — see
-[gaps](./should-you-switch.md#4-the-trigger-must-be-a-button-and-it-throws). If you are wrapping a
+There is no fallback click handler, deliberately. See
+[should you switch?](./should-you-switch.md#4-the-trigger-must-be-a-button-and-it-throws). If you are wrapping a
 third-party component that renders a `div` and you cannot change it, take the
 props and own the accessibility:
 
@@ -81,14 +81,14 @@ element. `bedrock.css` is a demonstration you can import or ignore:
 import '@apostel/bedrock/bedrock.css'
 ```
 
-See [styling](./styling.md) for how open and closed states are selected —
-short version, `:open` and `::backdrop`, not `data-state`.
+See [styling](./styling.md) for how open and closed states are selected. Short
+version: `:open` and `::backdrop`, not `data-state`.
 
 ## Next
 
-- [Browser support](./compat.md) — read this before shipping to the public web
-- [Styling](./styling.md) — the state selectors, in full
-- [Controlled state](./state.md) — only if React has to refuse an open or a close
+- [Browser support](./compat.md): read this before shipping to the public web
+- [Styling](./styling.md): the state selectors, in full
+- [Controlled state](./state.md): only if React has to refuse an open or a close
 
 Every primitive has its own page, listed under **Primitives**; each one is
 self-contained.

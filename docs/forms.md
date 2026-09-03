@@ -53,7 +53,7 @@ Draw it with a pseudo-element.
 | `onValueChange` | `(value: string) => void`  | `Root`          |
 | `value`         | `string`                   | `Item` (required) |
 
-> Arrow-key roving between radios in a group is **the browser's**, not ours — a
+> Arrow-key roving between radios in a group is **the browser's**, not ours. A
 > shared `name` is all it takes. `RadioGroup.Indicator` renders nothing.
 
 ## `Label`
@@ -61,8 +61,8 @@ Draw it with a pseudo-element.
 Renders `<label data-bedrock-label>`. Takes `htmlFor`.
 
 > Double-clicking a label selects text in some engines, which is never what a
-> label is for; that is suppressed. Everything else — click-to-focus,
-> click-to-toggle, the accessible name — is the element's.
+> label is for; that is suppressed. Everything else is the element's:
+> click-to-focus, click-to-toggle, the accessible name.
 
 ## `Toggle` and `ToggleGroup`
 
@@ -74,7 +74,7 @@ Renders `<label data-bedrock-label>`. Takes `htmlFor`.
 | `onPressedChange` | `(pressed: boolean) => void` |                             |
 
 `ToggleGroup.Root` takes `type="single" | "multiple"` and gives its items
-roving focus — one tab stop for the group, arrow keys within it. That part is
+roving focus: one tab stop for the group, arrow keys within it. That part is
 written, because HTML has no toggle-group widget.
 
 `ToggleGroup.Item` takes a required `value`.

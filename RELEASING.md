@@ -12,7 +12,7 @@ Everything marked **you** below is a manual step outside this repository.
 
 ---
 
-## Part 1 — npm
+## Part 1: npm
 
 The setup below is done and `0.1.0` is published; this is the record of how, and
 what to repeat. Roughly ten minutes from scratch.
@@ -29,7 +29,7 @@ npm whoami
 
 `@apostel/bedrock` is claimed and published. The name appears in the README, the
 docs, the agent skill and all 24 registry items, so changing it now would break
-everyone who has installed one — it is settled.
+everyone who has installed one, so it is settled.
 
 ### 2. Give CI a token
 
@@ -39,7 +39,7 @@ npmjs.com → *Access Tokens* → *Generate New Token* → **Granular Access Tok
 | --- | --- |
 | Expiration | your call; it must have one |
 | Packages and scopes | *Read and write*, limited to `@apostel/*` |
-| Bypass 2FA | **ticked** — without it a CI publish fails once 2FA is on |
+| Bypass 2FA | **ticked**, because without it a CI publish fails once 2FA is on |
 
 Then GitHub → *Settings* → *Secrets and variables* → *Actions* → *New
 repository secret*, named `NPM_TOKEN`.
@@ -50,7 +50,7 @@ GitHub → *Settings* → *Actions* → *General* → *Workflow permissions* →
 **Allow GitHub Actions to create and approve pull requests**.
 
 > Without it the release workflow runs, the tests pass, and opening the version
-> PR fails at the last step — which reads like a broken workflow rather than a
+> PR fails at the last step, which reads like a broken workflow rather than a
 > missing checkbox. It cost three failed runs before anyone spotted it.
 
 ### 4. Push, then merge the PR it opens
@@ -79,7 +79,7 @@ add a changeset in the same PR:
 npm run changeset
 ```
 
-It asks for the bump — patch, minor or major — and for a description. Write that
+It asks for the bump (patch, minor or major) and for a description. Write that
 for someone *using* the package, not for someone reading the diff; it becomes
 the changelog entry verbatim. Tests, docs and internal refactors need no
 changeset.
@@ -96,7 +96,7 @@ Nobody types a version number, and nothing ships without a note saying why.
 ### Optional: drop the token later
 
 Once the package exists on npm, you can switch to **trusted publishing** and
-delete `NPM_TOKEN` entirely — no credential to leak, rotate, or find expired at
+delete `NPM_TOKEN` entirely: no credential to leak, rotate, or find expired at
 an inconvenient moment.
 
 npmjs.com → the package → *Settings* → *Trusted Publisher*:
@@ -118,7 +118,7 @@ that npm ignores, so nothing needs editing.
 
 ### Why changesets rather than a tag
 
-A tag encodes a decision — "this is a minor" — at the moment you release, which
+A tag encodes a decision, "this is a minor", at the moment you release, which
 is the moment you have least context. A changeset encodes it in the PR that
 caused it, when you still remember whether the prop rename was breaking. The
 changelog then writes itself from those notes rather than from commit subjects,
@@ -136,18 +136,18 @@ which is why `CHANGELOG.md` here is one heading and a pointer.
 
 ---
 
-## Part 2 — bedrock.sams.land
+## Part 2: bedrock.sams.land
 
 The site is built by `npm run docs:build` into `site/`, and deployed by
 `.github/workflows/docs.yml` on every push to `main`. It serves the docs, the
-live compat page, and `r/` — so the shadcn registry and the documentation are
+live compat page, and `r/`, so the shadcn registry and the documentation are
 the same host.
 
 ### One-time
 
 1. **Turn on Pages with Actions as the source.** GitHub → *Settings* → *Pages* →
    *Build and deployment* → *Source*: **GitHub Actions**. Not "Deploy from a
-   branch" — the workflow uploads an artifact, and the branch option ignores it.
+   branch": the workflow uploads an artifact, and the branch option ignores it.
 
 2. **Point DNS at GitHub.** In whatever manages `sams.land`, add:
 
@@ -164,7 +164,7 @@ the same host.
    `site/`, so this survives every deploy.
 
 4. **Wait for the certificate, then force HTTPS.** GitHub issues one once DNS
-   resolves — usually minutes, occasionally an hour. When *Enforce HTTPS* stops
+   resolves, usually minutes and occasionally an hour. When *Enforce HTTPS* stops
    being greyed out, tick it.
 
 ### Checking it worked
@@ -186,7 +186,7 @@ Write markdown in `docs/`. It is picked up automatically and gets a page at
 
 The browser-support matrix is generated from `docs/compat.json`, which carries
 the minimum versions from MDN's compat data. `docs/compat.md` embeds it with an
-HTML comment naming `support-matrix` — written out here would expand into the
+HTML comment naming `support-matrix`, which written out here would expand into the
 matrix itself, which is how it first got embedded in this page by accident. The
 live column is measured in the reader's own browser by an inline script.
 

@@ -1,0 +1,28 @@
+/*
+ * Five era surfaces in a row, each one a `.tl` so eras.css paints it.
+ *
+ * The cells are the era's, edge to edge: no shared frame, no gap fill, nothing
+ * from the docs stylesheet between them. A neutral card around each one would
+ * be a look this page did not admit to having, on the one widget whose whole
+ * argument is that the look is never the component's.
+ */
+
+.tl-looks {
+  /* The docs give every `ul` the prose measure. This one is a figure. */
+  max-width: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tl-look {
+  /* .tl pays for a 24px frame around a whole widget; a cell this size does
+     not, and the tab list needs the width more than the air. */
+  padding: var(--s4);
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}

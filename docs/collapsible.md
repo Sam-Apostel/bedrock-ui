@@ -29,7 +29,7 @@ Renders `<details data-bedrock-collapsible>`.
 | `asChild`      | `boolean`                 | The child must render a `<details>`.    |
 
 For an `open` prop React can refuse with, import from
-`@apostel/bedrock/controlled` — see [controlled state](./state.md).
+`@apostel/bedrock/controlled`. See [controlled state](./state.md).
 
 > `open` is read on the first render only. React writes a DOM property when the
 > value it renders changes, so reading it once means the user's own toggling is
@@ -47,7 +47,7 @@ panel resets itself when it closes.
 
 > Server-rendered markup is the exception: content renders on the server and on
 > the hydrating render that must match it. A page whose JavaScript never arrives
-> still has a complete, working disclosure — there is a test that loads it with
+> still has a complete, working disclosure. There is a test that loads it with
 > scripting disabled and toggles it.
 
 ## What is not here

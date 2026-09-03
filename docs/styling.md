@@ -56,9 +56,16 @@ things do the work:
 }
 ```
 
-`overlay` is the one people miss. Without it the element leaves the top layer
-the instant it closes, so the exit transition plays underneath whatever was
-above it — which then gets blamed on `z-index`.
+`overlay` is the one people miss, and it is the one worth seeing rather than
+reading. Both panels below are the same markup with the same 900ms fade. The
+left one keeps `overlay` in its transition list; the right one does not, and
+spends its fade behind a card it was above a moment ago.
+
+<!-- demo: top-layer-exit -->
+
+At the 180ms `bedrock.css` actually ships, that is a flicker on close, which is
+why it gets reported as a `z-index` bug rather than a missing transition
+property.
 
 ## The backdrop
 
@@ -70,8 +77,8 @@ above it — which then gets blamed on `z-index`.
 
 It is a pseudo-element, so it cannot be a React node, cannot take a `className`,
 and cannot have children. If you need a clickable or animated overlay with
-content in it, that is a real limitation — see
-[gaps](./should-you-switch.md#6-several-parts-render-nothing-and-that-is-a-redesign-not-a-rename).
+content in it, that is a real limitation. See
+[should you switch?](./should-you-switch.md#6-several-parts-render-nothing-and-that-is-a-redesign-not-a-rename).
 
 Backdrop transitions need their own `@starting-style` block; a pseudo-element
 does not inherit the host's.

@@ -323,12 +323,97 @@ ${probes}
 })()
 </script>`
 
+  // The note that used to close this line said the Here column is measured in
+  // your browser as you read, which is what the pull quote directly above it in
+  // compat.md says, in the same words. Provenance is this line's job; what the
+  // column means is that quote's.
   return (
     `<p class="matrix-meta">Minimum versions from <code>${COMPAT.source}</code> ` +
-    `${escapeHtml(COMPAT.sourceVersion)}, ${COMPAT.generated}. ${escapeHtml(COMPAT.note)} ` +
-    `The <strong>Here</strong> column is measured in your browser as you read.</p>` +
+    `${escapeHtml(COMPAT.sourceVersion)}, ${COMPAT.generated}. ${escapeHtml(COMPAT.note)}</p>` +
     sections.join('') +
     script
+  )
+}
+
+/* ── Bundle sizes ────────────────────────────────────────────────────────── */
+
+/*
+ * `<!-- sizes-figure -->` swaps the markdown table under it for a figure.
+ *
+ * The table stays in README.md because README.md is also the repository's front
+ * page, where there is no build and no stylesheet, and a comment renders as
+ * nothing at all. On the site the same eight rows become a shape: every bedrock
+ * dot piled against the left edge, every Radix dot sprayed across the width.
+ * That is the argument the table was making in a column of small multipliers on
+ * the right, where a reader scans it without ever feeling it.
+ *
+ * The axis is linear, deliberately. A log axis would fit the labels more
+ * comfortably and flatter Radix by about thirty times.
+ */
+const SIZES_COMMENT = /<!--\s*sizes-figure\s*-->\n+(?:\|.*\n)+/g
+const SIZES_TOKEN = /(?:<p>)?@@bedrock-sizes@@(?:<\/p>)?/g
+
+const SIZES = JSON.parse(readFileSync('docs/sizes.json', 'utf8'))
+
+/**
+ * The axis ends just past the widest row, not at the round number above it.
+ *
+ * Rounding 31.6 up to 40 spent a fifth of the width on empty space and put a
+ * "40 kB" label over nothing. Two kB of headroom is enough to keep the last dot
+ * off the edge, and the labelled ticks are still the round numbers.
+ */
+function sizesAxis(max) {
+  const top = Math.ceil(max / 2) * 2
+  return { top, ticks: Array.from({ length: Math.floor(top / 10) + 1 }, (_, i) => i * 10) }
+}
+
+function sizesFigure() {
+  const rows = SIZES.primitives.toSorted((a, b) => b.radix / b.bedrock - a.radix / a.bedrock)
+  const { top, ticks } = sizesAxis(Math.max(...rows.map((row) => row.radix)))
+  const at = (value) => `${((value / top) * 100).toFixed(2)}%`
+
+  const body = rows
+    .map((row) => {
+      const ratio = row.radix / row.bedrock
+      return (
+        `<li class="sizes-row" style="--from:${at(row.bedrock)};--to:${at(row.radix)}">` +
+        `<span class="sizes-name">${escapeHtml(row.name)}</span>` +
+        // Decorative: every number in it is in the cell to its right, in text.
+        `<span class="sizes-track" aria-hidden="true">` +
+        `<span class="sizes-span"></span>` +
+        `<span class="sizes-dot" data-lib="radix"></span>` +
+        `<span class="sizes-dot" data-lib="bedrock"></span>` +
+        `</span>` +
+        `<span class="sizes-values"><b>${row.bedrock.toFixed(2)}</b> kB, was ${row.radix}</span>` +
+        // One decimal on every row. Mixing 37 with 8.9 invited the rounding the
+        // hand-written table had already got wrong, and 31.5 over 0.84 is 37.5,
+        // which rounds up to a bigger number than the table ever claimed.
+        `<span class="sizes-ratio">${ratio.toFixed(1)}&times;</span>` +
+        `</li>`
+      )
+    })
+    .join('')
+
+  const scale = ticks
+    .map(
+      (tick) =>
+        `<span class="sizes-tick" style="--at:${at(tick)}">${tick === ticks.at(-1) ? `${tick} kB` : tick}</span>`,
+    )
+    .join('')
+
+  return (
+    `<figure class="sizes">` +
+    `<p class="sizes-key">` +
+    `<span data-lib="bedrock">bedrock</span> <span data-lib="radix">Radix</span>` +
+    `</p>` +
+    `<div class="sizes-scale" aria-hidden="true">${scale}</div>` +
+    `<ol class="sizes-rows">${body}</ol>` +
+    // The method is in the sentence above the figure, which is also the only
+    // copy GitHub gets. Repeating it here would be the same words twice in
+    // eighty pixels; what that sentence does not say is that nothing checks it.
+    `<figcaption>Measured by hand on ${SIZES.measured}. Nothing in CI asserts ` +
+    `these, which is <a href="./known-gaps.html">a known gap</a>.</figcaption>` +
+    `</figure>`
   )
 }
 
@@ -415,12 +500,14 @@ for (const { source, out, title } of PAGES) {
       return `@@bedrock-widget:${name}@@`
     })
     .replace(MATRIX_COMMENT, () => '@@bedrock-matrix@@')
+    .replace(SIZES_COMMENT, () => '@@bedrock-sizes@@\n\n')
 
   const parsed = marked.parse(tokenised, { async: false })
   const body = wrapTables(parsed)
     .replace(DEMO_TOKEN, (_token, name) => demoBlock(name))
     .replace(WIDGET_TOKEN, (_token, name) => widgetBlock(name))
     .replace(MATRIX_TOKEN, () => matrixTable())
+    .replace(SIZES_TOKEN, () => sizesFigure())
 
   const heading = /^#\s+(.+)$/m.exec(markdown)?.[1]
   const name = title ?? heading ?? basename(source, '.md')

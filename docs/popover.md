@@ -36,7 +36,7 @@ Renders no element.
 | `onOpenChange` | `(open: boolean) => void`        | Reports; cannot refuse.  |
 
 For an `open` prop React can refuse with, import from
-`@apostel/bedrock/controlled` — see [controlled state](./state.md).
+`@apostel/bedrock/controlled`. See [controlled state](./state.md).
 
 `kind` is named for behaviour, not for the `popover` attribute it currently maps
 onto one-for-one:
@@ -45,7 +45,7 @@ onto one-for-one:
 | -------- | ------------------------------------------------------------------ |
 | `auto`   | Light-dismisses, and closes other `auto` popovers when it opens.    |
 | `manual` | Neither. You close it yourself.                                     |
-| `hint`   | Layers above an open menu instead of closing it. See [browser support](./compat.html). |
+| `hint`   | Layers above an open menu instead of closing it. See [browser support](./compat.md). |
 
 There is no `defaultOpen`. A popover cannot be shown before its element is
 connected, and calling `showPopover()` from a mount effect is exactly the class
@@ -90,7 +90,7 @@ Renders `<div popover data-bedrock-popover>`.
 | `align`           | `Align`   | `'start' \| 'center' \| 'end'`. Default `center`.          |
 | `sideOffset`      | `number`  | Pixels between anchor and panel.                          |
 | `avoidCollisions` | `boolean` | Default `true`. Becomes `position-try-fallbacks`.         |
-| `id`              | —         | **Not forwarded.** The trigger's `commandfor` points at it. |
+| `id`              |           | **Not forwarded.** The trigger's `commandfor` points at it. |
 | `asChild`         | `boolean` | Supported.                                                |
 
 `side` and `align` compile to `position-area` plus self-alignment, so the panel
@@ -99,7 +99,7 @@ re-render. `avoidCollisions` becomes `position-try-fallbacks`, which flips it
 when it would overflow the viewport.
 
 > Where a browser has no anchor positioning the panel still opens and still
-> dismisses — it lands where the UA puts a popover, centred, rather than beside
+> dismisses. It lands where the UA puts a popover, centred, rather than beside
 > the trigger. See [browser support](./compat.md) for what degrades and how.
 
 **Children mount only while it is open**, on `beforetoggle`. Closing discards
@@ -116,7 +116,7 @@ Renders `<button type="button" commandfor command="hide-popover">`, and takes
 
 The escape hatch. Returns `{ commandfor, command }` to spread onto an element
 bedrock will not render for you. Must be called inside a `Popover.Root`. No
-validation and no accessibility guarantees — that is the deal, and it is why it
+validation and no accessibility guarantees. That is the deal, and it is why it
 has a name you have to type.
 
 ## Keyboard

@@ -111,7 +111,7 @@ function Chips({ state }: { state: RowState }) {
   )
 }
 
-function Tile({ state }: { state: ComponentState }) {
+export function Tile({ state }: { state: ComponentState }) {
   const { component } = state
   const Live = TILES[component.id]
   const dead = state.status === 'dead'
@@ -258,7 +258,7 @@ function Scrubber({
         value={Math.round(daysInto(moment.date))}
         onChange={(event) => onChange(nearest(event.target.valueAsNumber))}
         onKeyDown={step}
-        aria-valuetext={`${formatDate(moment.date)} — ${moment.headline}`}
+        aria-valuetext={`${formatDate(moment.date)}. ${moment.headline}`}
       />
     </div>
   )
@@ -317,7 +317,7 @@ export default function CompatTimeline() {
 
         <p className="tl-headline" aria-live="polite">
           {moment.headline}
-          {moment.ahead ? <em> — projected, not yet</em> : null}
+          {moment.ahead ? <em> (projected, not yet)</em> : null}
         </p>
 
         {/*

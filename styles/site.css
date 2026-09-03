@@ -567,3 +567,188 @@ tr.floor td:first-child {
   color: var(--accent);
   margin-bottom: var(--u2);
 }
+
+/* ── The bundle-size figure ────────────────────────────────────────────── */
+
+/*
+ * Eight dumbbells on one linear axis, built by sizesFigure() in
+ * scripts/build-docs.mjs.
+ *
+ * Every number in the plot is repeated as text in the same row, so the dots are
+ * `aria-hidden` and the figure reads linearly as "Select, 0.84 kB, was 31.5,
+ * 37×". The shape is for the eye and the row is for everyone; neither is the
+ * only copy of anything.
+ *
+ * No JavaScript and no SVG. The positions are two percentages per row set as
+ * custom properties at build time, which is also what makes it survive a
+ * stylesheet-only theme change.
+ */
+.sizes {
+  margin: var(--u4) 0;
+  padding: 0;
+  /* Wider than the prose, like the tables and demos: it is a figure. */
+  max-width: none;
+}
+
+.sizes-key {
+  display: flex;
+  gap: var(--u2);
+  margin: 0 0 var(--u2);
+  font: 600 0.72rem/1 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+/* The mark beside the word, so identity is never carried by colour alone. */
+.sizes-key span::before {
+  content: '';
+  display: inline-block;
+  width: 0.55em;
+  height: 0.55em;
+  margin-right: 0.45em;
+  border-radius: 50%;
+  vertical-align: 0.05em;
+  background: currentColor;
+}
+
+.sizes-key [data-lib='bedrock'] {
+  color: var(--accent);
+}
+
+/*
+ * Four columns: name, plot, numbers, ratio. Only the plot stretches, so the
+ * numbers stay in one rag down the right and the eye reads the shape, not the
+ * arithmetic.
+ */
+.sizes-row {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(6rem, 1fr) 9.5rem 3.6rem;
+  align-items: center;
+  gap: var(--u2);
+}
+
+/*
+ * The scale cannot be a row of that grid: its ticks position against the plot
+ * column, whose width the grid resolves and a child cannot read. Insetting a
+ * plain block by the other three columns' widths keeps the arithmetic in CSS
+ * and the ticks over the dots.
+ */
+.sizes-scale {
+  position: relative;
+  height: 1.1rem;
+  margin-left: calc(7.5rem + var(--u2));
+  margin-right: calc(9.5rem + 3.6rem + var(--u2) * 3);
+}
+
+.sizes-tick {
+  position: absolute;
+  left: var(--at);
+  transform: translateX(-50%);
+  /* The last tick carries the unit, and an unsized absolute box wrapped it
+     onto a second line under the number. */
+  white-space: nowrap;
+  font: 0.68rem/1 var(--mono);
+  color: var(--muted);
+}
+
+.sizes-rows {
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+}
+
+.sizes-row {
+  padding: var(--u) 0;
+  border-top: 1px solid var(--rule);
+}
+
+.sizes-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-width: 0;
+}
+
+/* Inset by the dot's radius at each end, so the last dot sits inside the plot
+   rather than half over the numbers beside it. */
+.sizes-track {
+  position: relative;
+  display: block;
+  height: 0.9rem;
+  min-width: 0;
+  margin: 0 5px;
+}
+
+/* The distance, which is the thing the table could not show. */
+.sizes-span {
+  position: absolute;
+  top: 50%;
+  left: var(--from);
+  right: calc(100% - var(--to));
+  height: 2px;
+  margin-top: -1px;
+  background: var(--rule);
+}
+
+.sizes-dot {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  /* A ring in the page colour, so two dots that land on top of each other at
+     the left edge still read as two. */
+  box-shadow: 0 0 0 2px var(--paper);
+}
+
+.sizes-dot[data-lib='bedrock'] {
+  left: var(--from);
+  background: var(--accent);
+}
+
+.sizes-dot[data-lib='radix'] {
+  left: var(--to);
+  background: var(--muted);
+}
+
+.sizes-values {
+  font: 0.8rem/1.2 var(--mono);
+  color: var(--muted);
+  text-align: right;
+}
+
+.sizes-values b {
+  color: var(--ink);
+}
+
+.sizes-ratio {
+  font: 600 0.9rem/1.2 var(--mono);
+  color: var(--accent);
+  text-align: right;
+}
+
+.sizes figcaption {
+  margin-top: var(--u2);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* Below this the four columns stop fitting and the plot is the first thing
+   worth losing: the numbers beside it say everything it says. */
+@media (max-width: 44rem) {
+  .sizes-scale {
+    display: none;
+  }
+
+  .sizes-row {
+    grid-template-columns: 1fr auto auto;
+  }
+
+  .sizes-track {
+    display: none;
+  }
+}

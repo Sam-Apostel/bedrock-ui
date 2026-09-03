@@ -1,7 +1,7 @@
 # Toast
 
-Transient messages in the top layer, so they sit above whatever is on the page
-— including an open modal dialog, which is the case that breaks a z-index-based
+Transient messages in the top layer, so they sit above whatever is on the page,
+including an open modal dialog, which is the case that breaks a z-index-based
 implementation.
 
 ```tsx
@@ -70,12 +70,12 @@ It removes itself when its duration elapses.
 | `Tab`    | Reaches the viewport, which is focusable, then the buttons.   |
 
 There is no `F6` hotkey to jump to the toast region. Radix has one; this does
-not. See [gaps](./should-you-switch.md).
+not. See [should you switch?](./should-you-switch.md).
 
 ## What is not here
 
 - **A `toast()` function.** This is a set of primitives, not a queue. Hold the
-  array of toasts in your own state — the demo above is the whole pattern.
+  array of toasts in your own state; the demo above is the whole pattern.
 - **Swipe to dismiss.** No pointer gesture handling.
 - **Pause on hover.** The timer does not stop when the pointer is over a toast,
-  which it should. See [gaps](./should-you-switch.md).
+  which it should. See [should you switch?](./should-you-switch.md).

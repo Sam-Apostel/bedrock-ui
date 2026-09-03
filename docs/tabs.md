@@ -1,7 +1,7 @@
 # Tabs and Toolbar
 
 The roving-tabindex family. HTML has no tab widget and no toolbar widget, so
-unlike most of this library these are **written**, not borrowed — the same
+unlike most of this library these are **written**, not borrowed: the same
 roving implementation the [menus](./menus.md) use.
 
 ```tsx
@@ -31,7 +31,7 @@ For a controlled `value`, import from `@apostel/bedrock/controlled`.
 
 | part      | renders                              | notes |
 | --------- | ------------------------------------ | ----- |
-| `List`    | `<div role="tablist">`               | — |
+| `List`    | `<div role="tablist">`               |   |
 | `Trigger` | `<button role="tab" aria-selected>`  | Required `value`. |
 | `Content` | `<div role="tabpanel">`              | Required `value`; matched to the trigger by it. |
 
@@ -43,9 +43,9 @@ unselected panel's form reset.
 | part        | renders                    | notes                                  |
 | ----------- | -------------------------- | -------------------------------------- |
 | `Root`      | `<div role="toolbar">`     | Takes `orientation`.                    |
-| `Button`    | `<button>`                 | —                                      |
+| `Button`    | `<button>`                 |                                        |
 | `Link`      | `<a>`                      | A real anchor: middle-click and copy-link work. |
-| `Separator` | `<div role="separator">`   | —                                      |
+| `Separator` | `<div role="separator">`   |                                        |
 | `ToggleGroup` / `ToggleItem` | see [form controls](./forms.md) | Re-exported so a toolbar reads as one component. |
 
 ## Keyboard
@@ -58,8 +58,8 @@ unselected panel's form reset.
 | `Home`/`End`        | First and last.                                   |
 
 Nested roving containers do not double-step: a key a nested group handles is
-marked handled, and the outer one stands down. That was a real bug — a toolbar
-containing a toggle group moved two positions per press — and there is a test
+marked handled, and the outer one stands down. That was a real bug, where a
+toolbar containing a toggle group moved two positions per press, and there is a test
 for it.
 
 ## What is not here

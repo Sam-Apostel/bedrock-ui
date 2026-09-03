@@ -1,7 +1,7 @@
 # Contributing
 
 `AGENTS.md` is the source of truth for architecture. Read it before writing
-code — most review comments on this repo are a pointer to a section of it, and
+code. Most review comments on this repo are a pointer to a section of it, and
 the decisions that look arbitrary are the ones it explains.
 
 This file is the practical half: how to run things, where code goes, and what
@@ -30,7 +30,7 @@ Individually, cheapest first:
 | `npm run format` | oxfmt. `format:check` is the CI form. |
 | `npm run lint` | oxlint. |
 | `npm run typecheck` | tsc, no emit. |
-| `npm run lint:graph` | the two packaging promises — see below. |
+| `npm run lint:graph` | the two packaging promises, described below. |
 | `npm run build` | tsc into `dist/`, then the import-specifier rewrite and the CSS copy. |
 | `npm test` | Playwright against Chrome. Add `-g "name"` to narrow. |
 | `npm run docs:build` | the static site, into `site/`. |
@@ -40,7 +40,7 @@ Individually, cheapest first:
 `npm run lint:graph` is not a style check. It enforces that `src/index.ts`
 cannot reach the controlled layer by *any* path, and that nothing in `src`
 imports a runtime dependency. Both are promises the README makes that a normal
-diff review would not catch being broken — a convenience re-export is enough.
+diff review would not catch being broken; a convenience re-export is enough.
 
 ## Where code goes
 
@@ -77,7 +77,7 @@ because most of the work is already in one of them:
 ## Tests
 
 Playwright against real Chrome, never jsdom. jsdom implements neither the top
-layer, nor invoker commands, nor anchor positioning — so a green suite there
+layer, nor invoker commands, nor anchor positioning, so a green suite there
 would say nothing about whether the library works. That is not a preference;
 it is the reason `docs/should-you-switch.md` lists "your component tests stop
 working" as the first cost of adopting this.
@@ -89,7 +89,7 @@ by area (`primitives.tsx`, `overlays.tsx`, `menus.tsx`, `rest.tsx`,
 Two rules that matter:
 
 - **Assert on the DOM, not on a React mirror of it.** `dialog.open`, `:modal`,
-  `:popover-open`, `aria-pressed` — never a `data-state` you wrote yourself.
+  `:popover-open`, `aria-pressed`, and never a `data-state` you wrote yourself.
 - **Assert the behaviour, not the implementation.** "Focus lands on the close
   button" survives a rewrite; "an effect ran" does not.
 
@@ -101,7 +101,7 @@ work before hydration.
 
 > `tests/radix-parity.spec.ts` is Radix's own Dialog tests, ported verbatim with
 > their titles kept so the two files can be diffed by eye. It is the most useful
-> review tool in the repo — four rounds of fixes came out of it, and every one
+> review tool in the repo. Four rounds of fixes came out of it, and every one
 > started with a Radix assertion rather than an idea of ours.
 
 If you change Dialog, run it first. A `test.skip` there is a claim that
@@ -133,8 +133,9 @@ Every change that affects a consumer needs a changeset:
 npm run changeset
 ```
 
-Pick the bump, then describe the change **for someone using the package** —
-what moved, what they have to do about it — not for someone reading the diff.
+Pick the bump, then describe the change **for someone using the package**: what
+moved and what they have to do about it, rather than for someone reading the
+diff.
 That text becomes the changelog entry verbatim.
 
 Changes that need no changeset: tests, docs, internal refactors that leave the
@@ -163,13 +164,13 @@ keep honest:
 
 | file | what belongs in it |
 | --- | --- |
-| `docs/should-you-switch.md` | the costs of adopting bedrock at all — the page an evaluator should read first. |
+| `docs/should-you-switch.md` | the costs of adopting bedrock at all, and the page an evaluator should read first. |
 | `docs/known-gaps.md` | specific missing behaviour. Close a gap and delete it here; open one and add it here in the same commit, not in a follow-up. |
 
 `docs/compat.md` renders `docs/compat.json` twice: as the timeline grid at the
 top of the page and as the matrix below it. Add a row when a primitive starts
-depending on a new platform feature, fill in `degrade` — "what happens when
-this is missing" is the column that makes the page worth having — and list the
+depending on a new platform feature, fill in `degrade`, because "what happens
+when this is missing" is the column that makes the page worth having, and list the
 row under the components that use it, as `requires` if they stop working
 without it and `enhances` if they only get worse. The **Here** column is
 feature-detected in the reader's own browser by an inline script. See *The
@@ -183,7 +184,7 @@ A reference page without a demo is a claim without evidence. To add one:
 2. Put `<!-- demo: <name> -->` in the markdown where it should appear.
 3. Add `['<name>.html', '<name>']` to `PAGES` in `tests/docs.spec.ts`.
 
-That is the whole workflow — the registry is built from the filesystem by a glob
+That is the whole workflow. The registry is built from the filesystem by a glob
 in `demos/main.tsx`, so there is nothing to register by hand.
 
 > A comment rather than a fence, so the markdown still reads as markdown in the
@@ -193,7 +194,7 @@ in `demos/main.tsx`, so there is nothing to register by hand.
 > disagree.
 
 The build fails if a page names a demo with no file, **and** if a demo file no
-page names. Both are the same failure — something that looks finished and does
+page names. Both are the same failure: something that looks finished and does
 nothing.
 
 Demos are typechecked and linted like everything else, and `npm run verify`
@@ -225,7 +226,7 @@ around it.
 | feature names, what uses them, what breaks without them, the component map, the eras | every version number, every release date, Baseline status and dates |
 
 The generator reads `@mdn/browser-compat-data` and `web-features`. Both are
-devDependencies and neither is needed to build the site — the output is
-committed — so run it when a browser ships something and commit what it
+devDependencies and neither is needed to build the site, because the output is
+committed, so run it when a browser ships something and commit what it
 produces. The table and the timeline read that one file, which is what stops
 the page from disagreeing with itself.

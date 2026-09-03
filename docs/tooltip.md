@@ -1,7 +1,7 @@
 # Tooltip and HoverCard
 
 Both are hover-and-focus intent over an anchored popover, and both are one
-implementation — they differ in their delays, in whether the content is
+implementation. They differ in their delays, in whether the content is
 hoverable, and in whether the thing is a label or a region.
 
 ```tsx
@@ -13,8 +13,8 @@ import { Tooltip, HoverCard } from '@apostel/bedrock'
 ## The honest part
 
 The panel, its stacking, its dismissal and its positioning are the platform's.
-**The intent timers are not.** `interestfor` — the attribute that would make
-this declarative — shipped in Chrome 142 and nowhere else, and is still not on
+**The intent timers are not.** `interestfor`, the attribute that would make this
+declarative, shipped in Chrome 142 and nowhere else, and is still not on
 a standards track, so `src/interest.ts` handles pointer in, pointer out, focus,
 blur and the long press for everyone.
 
@@ -22,7 +22,7 @@ It is written as a fallback rather than as a feature: when the attribute ships,
 `useInterest` stops attaching anything and the same props become declarative.
 Nothing above it changes, which is exactly why the prop is called
 `delayDuration` and not `interest-show-delay`. See
-[browser support](./compat.html).
+[browser support](./compat.md).
 
 ## `Tooltip.Root`
 
@@ -34,14 +34,14 @@ Nothing above it changes, which is exactly why the prop is called
 
 ## `HoverCard.Root`
 
-Same, with `openDelay` instead of `delayDuration`, and **hoverable content** —
+Same, with `openDelay` instead of `delayDuration`, and **hoverable content**:
 moving the pointer from the trigger onto the card keeps it open. A tooltip's
 content is not hoverable, because a tooltip is a label and there is nothing in
 it to reach.
 
 ## `Trigger`
 
-Renders `<button>`, or whatever you pass with `asChild` — a HoverCard trigger is
+Renders `<button>`, or whatever you pass with `asChild`. A HoverCard trigger is
 usually an `<a>`, which is the point of link previews.
 
 > `aria-describedby` points at the content: a tooltip **describes** its trigger
@@ -55,7 +55,7 @@ Renders `<div popover data-bedrock-tooltip>` and takes `side`, `align`,
 
 Tooltip content uses `popover="hint"` where the browser supports it, so it
 layers above an open menu instead of closing it. Where it does not, it falls
-back to `auto` — opening a tooltip then closes an open menu, which is wrong but
+back to `auto`, so opening a tooltip closes an open menu, which is wrong but
 not broken.
 
 Children mount only while open.
@@ -68,7 +68,7 @@ Children mount only while open.
 | blur      | Closes.                                                 |
 | `Escape`  | Closes.                                                 |
 
-Focus opens it where the browser calls that focus visible — `:focus-visible`,
+Focus opens it where the browser calls that focus visible: `:focus-visible`,
 asked of the trigger itself. Tapping a control focuses it on Android, and a
 tooltip that appears because you tapped the button is a tooltip nobody asked
 for.
@@ -88,7 +88,7 @@ is specified to answer where the platform runs intent itself.
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | tap               | Nothing opens. The trigger's `onClick` runs, a link follows.                                                             |
 | press, then lift  | Opens, and stays open. The click the lift produces is swallowed, so pressing a link previews it instead of following it. |
-| press, then drag  | Nothing opens — past about 10px the finger is scrolling.                                                                 |
+| press, then drag  | Nothing opens; past about 10px the finger is scrolling.                                                                 |
 | tap anywhere else | Closes. Light dismiss is the popover's, not ours.                                                                        |
 
 On iPhone, "force touch" is a long press: 3D Touch was replaced by Haptic Touch
@@ -100,11 +100,11 @@ Chrome 142 and later run `interestfor`, and there the press, the panel and its
 dismissal are the browser's: it opens the panel while you hold and takes it away
 when you lift. One half stays ours. The lift produces a click that the browser
 lets through, so without us a long press on a hover card link would preview it
-**and** follow it — so the press is tracked either way, and a click that ends a
+**and** follow it. The press is tracked either way, and a click that ends a
 press which opened the panel is swallowed. Everything else in the table above is
 the JavaScript path, which is what every WebKit engine takes, iOS included.
 
-Two platform gestures compete for that hold, and the trigger takes both off —
+Two platform gestures compete for that hold, and the trigger takes both off,
 but only where the JavaScript path is running, because a browser doing intent
 itself owns the conflict too:
 
@@ -121,6 +121,6 @@ it is a control with a description, not a tooltip.
 
 - **A shared provider with a global "skip delay" window.** Radix opens
   subsequent tooltips instantly once one has opened. Not implemented; each root
-  keeps its own timers. See [gaps](./should-you-switch.md).
+  keeps its own timers. See [should you switch?](./should-you-switch.md).
 - **A tap that opens anything.** See [touch](#touch): the gesture is a press,
   and a tap stays a tap.

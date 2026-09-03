@@ -5,7 +5,7 @@ panel by the parser, the browser moves it, and React is told afterwards. You do
 not wire anything up to make that work, and most components never need this
 page.
 
-Reach for it when React has to **refuse** a move — a dialog that will not close
+Reach for it when React has to **refuse** a move: a dialog that will not close
 over an unsaved form, a popover whose open state lives in a URL.
 
 ## Two entry points
@@ -19,7 +19,13 @@ import { Popover } from '@apostel/bedrock'
 ```
 
 That covers *tell me when it closed*, which is the case most often mistaken for
-needing control. If you need a veto, change the import line:
+needing control. Both dialogs below run the same `onOpenChange`, declining every
+close while the box is ticked. The import line is the only difference between
+them:
+
+<!-- demo: refusal -->
+
+If you need a veto, change the import line:
 
 ```tsx
 import { Popover } from '@apostel/bedrock/controlled'
@@ -32,18 +38,18 @@ nothing inside the root changes when you switch.
 
 | root         | `open`                    | `defaultOpen`        | `onOpenChange`             |
 | ------------ | ------------------------- | -------------------- | -------------------------- |
-| default      | —                         | read once, on mount, where the primitive has one | reports; cannot refuse     |
-| `/controlled`| required; decides         | —                    | fires whether or not you accept |
+| default      | not accepted              | read once, on mount, where the primitive has one | reports; cannot refuse     |
+| `/controlled`| required; decides         | not accepted         | fires whether or not you accept |
 
 Not every primitive has both roots: `Popover` has no `defaultOpen` at all
 (a popover cannot be shown before its element is connected), and the value-based
-ones — `Tabs`, `Accordion`, `Checkbox`, `RadioGroup`, `Toggle` — control a
+ones (`Tabs`, `Accordion`, `Checkbox`, `RadioGroup`, `Toggle`) control a
 `value` or `checked` rather than an `open`. Each primitive's own page says which
 it takes.
 
 > The two entry points are separate module graphs. If nothing in your app
-> imports `/controlled`, none of the reconciliation code is in your bundle —
-> that is the `exports` map, checked in CI by `npm run lint:graph`, not a
+> imports `/controlled`, none of the reconciliation code is in your bundle. That
+> is the `exports` map, checked in CI by `npm run lint:graph`, not a
 > tree-shaking hope.
 
 ## What `open` means
@@ -57,14 +63,14 @@ Not *React owns the state*. **The DOM leads and React vetoes:**
 
 Step 1 is what makes a refusal invisible, and not every element offers it. Where
 it is missing, step 3 is the whole mechanism: the DOM moves, you refuse, and it
-goes back — one frame of visible movement, **in the refusal case only**. That is
+goes back: one frame of visible movement, **in the refusal case only**. That is
 not fixed with `flushSync`, and it is per element rather than per component:
 
 | built on              | cancelable hook                              | a refusal is…                       |
 | --------------------- | -------------------------------------------- | ----------------------------------- |
-| `popover` — Popover, DropdownMenu, Tooltip, HoverCard | `beforetoggle`, both directions | invisible; nothing moves |
-| `<dialog>` — Dialog, AlertDialog | `beforetoggle` opening, `cancel` closing | invisible; nothing moves            |
-| `<details>` — Collapsible, Accordion | none                           | one frame of movement, then back    |
+| `popover`: Popover, DropdownMenu, Tooltip, HoverCard | `beforetoggle`, both directions | invisible; nothing moves |
+| `<dialog>`: Dialog, AlertDialog | `beforetoggle` opening, `cancel` closing | invisible; nothing moves            |
+| `<details>`: Collapsible, Accordion | none                           | [not delivered today](./known-gaps.md#wrong-or-overstated): it stays where the browser put it |
 
 Refusing a close reads the same everywhere:
 

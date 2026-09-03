@@ -2,8 +2,8 @@
 
 `Avatar`, `Progress`, `Separator`, `AspectRatio`, `ScrollArea`,
 `AccessibleIcon` and `VisuallyHidden`. Each is one element with the right
-semantics, and between them they cost almost nothing — there is almost no code
-to ship.
+semantics, and between them they cost almost nothing, because there is almost no
+code to ship.
 
 ```tsx
 import { Avatar, Progress, Separator, AspectRatio, ScrollArea } from '@apostel/bedrock'
@@ -15,7 +15,7 @@ import { Avatar, Progress, Separator, AspectRatio, ScrollArea } from '@apostel/b
 
 | part       | renders   | notes                                              |
 | ---------- | --------- | -------------------------------------------------- |
-| `Root`     | `<span>`  | —                                                  |
+| `Root`     | `<span>`  |                                                    |
 | `Image`    | `<img>`   | Hides itself on `error`.                            |
 | `Fallback` | `<span>`  | Shown until the image loads, hidden once it does.   |
 
@@ -32,7 +32,7 @@ Renders `<progress data-bedrock-progress>`.
 | `value` | `number` | Omit it entirely for indeterminate.       |
 | `max`   | `number` | Default `1`, as the element's own default. |
 
-`Progress.Indicator` renders nothing — a `<progress>` has no children. Style
+`Progress.Indicator` renders nothing, because a `<progress>` has no children. Style
 `::-webkit-progress-value` and `::-moz-progress-bar`.
 
 Indeterminate is the absence of `value`, which is the element's own rule rather
@@ -66,11 +66,11 @@ property, supported everywhere, in one element.
 
 | part        | renders  | notes                                             |
 | ----------- | -------- | ------------------------------------------------- |
-| `Root`      | `<div>`  | —                                                 |
+| `Root`      | `<div>`  |                                                   |
 | `Viewport`  | `<div>`  | `overflow: auto`. The browser scrolls it.          |
 | `Scrollbar` | `<div>`  | Styling hook; the scrollbar itself is the UA's.    |
-| `Thumb`     | —        | Renders nothing.                                   |
-| `Corner`    | —        | Renders nothing.                                   |
+| `Thumb`     | nothing  | Style the UA scrollbar instead.                     |
+| `Corner`    | nothing  | Style the UA scrollbar instead.                     |
 
 Scrolling is native, so the keyboard, the wheel, trackpad momentum, and the
 reader's own "always show scrollbars" preference all work. Style the bar with
@@ -78,7 +78,7 @@ reader's own "always show scrollbars" preference all work. Style the bar with
 
 Radix renders custom scrollbars in JavaScript, which is how it can guarantee
 identical bars everywhere; the cost is momentum, accessibility settings and
-about 12 kB. This is the trade named plainly in [gaps](./should-you-switch.md).
+about 12 kB. This is the trade named plainly in [should you switch?](./should-you-switch.md).
 
 ## `AccessibleIcon`
 
@@ -94,7 +94,7 @@ using [`VisuallyHidden`](#visuallyhidden) internally.
 ## `VisuallyHidden`
 
 Renders one `<span>` with the clip-path pattern: invisible on screen, still in
-the accessibility tree, and still focusable if it holds a control — which is how
+the accessibility tree, and still focusable if it holds a control, which is how
 "skip to content" links work.
 
 `VISUALLY_HIDDEN` is exported as a plain style object if you want the same

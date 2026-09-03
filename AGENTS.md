@@ -111,9 +111,15 @@ Sequence:
 3. An effect on `open` reconciles the DOM when the prop changes without user
    interaction.
 
-Where step 1 is unavailable, step 3 is the whole mechanism and there is one
-frame of visible movement in the refusal case. Accepted tradeoff. Do not add a
-synchronous re-render or a `flushSync` to avoid it.
+Where step 1 is unavailable there is no veto, only a report. `<details>` —
+Collapsible, Accordion — fires no `beforetoggle` and no `cancel`, so the
+disclosure has already moved by the time anyone is told, and step 3 does not
+stand in for it: it is keyed on the prop, and declining is exactly the case
+where the prop does not change. Say *reports* rather than *refuses* for those
+two. Do not reach for it with a revert, a synchronous re-render or a
+`flushSync`: the revert is a visible flicker, and `toggle` is asynchronous, so
+an accept that has not re-rendered yet cannot be told from a refusal. Recorded
+in `docs/known-gaps.md` and pinned by `tests/controlled.spec.ts`.
 
 ### Read-only `onOpenChange` on the plain root
 

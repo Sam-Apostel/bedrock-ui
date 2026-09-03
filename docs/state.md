@@ -62,17 +62,34 @@ Not *React owns the state*. **The DOM leads and React vetoes:**
 3. If `open` changes without user interaction, an effect moves the DOM to match.
 
 Step 1 is what makes a refusal invisible, and not every element offers it. Where
-it is missing, step 3 is the whole mechanism: the DOM moves, you refuse, and it
-goes back: one frame of visible movement, **in the refusal case only**. That is
-not fixed with `flushSync`, and it is per element rather than per component:
+it is missing there is no refusal at all: the DOM moves, `onOpenChange` tells you
+it moved, and it stays moved. Step 3 does not stand in for it — it is keyed on
+the prop, and declining is exactly the case where the prop does not change.
+Which of the two you get is per element rather than per component:
 
 | built on              | cancelable hook                              | a refusal is…                       |
 | --------------------- | -------------------------------------------- | ----------------------------------- |
 | `popover`: Popover, DropdownMenu, Tooltip, HoverCard | `beforetoggle`, both directions | invisible; nothing moves |
 | `<dialog>`: Dialog, AlertDialog | `beforetoggle` opening, `cancel` closing | invisible; nothing moves            |
-| `<details>`: Collapsible, Accordion | none                           | [not delivered today](./known-gaps.md#wrong-or-overstated): it stays where the browser put it |
+| `<details>`: Collapsible, Accordion | none                           | [not possible](./known-gaps.md#missing-behaviour): it stays where the browser put it, and `open` disagrees until you change it |
 
-Refusing a close reads the same everywhere:
+So on a `<details>`-backed primitive, treat `/controlled` as one-way: change
+`open` and the disclosure follows, but do not write a guard in `onOpenChange`
+and expect it to hold. The veto you want is on the trigger's click, where the
+toggle is still the default action and is still cancelable:
+
+```tsx
+<Collapsible.Trigger
+  onClick={(event) => {
+    if (form.isDirty) event.preventDefault()  // the disclosure never moves
+  }}
+>
+```
+
+That works for pointer and keyboard alike, because Enter and Space on a
+`<summary>` dispatch the same click.
+
+On the elements that do have a hook, refusing a close reads the same:
 
 ```tsx
 <Dialog.Root

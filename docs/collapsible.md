@@ -4,7 +4,7 @@ One disclosure, rendered as `<details>`.
 
 ```tsx
 import { Collapsible } from '@apostel/bedrock'
-// or, for a veto: import { Collapsible } from '@apostel/bedrock/controlled'
+// or, to drive it from React: import { Collapsible } from '@apostel/bedrock/controlled'
 ```
 
 <!-- demo: collapsible -->
@@ -28,8 +28,10 @@ Renders `<details data-bedrock-collapsible>`.
 | `onOpenChange` | `(open: boolean) => void` | Reports; cannot refuse.                 |
 | `asChild`      | `boolean`                 | The child must render a `<details>`.    |
 
-For an `open` prop React can refuse with, import from
-`@apostel/bedrock/controlled`. See [controlled state](./state.md).
+For an `open` prop React drives, import from `@apostel/bedrock/controlled`.
+That direction only: `<details>` has no cancelable hook, so `onOpenChange`
+cannot decline a toggle there either. To stop one, `preventDefault()` the
+Trigger's click. Both are on [controlled state](./state.md).
 
 > `open` is read on the first render only. React writes a DOM property when the
 > value it renders changes, so reading it once means the user's own toggling is

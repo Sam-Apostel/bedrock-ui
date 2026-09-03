@@ -9,14 +9,17 @@ export interface ControlledCollapsibleRootProps
   extends Omit<ComponentPropsWithRef<'details'>, 'open'>, ControlledRootProps, AsChildProps {}
 
 /**
- * `<details>` exposes no cancelable hook — no `beforetoggle`, no `cancel` — so
- * unlike Dialog this root cannot refuse before the fact. It lets the disclosure
- * move, reports it, and puts it back if you decline: one frame of visible
- * movement, in the refusal case only.
+ * `<details>` exposes no cancelable hook — no `beforetoggle`, no `cancel`, only
+ * a `toggle` once the disclosure has already moved — so unlike Dialog this root
+ * cannot refuse. Control here runs one way: change `open` and the DOM follows.
+ * Declining a toggle is heard and nothing more, and the disclosure is left
+ * where the user put it. It is a documented gap, not a bug in this file; the
+ * reasoning is in `create-controlled-root.ts` and docs/known-gaps.md.
  *
- * That is the documented fallback rather than a shortcoming of this primitive,
- * and it is why the veto is worth having on Dialog and Popover, where the
- * platform does give a cancelable event.
+ * A consumer who genuinely needs a veto has one, and it isn't this root:
+ * `preventDefault()` on the Trigger's click stops the toggle before it happens,
+ * for pointer and keyboard alike, because a `<summary>` toggles its parent as
+ * that click's default action.
  */
 export function CollapsibleRoot({
   asChild,

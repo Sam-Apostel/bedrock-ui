@@ -16,6 +16,7 @@ is a decision, and the reason is in the last column.
 | **Slider takes one value** | No two-thumb range. | A range input has one thumb. Two thumbs is two inputs sharing a track: a different component, not a prop. |
 | **Toast has no swipe-to-dismiss** | Pointer-gesture dismissal. | No native equivalent. Left out rather than half-implemented. |
 | **Accordion cannot refuse to close** | Radix's `collapsible={false}`, where the open item stays open until another is chosen. | `type="single"` is `<details name>`, and a `<summary>` toggles. No native equivalent. |
+| **A controlled `<details>` cannot refuse** | Under `/controlled`, Collapsible and Accordion report a toggle they cannot decline. Returning early from `onOpenChange` leaves the disclosure where the user put it, with `open` (or `value`) disagreeing until something else changes it. | `<details>` fires no `beforetoggle` and no `cancel`, only a `toggle` after the fact, so there is no decision to take part in. Reverting afterwards was the stated intent for a while and three comments promised it; it was never delivered, and it is not worth delivering: it would be a visible flicker, and `toggle` is dispatched asynchronously, so an accept that has not re-rendered yet is indistinguishable from a refusal. The veto that does work is `preventDefault()` on the trigger's click, which [controlled state](./state.md) shows. |
 | **No missing-`Title` warning** | Radix's development warning that a dialog has no accessible name. | `aria-labelledby` is only written when a `Title` is rendered, so the reference can no longer dangle, but nothing tells you the name is absent. |
 | **`id` on `Dialog.Content` is not forwarded** | Passing one is silently ignored. | The trigger's `commandfor` points at it. The one exception to "every part forwards `id`". |
 
@@ -24,7 +25,6 @@ is a decision, and the reason is in the last column.
 | Where | The problem |
 | --- | --- |
 | `validate-trigger.ts` | Its message says a non-button trigger costs you "implicit `aria-expanded`". Measured: a popover invoker gets that from the platform, a dialog invoker does not, because `Dialog.Trigger` writes it by hand. Right for Popover and Tooltip, wrong for the primitive most people hit it on. |
-| `create-controlled-root.ts`, and [controlled state](./state.md) with it | Three places promise that refusing a close on `<details>` costs "one frame of visible movement, then back". Measured: it does not come back. The reconciling effect is keyed on `[node, open, adapter]`, and a refusal is precisely the case where none of the three changes, so the effect never re-runs and a refused Collapsible or Accordion is left closed with `open` still `true`. Nothing in `tests/controlled.spec.ts` covers the `<details>` refusal path, which is how it got this far. The cancelable elements are unaffected: Dialog, AlertDialog and every popover-backed primitive refuse before anything moves, and there is a demo of that on [controlled state](./state.md). |
 
 ## Thin coverage
 

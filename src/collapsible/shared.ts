@@ -12,8 +12,9 @@ export function useCollapsibleContext(part: string): RootContextValue {
 /**
  * `<details>` has no invoker and needs none: `<summary>` is the trigger, wired
  * to its parent by the parser. There is also no cancelable hook — no
- * `beforetoggle`, no `cancel` — so a controlled Collapsible refuses by moving
- * the DOM back, which is one frame of visible movement in the refusal case.
+ * `beforetoggle`, no `cancel` — so a controlled Collapsible cannot refuse a
+ * toggle at all. These two calls only ever run from reconciliation, after the
+ * `open` prop itself changed; nothing here ever undoes something the user did.
  */
 export const collapsibleAdapter: OpenStateAdapter = {
   isOpen: (node) => (node as HTMLDetailsElement).open,

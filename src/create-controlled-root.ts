@@ -26,10 +26,18 @@ export interface ControlledRootProps {
  *   3. An effect on `open` reconciles the DOM whenever the prop changes without
  *      user interaction.
  *
- * Where step 1 isn't available, step 3 is the whole mechanism: the DOM moves,
- * we report, and if the consumer refuses we put it back. That's one frame of
- * visible movement, in the refusal case only. Worth knowing; not worth a
- * synchronous re-render to avoid.
+ * Where step 1 isn't available there is no veto, only a report. `<details>` is
+ * the case: no `beforetoggle`, no `cancel`, just a `toggle` once the disclosure
+ * has already moved. Step 3 does not stand in for it, because step 3 is keyed
+ * on the prop and a refusal is exactly the case where the prop does not change.
+ * So a declined toggle on a `<details>`-backed primitive stays where the user
+ * put it, with `open` disagreeing until something else moves it.
+ *
+ * That is the documented gap rather than a bug to fix here — see
+ * docs/known-gaps.md. Reverting afterwards would be a visible flicker, and the
+ * accept path could not be told from the refusal path reliably: `toggle` is
+ * dispatched asynchronously, so a consumer who accepts has not necessarily
+ * re-rendered by the time we would have to decide.
  */
 export function useControlledRoot(
   { open, onOpenChange }: ControlledRootProps,
@@ -60,7 +68,9 @@ export function useControlledRoot(
       changeRef.current?.(next)
     }
 
-    // Only reached when beforetoggle couldn't be canceled.
+    // Reached when `beforetoggle` couldn't be canceled, or — `<details>` —
+    // never fired at all. The move has happened; reporting it is all that is
+    // left, and the consumer's answer cannot change it.
     const onToggle = (event: Event) => {
       const next = (event as ToggleEvent).newState === 'open'
       if (next !== openRef.current) changeRef.current?.(next)

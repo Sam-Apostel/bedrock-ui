@@ -1,6 +1,9 @@
 import { Component, useCallback, useEffect, useState, type ReactNode } from 'react'
-import { Dialog } from '../../src/index'
-import { Dialog as ControlledDialog } from '../../src/controlled'
+import { Collapsible, Dialog } from '../../src/index'
+import {
+  Collapsible as ControlledCollapsible,
+  Dialog as ControlledDialog,
+} from '../../src/controlled'
 import { PARITY_CASES } from './parity'
 import { MENU_CASES } from './menus'
 import { REST_CASES } from './rest'
@@ -94,6 +97,62 @@ function ControlledRefuseClose() {
       </ControlledDialog.Content>
       <Log entries={entries} />
     </ControlledDialog.Root>
+  )
+}
+
+/**
+ * The `<details>` half of controlled mode, which is a different bargain from
+ * the dialog cases above: there is no cancelable hook, so `open` moves the
+ * disclosure but `onOpenChange` cannot decline one.
+ */
+function ControlledDisclosure({ refuse = false }: { refuse?: boolean }) {
+  const [open, setOpen] = useState(true)
+  const [entries, setEntries] = useState<string[]>([])
+
+  return (
+    <>
+      <ControlledCollapsible.Root
+        open={open}
+        onOpenChange={(next) => {
+          setEntries((e) => [...e, String(next)])
+          if (refuse) return
+          setOpen(next)
+        }}
+      >
+        <ControlledCollapsible.Trigger data-testid="trigger">
+          Show more
+        </ControlledCollapsible.Trigger>
+        <ControlledCollapsible.Content>
+          <p data-testid="body">The rest of it.</p>
+        </ControlledCollapsible.Content>
+      </ControlledCollapsible.Root>
+      <Log entries={entries} />
+      <button type="button" data-testid="close-from-react" onClick={() => setOpen(false)}>
+        Close from React
+      </button>
+    </>
+  )
+}
+
+/**
+ * The veto that does work on a `<details>`: the toggle is the click's default
+ * action, so preventing it means the disclosure never moves in the first place.
+ */
+function CollapsibleTriggerVeto() {
+  const [entries, setEntries] = useState<string[]>([])
+
+  return (
+    <>
+      <Collapsible.Root onOpenChange={(next) => setEntries((e) => [...e, String(next)])}>
+        <Collapsible.Trigger data-testid="trigger" onClick={(event) => event.preventDefault()}>
+          Show more
+        </Collapsible.Trigger>
+        <Collapsible.Content>
+          <p data-testid="body">The rest of it.</p>
+        </Collapsible.Content>
+      </Collapsible.Root>
+      <Log entries={entries} />
+    </>
   )
 }
 
@@ -217,6 +276,9 @@ export const CASES: Record<string, ReactNode> = {
   'controlled-accept': <ControlledAccept />,
   'controlled-refuse-open': <ControlledRefuseOpen />,
   'controlled-refuse-close': <ControlledRefuseClose />,
+  'controlled-collapsible': <ControlledDisclosure />,
+  'controlled-collapsible-refuse': <ControlledDisclosure refuse />,
+  'collapsible-trigger-veto': <CollapsibleTriggerVeto />,
   aschild: <AsChild />,
   'non-button-trigger': <NonButtonTrigger />,
   'submit-trigger': <SubmitTrigger />,

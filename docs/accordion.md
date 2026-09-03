@@ -40,7 +40,9 @@ toggles. Radix's `collapsible={false}` has no native equivalent and is not
 offered. See [migration](./migration-from-radix.md).
 
 There is no `value` prop here. For a controlled accordion, import from
-`@apostel/bedrock/controlled`.
+`@apostel/bedrock/controlled` — which drives the items from React but, `<details>`
+having no cancelable hook, still cannot decline a toggle the user makes. See
+[controlled state](./state.md).
 
 ## `Accordion.Item`
 

@@ -118,6 +118,12 @@ those, move to the controlled import:
 Everything else keeps the smaller bundle. A handler that just resets a form or
 fires analytics is served by the default root.
 
+The controlled import buys a veto only where the element gives the platform a
+cancelable hook. Collapsible and Accordion are `<details>`, which gives none, so
+a guard there has to be `preventDefault()` on the Trigger's click instead — the
+toggle is that click's default action. Flag it rather than swapping the import
+and assuming it holds.
+
 ### Closed content is unmounted
 
 This is usually a *win* — a form inside a dialog resets itself, and any
@@ -132,9 +138,11 @@ dialog.
 
 Only what actually differs. Everything not listed is a straight swap.
 
-- **Accordion** — `type="single"` is `<details name>`, so an open item can
-  always be closed; Radix's `collapsible={false}` has no equivalent. `Header`
-  renders the `<summary>` and `Trigger` sits inside it.
+- **Accordion, Collapsible** — `<details>`. For Accordion, `type="single"` is
+  `<details name>`, so an open item can always be closed; Radix's
+  `collapsible={false}` has no equivalent, and `Header` renders the `<summary>`
+  with `Trigger` inside it. Neither can refuse a toggle, under either import:
+  see above.
 - **Checkbox, Switch, RadioGroup, Slider, Progress** — real elements, so
   `Indicator`, `Thumb`, `Track` and `Range` render nothing. Their styles move to
   `::before`, `::-webkit-slider-thumb`, `::-webkit-progress-value`. Watch for

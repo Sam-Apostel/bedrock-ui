@@ -30,8 +30,11 @@ function toArray(value: string | string[]): string[] {
  * Items publish their value as a data attribute; nothing about that costs the
  * plain root anything.
  *
- * `<details>` has no cancelable toggle, so this cannot refuse before the fact:
- * the disclosure moves, you are told, and it moves back if you decline.
+ * `<details>` has no cancelable toggle, so this cannot refuse: the disclosure
+ * moves, you are told, and it stays moved. The walk below runs when `value`
+ * changes, and declining means leaving `value` alone — so a declined item is
+ * left disagreeing with the prop. Same gap as Collapsible, same reasoning, in
+ * `create-controlled-root.ts` and docs/known-gaps.md.
  */
 export function AccordionRoot({
   asChild,

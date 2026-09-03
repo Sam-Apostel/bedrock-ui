@@ -37,12 +37,17 @@ function RefusedPopover() {
 }
 
 function TooltipCase() {
+  const [clicks, setClicks] = useState(0)
+
   return (
     <div style={{ padding: 100 }}>
       <Tooltip.Root delayDuration={50} closeDelay={20}>
-        <Tooltip.Trigger data-testid="trigger">Save</Tooltip.Trigger>
+        <Tooltip.Trigger data-testid="trigger" onClick={() => setClicks((n) => n + 1)}>
+          Save
+        </Tooltip.Trigger>
         <Tooltip.Content data-testid="content">Saves your work</Tooltip.Content>
       </Tooltip.Root>
+      <output data-testid="clicks">{clicks}</output>
     </div>
   )
 }
@@ -52,7 +57,7 @@ function HoverCardCase() {
     <div style={{ padding: 100 }}>
       <HoverCard.Root openDelay={50} closeDelay={200}>
         <HoverCard.Trigger asChild data-testid="trigger">
-          <a href="/pricing">Pricing</a>
+          <a href="/?case=pricing">Pricing</a>
         </HoverCard.Trigger>
         <HoverCard.Content data-testid="content">
           <a href="/plans" data-testid="inner-link">

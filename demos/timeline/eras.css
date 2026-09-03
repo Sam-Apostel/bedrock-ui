@@ -196,9 +196,29 @@
   opacity: 0.7;
 }
 
+/*
+ * `base-select` leaves the select with a box of its own — a bordered, rounded,
+ * padded frame — and then the trigger inside it gets the era's button
+ * treatment. Two borders around one control, one of them nobody asked for.
+ * The trigger is the control, so the select keeps nothing but its font.
+ */
 .tl .t-select {
   font: inherit;
   font-size: 0.82rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+/* The arrow belongs inside the button with the label, and is drawn there. */
+.tl .t-select::picker-icon {
+  display: none;
+}
+
+.tl .t-caret {
+  font-size: 0.7em;
+  opacity: 0.8;
 }
 
 /*
@@ -461,6 +481,8 @@
 .tl[data-era='neumorphic'] {
   color-scheme: light;
 
+  --e-frame-radius: 24px;
+
   --e-ground: #e0e5ec;
   --e-ink: #4a5568;
   --e-tile-ink: #4a5568;
@@ -508,6 +530,9 @@
 
 .tl[data-era='glass'] {
   color-scheme: dark;
+
+  --e-frame: 1px solid rgb(255 255 255 / 0.2);
+  --e-frame-radius: 20px;
 
   --e-ground:
     radial-gradient(60rem 30rem at 15% -10%, #6d3bff 0%, transparent 60%),
@@ -559,6 +584,8 @@
 
 .tl[data-era='brutal'] {
   color-scheme: light;
+
+  --e-frame: 3px solid #111;
 
   --e-ground: #f4f1e8;
   --e-ink: #111;
@@ -615,6 +642,8 @@
  * background at all.
  */
 .tl[data-era='bento'] {
+  --e-frame: 1px solid #e3e0d8;
+  --e-frame-radius: 16px;
   --e-ground: #f4f2ee;
   --e-ink: #101013;
   --e-tile-ink: var(--e-ink);
@@ -652,6 +681,7 @@
 
 @media (prefers-color-scheme: dark) {
   .tl[data-era='bento'] {
+    --e-frame: 1px solid #26262e;
     --e-ground: #0d0d11;
     --e-ink: #ecebe6;
     --e-muted: #90909a;

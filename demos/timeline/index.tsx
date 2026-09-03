@@ -9,13 +9,10 @@ import {
   daysInto,
   featuresOf,
   formatDate,
-  generated,
   moments,
   nearest,
   nowIndex,
   plain,
-  source,
-  sourceVersion,
   years,
   type ComponentState,
   type Engine,
@@ -294,6 +291,25 @@ export default function CompatTimeline() {
 
   return (
     <div className="tl" data-era={moment.era.id} data-ahead={moment.ahead || undefined}>
+      <div className="tl-controls">
+        <button type="button" className="tl-step" onClick={() => move(-1)} disabled={index === 0}>
+          <span aria-hidden="true">←</span>
+          <span className="tl-visually-hidden">Previous moment</span>
+        </button>
+
+        <Scrubber index={index} moment={moment} onChange={setIndex} />
+
+        <button
+          type="button"
+          className="tl-step"
+          onClick={() => move(1)}
+          disabled={index === moments.length - 1}
+        >
+          <span aria-hidden="true">→</span>
+          <span className="tl-visually-hidden">Next moment</span>
+        </button>
+      </div>
+
       <div className="tl-head">
         <time className="tl-when" dateTime={moment.date}>
           {formatDate(moment.date)}
@@ -326,25 +342,6 @@ export default function CompatTimeline() {
         </ul>
       </div>
 
-      <div className="tl-controls">
-        <button type="button" className="tl-step" onClick={() => move(-1)} disabled={index === 0}>
-          <span aria-hidden="true">←</span>
-          <span className="tl-visually-hidden">Previous moment</span>
-        </button>
-
-        <Scrubber index={index} moment={moment} onChange={setIndex} />
-
-        <button
-          type="button"
-          className="tl-step"
-          onClick={() => move(1)}
-          disabled={index === moments.length - 1}
-        >
-          <span aria-hidden="true">→</span>
-          <span className="tl-visually-hidden">Next moment</span>
-        </button>
-      </div>
-
       <div
         className="tl-ready"
         role="progressbar"
@@ -369,12 +366,6 @@ export default function CompatTimeline() {
           <Tile key={state.component.id} state={state} />
         ))}
       </div>
-
-      <p className="tl-source">
-        Versions and dates from <code>{source}</code> {sourceVersion}, generated {generated}.
-        Everything above is that file: the components are the real ones, the styling is the era, and
-        neither knows about the other.
-      </p>
     </div>
   )
 }

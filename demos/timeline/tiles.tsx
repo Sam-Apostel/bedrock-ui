@@ -191,6 +191,9 @@ function SelectTile() {
       <Select.Root className="t-select" value={value} onValueChange={setValue} aria-label="Size">
         <Select.Trigger className="t-btn">
           <Select.Value />
+          <span className="t-caret" aria-hidden="true">
+            ▾
+          </span>
         </Select.Trigger>
         <Select.Item className="t-item" value="small">
           Small

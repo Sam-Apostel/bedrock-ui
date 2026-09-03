@@ -39,6 +39,18 @@
   min-height: 0;
 }
 
+/*
+ * No frame of ours around a widget.
+ *
+ * The compat timeline paints its own ground, so the docs border ran around the
+ * outside of a surface that already had an edge — two frames, one inside the
+ * other, in every era.
+ */
+.demo-widget {
+  border: 0;
+  border-radius: 0;
+}
+
 /* Replaced when the bundle mounts; visible only if it never does. */
 .demo-pending {
   color: var(--muted, #5c5f6b);

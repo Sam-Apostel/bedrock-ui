@@ -24,6 +24,8 @@ export function TooltipRoot({
     hideDelay: closeDelay,
     // A tooltip is a label, not somewhere to move the pointer.
     hoverableContent: false,
+    // A tooltip is a peek: it ends when the finger does.
+    pressHolds: false,
     // `hint` layers above an open menu rather than closing it.
     kind: 'hint',
     role: 'tooltip',

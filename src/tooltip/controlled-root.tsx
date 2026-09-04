@@ -20,6 +20,8 @@ export function TooltipRoot({
     showDelay: delayDuration,
     hideDelay: closeDelay,
     hoverableContent: false,
+    // A tooltip is a peek: it ends when the finger does.
+    pressHolds: false,
     kind: 'hint',
     role: 'tooltip',
   })

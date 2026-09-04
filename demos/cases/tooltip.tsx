@@ -10,8 +10,9 @@ import { HoverCard, Tooltip } from '../../src/index'
  * props become declarative and nothing above this changes — which is why the
  * prop is `delayDuration` and not `interest-show-delay`.
  *
- * On a phone, hold either one for half a second. A tap is still a tap: the
- * button activates and the link follows.
+ * On a phone, hold either one. The tooltip is held up while you press and goes
+ * when you let go; the card stays, because it is somewhere to go. A tap is
+ * still a tap: the button activates and the link follows.
  */
 export default function TooltipDemo() {
   return (

@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef, ElementType } from 'react'
+import { isValidElement, useCallback, type ComponentPropsWithRef, type ElementType } from 'react'
 import { placementStyles, type Align, type Side } from '../anchor'
 import { useClientRender } from '../client-render'
 import { useComposedRefs } from '../compose-refs'
@@ -8,6 +8,26 @@ import { validateTrigger } from '../validate-trigger'
 import { useTooltipContext } from './shared'
 
 export interface TooltipTriggerProps extends ComponentPropsWithRef<'button'>, AsChildProps {}
+
+/**
+ * Whether tapping this trigger would do anything a press has to be careful of.
+ *
+ * A handler is not an attribute, so the DOM cannot answer this and the ref
+ * callback in `interest.ts` cannot either — it only sees links and submit
+ * buttons. Here the props are still props: the trigger's own, and under
+ * `asChild` the child's, which `Slot` will chain into the same element.
+ *
+ * Wrong in one direction only, and deliberately: a component that binds its own
+ * handler out of sight reads as inert, and gets the shorter press. The cost is
+ * a preview where a tap was meant, on a hold already past a tap's length.
+ */
+function activatesOnTap(asChild: boolean | undefined, props: TooltipTriggerProps): boolean {
+  if (props.onClick) return true
+  if (!asChild) return false
+
+  const child = props.children
+  return isValidElement<{ onClick?: unknown }>(child) && Boolean(child.props.onClick)
+}
 
 /**
  * Buttons *and* anchors, unlike every other trigger in this library: an
@@ -29,6 +49,12 @@ export function TooltipTrigger({ asChild, ref, style, ...props }: TooltipTrigger
   const { id, anchor, native, registerTrigger } = useTooltipContext('Tooltip.Trigger')
   const Part: ElementType = asChild ? Slot : 'button'
 
+  const activates = activatesOnTap(asChild, props)
+  const register = useCallback(
+    (node: HTMLElement | null) => registerTrigger(node, activates),
+    [registerTrigger, activates],
+  )
+
   return (
     <Part
       {...props}
@@ -42,7 +68,7 @@ export function TooltipTrigger({ asChild, ref, style, ...props }: TooltipTrigger
           ...style,
         } as typeof style
       }
-      ref={useComposedRefs<HTMLElement>(ref, registerTrigger, (node) =>
+      ref={useComposedRefs<HTMLElement>(ref, register, (node) =>
         validateTrigger(node, 'interest', 'Tooltip.Trigger'),
       )}
       data-bedrock-tooltip-trigger=""

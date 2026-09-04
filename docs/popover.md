@@ -45,7 +45,13 @@ onto one-for-one:
 | -------- | ------------------------------------------------------------------ |
 | `auto`   | Light-dismisses, and closes other `auto` popovers when it opens.    |
 | `manual` | Neither. You close it yourself.                                     |
-| `hint`   | Layers above an open menu instead of closing it. See [browser support](./compat.md). |
+| `hint`   | Layers above an open menu instead of closing it, and falls back to `auto` where the engine has no `hint`. See [browser support](./compat.md). |
+
+> The fallback is asked for, not assumed. `popover` is an enumerated attribute
+> whose invalid-value default is **manual**, so writing `hint` at an engine that
+> has never heard of it does not degrade to `auto`: it produces a popover that
+> neither light dismiss nor Escape reaches. `kind="hint"` therefore renders
+> `popover="auto"` on every engine that would not honour it.
 
 There is no `defaultOpen`. A popover cannot be shown before its element is
 connected, and calling `showPopover()` from a mount effect is exactly the class

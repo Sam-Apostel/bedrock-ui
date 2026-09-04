@@ -5,7 +5,8 @@ export interface TooltipContextValue extends RootContextValue {
   anchor: string
   /** Set when the platform can do intent itself; drives the attribute path. */
   native: boolean
-  registerTrigger(node: HTMLElement | null): void
+  /** `activates` is what only React can see: a handler on the trigger. */
+  registerTrigger(node: HTMLElement | null, activates?: boolean): void
   /** Tooltips are labels; hover cards are regions with content. */
   role: 'tooltip' | undefined
   kind: 'hint' | 'auto'

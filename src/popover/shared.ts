@@ -1,7 +1,24 @@
 import { createContext, useContext } from 'react'
+import { useSupportsHintPopovers } from '../capabilities'
 import type { OpenStateAdapter, RootContextValue } from '../types'
 
 export type PopoverKind = 'auto' | 'manual' | 'hint'
+
+/**
+ * The kind the browser will actually honour.
+ *
+ * `popover` is an enumerated attribute whose invalid-value default is
+ * **manual**, so `hint` on an engine that has never heard of it does not
+ * degrade to `auto` — it produces a popover that neither light dismiss nor
+ * Escape reaches, which on a phone is a tooltip you cannot get rid of. Asking
+ * first is what makes the documented fallback the real one.
+ *
+ * Resolved in the roots, so no part ever branches on it.
+ */
+export function usePopoverKind<Kind extends PopoverKind>(kind: Kind): Kind | 'auto' {
+  const hint = useSupportsHintPopovers()
+  return kind === 'hint' && !hint ? 'auto' : kind
+}
 
 export interface PopoverContextValue extends RootContextValue {
   /** The `anchor-name` this instance owns, shared by trigger and content. */

@@ -1,7 +1,7 @@
 import { useCallback, useId, useMemo, useRef, type ReactNode } from 'react'
 import { anchorName } from '../anchor'
 import { useOpenState } from '../open-state'
-import { PopoverContext, type PopoverKind } from './shared'
+import { usePopoverKind, PopoverContext, type PopoverKind } from './shared'
 
 export interface PopoverRootProps {
   children?: ReactNode
@@ -24,9 +24,10 @@ export interface PopoverRootProps {
  * connected, and an imperative `showPopover()` on mount is the sort of thing
  * this library exists to avoid. Use `open` from `/controlled` if you need it.
  */
-export function PopoverRoot({ children, kind = 'auto', onOpenChange }: PopoverRootProps) {
+export function PopoverRoot({ children, kind: asked = 'auto', onOpenChange }: PopoverRootProps) {
   const id = useId()
   const anchor = useMemo(() => anchorName(id), [id])
+  const kind = usePopoverKind(asked)
 
   const changeRef = useRef(onOpenChange)
   changeRef.current = onOpenChange

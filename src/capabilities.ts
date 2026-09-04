@@ -25,7 +25,15 @@ export function supportsAnchorPositioning(): boolean {
   return hasDom && CSS.supports('anchor-name', '--a')
 }
 
-/** `popover=hint`, which layers above an open menu instead of closing it. */
+/**
+ * `popover=hint`, which layers above an open menu instead of closing it.
+ *
+ * Asking is not optional politeness. `popover` is an enumerated attribute whose
+ * invalid-value default is **manual**, so an engine that has never heard of
+ * `hint` does not ignore it and fall back to `auto` — it reads the element as a
+ * popover nothing dismisses. Emitting it unasked costs light dismiss and
+ * Escape on every engine but Chrome.
+ */
 export function supportsHintPopovers(): boolean {
   if (!hasDom) return false
 
@@ -43,4 +51,9 @@ export function supportsHintPopovers(): boolean {
  */
 export function useSupportsInterestInvokers(): boolean {
   return useSyncExternalStore(noopSubscribe, supportsInterestInvokers, () => false)
+}
+
+/** Likewise: the answer decides which attribute value is written. */
+export function useSupportsHintPopovers(): boolean {
+  return useSyncExternalStore(noopSubscribe, supportsHintPopovers, () => false)
 }

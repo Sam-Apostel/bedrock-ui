@@ -1,5 +1,42 @@
 # @apostel/bedrock
 
+## 0.2.1
+
+### Patch Changes
+
+- e14e4c2: Three fixes to press-and-hold on a touch screen, and one to `popover="hint"`
+  that reaches every engine but Chrome.
+  
+  **A tooltip could not be dismissed on Safari, Firefox, or any iOS browser.**
+  `Tooltip.Content` wrote `popover="hint"` unconditionally. `popover` is an
+  enumerated attribute whose invalid-value default is `manual`, so on an engine
+  without `hint` that is not a tooltip that layers badly — it is a tooltip that
+  light dismiss and Escape never reach. It now asks first and writes `auto` where
+  `hint` would not be honoured, which is what the docs already claimed.
+  `Popover.Root`'s `kind` prop resolves the same way.
+  
+  **A tooltip now goes when you lift your finger.** It is a label held up while
+  you press, not somewhere to go. A hover card still stays: it has content to
+  reach into, and tapping elsewhere dismisses it.
+  
+  **The hold is shorter, and depends on the trigger.** It was a flat 500ms. A
+  trigger that does nothing when tapped — an info icon — has no tap to protect and
+  opens after 150ms. One that does something (an `onClick`, a link, a submit
+  button) waits 250ms, just past the length of a tap. Neither is `delayDuration`.
+- 701c675: Correct the documented behaviour of `/controlled` for `<details>`-backed
+  primitives. `Collapsible` and `Accordion` were described as putting the
+  disclosure back if you declined a toggle, "one frame of visible movement, then
+  back". They do not, and never did: `<details>` fires no `beforetoggle` and no
+  `cancel`, so `onOpenChange` is told about a move that has already happened and
+  returning early from it changes nothing.
+  
+  No runtime behaviour changed. If you wrote a guard in `onOpenChange` on a
+  Collapsible or Accordion expecting it to hold, it never did — move it to
+  `preventDefault()` on the Trigger's click, which cancels the toggle before it
+  happens, for pointer and keyboard alike. The other primitives are unaffected:
+  Dialog, AlertDialog and everything popover-backed still refuse before anything
+  moves.
+
 ## 0.2.0
 
 ### Minor Changes
